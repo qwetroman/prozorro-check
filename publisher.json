@@ -11,5 +11,7 @@
   "include_military": true,
   "draft_every_min": 60,
   "hashtags": "#Prozorro",
-  "post_to_x": true
+  "post_to_x": true,
+  "channel_minutes_between_posts": 60,
+  "digest_hour_kyiv": 18
 }
