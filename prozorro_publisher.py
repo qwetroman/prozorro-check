@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""Prozorro -> X (Twitter) publisher with human approval via Telegram.
+"""Публікатор Prozorro -> X (Twitter) зі схваленням людиною через Telegram.
 
-Flow:  monitor DB (prozorro_monitor.py)  ->  draft  ->  Telegram review (Publish / Edit / Reject)
-       ->  approved queue  ->  X (+ optional Telegram channel), respecting daily cap and spacing.
-Nothing is ever posted without an explicit "Publish" tap from an allow-listed Telegram user.
+Схема: БД монітора (prozorro_monitor.py)  ->  чернетка  ->  перевірка в Telegram (Опублікувати / Редагувати / Відхилити)
+       ->  черга схвалених  ->  X (+ необов'язково Telegram-канал), з денним лімітом та інтервалами.
+Нічого не публікується без явного натискання «Опублікувати» користувачем із дозволеного списку Telegram.
 
-Commands
-  draft      pick new strong cases from the monitor DB and send them for review
-  poll       process Telegram button taps / edits once, then publish due approved posts
-  serve      run forever: long-poll Telegram; draft every `draft_every_min` minutes
-  queue      print the queue                     (CLI fallback)
-  approve ID / reject ID                         (CLI fallback, same effect as the buttons)
-  preview    print drafts for the newest candidates without saving or sending anything
+Команди
+  draft      вибрати нові сильні випадки з БД монітора й надіслати на перевірку
+  poll       один раз обробити натискання / правки в Telegram, потім опублікувати схвалене, якщо настав час
+  serve      працювати безперервно: long-poll Telegram; чернетки кожні `draft_every_min` хвилин
+  queue      показати чергу                      (резервний варіант через CLI)
+  approve ID / reject ID                         (резервний варіант через CLI, те саме, що кнопки)
+  preview    показати чернетки для найновіших кандидатів, нічого не зберігаючи й не надсилаючи
 
-Secrets come from environment variables (or a .env file next to this script):
-  TG_BOT_TOKEN, TG_ADMIN_IDS (comma-separated Telegram user ids allowed to approve),
-  TG_REVIEW_CHAT_ID (where drafts are sent; usually your own user id),
-  TG_CHANNEL_ID (optional, e.g. @my_channel -> also publish there),
-  X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET (OAuth 1.0a user context, Read+Write app)
-  Without the X keys, approved posts are sent to you in Telegram as a one-tap link that opens X pre-filled.
-Use --dry-run to print every outgoing request instead of sending it.
+Секрети беруться зі змінних середовища (або з файлу .env поруч зі скриптом):
+  TG_BOT_TOKEN, TG_ADMIN_IDS (id користувачів Telegram через кому, яким дозволено схвалювати),
+  TG_REVIEW_CHAT_ID (куди надсилати чернетки; зазвичай ваш власний id),
+  TG_CHANNEL_ID (необов'язково, напр. @my_channel -> публікувати й там),
+  X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET (OAuth 1.0a від імені користувача, застосунок Read+Write)
+  Без ключів X схвалені дописи надходять вам у Telegram як посилання, що відкриває X із готовим текстом.
+Використовуйте --dry-run, щоб друкувати всі вихідні запити замість надсилання.
 """
 from __future__ import annotations
 
@@ -45,16 +45,16 @@ PORTAL = "https://prozorro.gov.ua/tender/"
 
 CFG = {
     "db_path": "prozorro.db",
-    "min_score": 5,                     # total flag weight a tender needs
-    "min_money_uah": 300_000,           # overpayment / gap / value at stake needed to be "worth a post"
-    "big_money_uah": 2_000_000,         # ...and with this much at stake a lower flag score is enough
-    "lookback_days": 14,                # only consider tenders flagged in this window
+    "min_score": 5,                     # потрібна сумарна вага прапорців тендера
+    "min_money_uah": 300_000,           # переплата / різниця / сума під ризиком, щоб випадок «вартував допису»
+    "big_money_uah": 2_000_000,         # ...а за такої суми під ризиком достатньо меншого балу
+    "lookback_days": 14,                # розглядати лише тендери, позначені за цей період
     "max_drafts_per_run": 5,
     "max_posts_per_day": 5,
     "min_minutes_between_posts": 90,
-    "quiet_hours_kyiv": [23, 8],        # don't publish between 23:00 and 08:00 Kyiv time
-    "military_delay_days": 14,          # military cases wait this long after publication on Prozorro
-    "include_military": True,           # if False, military cases are never drafted
+    "quiet_hours_kyiv": [23, 8],        # не публікувати з 23:00 до 08:00 за київським часом
+    "military_delay_days": 14,          # військові випадки чекають стільки днів після оголошення на Prozorro
+    "include_military": True,           # якщо False, військові випадки ніколи не потрапляють у чернетки
     "draft_every_min": 60,
     "hashtags": "#Prozorro",
 }
@@ -86,7 +86,7 @@ def now():
     return datetime.now(timezone.utc)
 
 
-# ------------------------------------------------------------------ storage
+# ------------------------------------------------------------------ зберігання
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS posts (
   tender_id TEXT PRIMARY KEY, created TEXT, status TEXT, text TEXT, context TEXT,
@@ -111,13 +111,13 @@ def meta(con, k, v=None):
     con.commit()
 
 
-# ------------------------------------------------------------------ candidate selection
+# ------------------------------------------------------------------ вибір кандидатів
 STRONG = {"PRICE_ABOVE_PEERS", "CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED", "REPEAT_WITHDRAWAL_PAIR",
           "SHARED_BIDDER_CONTACTS", "AMCU_COMPLAINT_UPHELD", "BID_AT_ESTIMATE_EXACT"}
 
 
 def price_info(detail):
-    m = re.search(r": ([\d,\.]+) UAH/(.+?) vs median ([\d,\.]+) at (\d+) other buyers \(x([\d\.]+)\); ~([\d,]+) UAH",
+    m = re.search(r": ([\d,\.]+) грн/(.+?) проти медіани ([\d,\.]+) у (\d+) інших замовників \(x([\d\.]+)\); ~([\d,]+) грн",
                   detail or "")
     if not m:
         return None
@@ -144,17 +144,17 @@ def candidates(con, limit=50):
             continue
         if strong == {"BID_AT_ESTIMATE_EXACT"} and not ("SINGLE_BIDDER" in codes and (r["est"] or 0) >= 5e6):
             continue
-        if (r.get("elim_gap_pct") or 0) > 5:            # >500% gap = almost always a bidder's unit error
+        if (r.get("elim_gap_pct") or 0) > 5:            # різниця >500% = майже завжди помилка учасника в одиницях
             codes -= {"CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED"}
         pi = price_info(flags.get("PRICE_ABOVE_PEERS"))
-        # "money at stake": measured overpayment where we have it; otherwise a small share of the value
+        # «сума під ризиком»: виміряна переплата, якщо є; інакше невелика частка вартості
         money = max((r.get("elim_gap") or 0) if codes & {"CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED"} else 0,
                     pi["excess"] if pi else 0,
                     0.05 * (r["est"] or 0) if strong & {"AMCU_COMPLAINT_UPHELD", "SHARED_BIDDER_CONTACTS",
                                                         "REPEAT_WITHDRAWAL_PAIR"} else 0,
                     0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
-            money *= 0.2   # regulated utilities: price at estimate is normal
+            money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
         if money < CFG["min_money_uah"]:
             continue
         if r["score"] < CFG["min_score"] and money < CFG["big_money_uah"]:
@@ -162,14 +162,14 @@ def candidates(con, limit=50):
         if r.get("military") == 1:
             if not CFG["include_military"]:
                 continue
-            pub = r.get("period_start") or r.get("published") or r.get("modified")  # announcement date
+            pub = r.get("period_start") or r.get("published") or r.get("modified")  # дата оголошення
             if pub and datetime.fromisoformat(pub) > now() - timedelta(days=CFG["military_delay_days"]):
                 continue
         r.update(codes=codes, flags=flags, price=pi, money=money)
         out.append(r)
     out.sort(key=lambda r: (-r["money"], -r["score"]))
     seen, uniq = {}, []
-    for r in out:                                        # one post per buyer + subject (lots of the same purchase)
+    for r in out:                                        # один допис на замовника + предмет (лоти однієї закупівлі)
         k = (r["buyer_id"], subject(r)[:40])
         if k in seen:
             seen[k]["siblings"] = seen[k].get("siblings", 0) + 1
@@ -179,7 +179,7 @@ def candidates(con, limit=50):
     return uniq[:limit]
 
 
-# ------------------------------------------------------------------ text generation (Ukrainian)
+# ------------------------------------------------------------------ генерування тексту
 ABBR = [(r"товариство з обмеженою відповідальністю", "ТОВ"), (r"комунальне некомерційне підприємство", "КНП"),
         (r"комунальне некомерційне товариство", "КНТ"), (r"комунальне підприємство", "КП"),
         (r"державне підприємство", "ДП"), (r"приватне підприємство", "ПП"), (r"акціонерне товариство", "АТ"),
@@ -221,7 +221,7 @@ MIL_UNIT = re.compile(r"(в/ч|військов\w+ частин\w+)\s*[№#]?\s*
 
 def subject(r):
     t = re.sub(r"(код\s*)?(за\s*)?(ДК\s*021:?\s*2015[:\s–-]*)?\d{8}-\d\s*[–-]?\s*", "", r["title"] or "", flags=re.I)
-    t = re.sub(r"^\s*\d{2}[А-ЯA-Z]-\d+_", "", t)            # internal prefixes like 26Т-953_
+    t = re.sub(r"^\s*\d{2}[А-ЯA-Z]-\d+_", "", t)            # внутрішні префікси на кшталт 26Т-953_
     t = re.sub(r"^\s*код\s+", "", t, flags=re.I).strip(" -–:«»\"")
     t = re.sub(r"\.\s*:\s*", ": ", t)
     t = re.sub(r"\s+", " ", t).strip(" -–—:«»\"")
@@ -249,13 +249,13 @@ def signal_lines(r):
         else:
             lines.append(f"{who} запропонував ціну лише на {num_ua(diff)} грн нижчу за очікувану вартість.")
     if "REPEAT_WITHDRAWAL_PAIR" in c:
-        m = re.search(r"in (\d+) tenders at (\d+) buyer", r["flags"].get("REPEAT_WITHDRAWAL_PAIR", ""))
+        m = re.search(r"у (\d+) тендерах у (\d+) замовник", r["flags"].get("REPEAT_WITHDRAWAL_PAIR", ""))
         if m:
             lines.append(f"Той самий дешевший учасник уже {m.group(1)} раз(и) «поступався» цьому переможцю.")
     if "SHARED_BIDDER_CONTACTS" in c:
         f = r["flags"].get("SHARED_BIDDER_CONTACTS", "")
-        what = [w for k, w in (("phone", "телефон"), ("email", "e-mail"), ("person", "контактну особу"),
-                               ("address", "адресу")) if k in f]
+        what = [w for k, w in (("(телефон)", "телефон"), ("(e-mail)", "e-mail"), ("(контактна особа)", "контактну особу"),
+                               ("(адреса)", "адресу")) if k in f]
         lines.append(f"Конкуруючі учасники мають спільні {', '.join(what) or 'контакти'}.")
     if "AMCU_COMPLAINT_UPHELD" in c:
         lines.append("АМКУ задовольнив скаргу в цій закупівлі.")
@@ -263,7 +263,7 @@ def signal_lines(r):
 
 
 def weighted_len(text):
-    """X counts every URL as 23 chars; Latin/Cyrillic chars count 1, CJK/emoji 2."""
+    """X рахує кожне посилання як 23 символи; латиниця/кирилиця — 1, CJK/емодзі — 2."""
     t = re.sub(r"https?://\S+", "x" * 23, text)
     return sum(1 if ord(ch) <= 0x10FF or 0x2000 <= ord(ch) <= 0x200D or 0x2010 <= ord(ch) <= 0x201F
                or 0x2032 <= ord(ch) <= 0x2037 else 2 for ch in t)
@@ -275,12 +275,12 @@ def compose(r):
     head = f"{buyer}: {subject(r)}, {money(r.get('award_amt') or r.get('est'))}{more}."
     tail = f"Сигнал ризику, не доказ порушення.\n{PORTAL}{r['tender_id']} {CFG['hashtags']}".rstrip()
     sigs = signal_lines(r)
-    for k in range(len(sigs), 0, -1):                      # drop weaker signals until it fits 280
+    for k in range(len(sigs), 0, -1):                      # відкидаємо слабші сигнали, доки не вміститься в 280
         text = "\n".join([head] + sigs[:k] + [tail])
         if weighted_len(text) <= 280:
             return text
     text = "\n".join([head, sigs[0] if sigs else "", tail])
-    while weighted_len(text) > 280 and len(buyer) > 20:   # last resort: shorten the buyer name
+    while weighted_len(text) > 280 and len(buyer) > 20:   # крайній захід: скорочуємо назву замовника
         buyer = buyer[:-8].rstrip() + "…"
         head = f"{buyer}: {subject(r)}, {money(r.get('award_amt') or r.get('est'))}{more}."
         text = "\n".join([head, sigs[0] if sigs else "", tail])
@@ -288,7 +288,7 @@ def compose(r):
 
 
 def context(r):
-    """Extra facts for the reviewer only (never published)."""
+    """Додаткові факти лише для того, хто перевіряє (ніколи не публікуються)."""
     lines = [f"Сума/оцінка: {money(r.get('award_amt'))} / {money(r.get('est'))}; учасників: {r.get('n_bids') or '—'}; "
              f"процедура: {r.get('mtype')}; статус: {r.get('status')}",
              f"Замовник: {r.get('buyer')} ({r.get('buyer_id')})",
@@ -345,8 +345,8 @@ def set_review_status(con, tid, status, keep_buttons=False):
         tg("editMessageText", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=p["review_msg_id"],
            text=review_html(tid, p["text"], p["context"] or "", status), parse_mode="HTML",
            disable_web_page_preview=True, **kw)
-    except Exception as e:  # message too old to edit etc.
-        log(f"could not edit review message: {e}")
+    except Exception as e:  # повідомлення застаре для редагування тощо
+        log(f"не вдалося змінити повідомлення для перевірки: {e}")
 
 
 def handle_update(con, u):
@@ -355,7 +355,7 @@ def handle_update(con, u):
         uid = str(q["from"]["id"])
         if uid not in admin_ids():
             tg("answerCallbackQuery", callback_query_id=q["id"], text="Немає прав")
-            log(f"ignored callback from non-admin {uid}")
+            log(f"проігноровано натискання від не-адміністратора {uid}")
             return
         action, tid = q.get("data", ":").split(":", 1)
         p = con.execute("SELECT * FROM posts WHERE tender_id=?", (tid,)).fetchone()
@@ -426,12 +426,12 @@ def poll_telegram(con, timeout=0):
         try:
             handle_update(con, u)
         except Exception as e:
-            log(f"update {u.get('update_id')} failed: {e}")
+            log(f"помилка обробки оновлення {u.get('update_id')}: {e}")
         meta(con, "tg_offset", u["update_id"] + 1)
     return len(ups)
 
 
-# ------------------------------------------------------------------ X (OAuth 1.0a user context)
+# ------------------------------------------------------------------ X (OAuth 1.0a від імені користувача)
 def _pct(s):
     return urllib.parse.quote(str(s), safe="~")
 
@@ -439,7 +439,7 @@ def _pct(s):
 def x_post(text):
     url = "https://api.x.com/2/tweets"
     if DRY:
-        log(f"DRY X post ({weighted_len(text)} chars):\n{text}")
+        log(f"DRY допис у X ({weighted_len(text)} симв.):\n{text}")
         return "dry-" + secrets.token_hex(4)
     oauth = {"oauth_consumer_key": ENV("X_API_KEY"), "oauth_nonce": secrets.token_hex(16),
              "oauth_signature_method": "HMAC-SHA1", "oauth_timestamp": str(int(time.time())),
@@ -459,15 +459,15 @@ def x_intent_url(text):
 
 
 def send_manual_post(tid, text):
-    """Free mode (no X API keys): send a one-tap link that opens X with the post pre-filled."""
+    """Безкоштовний режим (без ключів X API): надіслати посилання, що відкриває X із готовим текстом допису."""
     url = x_intent_url(text)
-    body = (f"<b>Готово до публікації в X</b> ({tid})\nНатисніть кнопку, перевірте текст і натисніть Post.\n"
+    body = (f"<b>Готово до публікації в X</b> ({tid})\nНатисніть кнопку, перевірте текст і натисніть «Опублікувати» (Post).\n"
             f"<pre>{html.escape(text)}</pre>")
     try:
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=body, parse_mode="HTML",
            disable_web_page_preview=True, reply_markup={"inline_keyboard": [[{"text": "Відкрити в X", "url": url}]]})
-    except Exception as e:  # e.g. URL too long for a button: fall back to a plain link
-        log(f"button failed ({e}); sending plain link")
+    except Exception as e:  # напр. URL задовгий для кнопки: надсилаємо звичайне посилання
+        log(f"кнопка не спрацювала ({e}); надсилаю звичайне посилання")
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), parse_mode="HTML", disable_web_page_preview=True,
            text=body + f'\n<a href="{html.escape(url)}">Відкрити в X</a>')
 
@@ -475,7 +475,7 @@ def send_manual_post(tid, text):
 def publish_due(con):
     if meta(con, "paused") == "1":
         return
-    kyiv = now() + timedelta(hours=2)  # Kyiv winter time; good enough for quiet hours
+    kyiv = now() + timedelta(hours=2)  # київський зимовий час; для тихих годин цього достатньо
     a, b = CFG["quiet_hours_kyiv"]
     if (kyiv.hour >= a or kyiv.hour < b) if a > b else (a <= kyiv.hour < b):
         return
@@ -504,15 +504,15 @@ def publish_due(con):
         link = f"https://x.com/i/web/status/{xid}" if xid and not str(xid).startswith(("dry", "manual")) else xid
         set_review_status(con, p["tender_id"], "📤 Надіслано вам для публікації в X" if xid == "manual"
                           else f"📤 Опубліковано {link or ''}")
-        log(f"published {p['tender_id']} -> X {xid}")
+        log(f"опубліковано {p['tender_id']} -> X {xid}")
     except Exception as e:
         con.execute("UPDATE posts SET status='failed', note=? WHERE tender_id=?", (str(e)[:500], p["tender_id"]))
         con.commit()
         set_review_status(con, p["tender_id"], f"⚠️ Помилка публікації: {e}")
-        log(f"publish failed {p['tender_id']}: {e}")
+        log(f"помилка публікації {p['tender_id']}: {e}")
 
 
-# ------------------------------------------------------------------ commands
+# ------------------------------------------------------------------ команди
 def cmd_draft(con, _args):
     made = 0
     for r in candidates(con):
@@ -525,17 +525,17 @@ def cmd_draft(con, _args):
         send_for_review(con, r["tender_id"], text, ctx)
         made += 1
     meta(con, "last_draft", now().isoformat())
-    log(f"{made} drafts sent for review")
+    log(f"надіслано на перевірку чернеток: {made}")
 
 
 def cmd_poll(con, _args):
     n = poll_telegram(con)
     publish_due(con)
-    log(f"{n} telegram updates processed")
+    log(f"оброблено оновлень Telegram: {n}")
 
 
 def cmd_serve(con, _args):
-    log("serving; Ctrl+C to stop")
+    log("працюю; Ctrl+C — зупинити")
     while True:
         try:
             last = meta(con, "last_draft")
@@ -546,12 +546,12 @@ def cmd_serve(con, _args):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            log(f"loop error: {e}")
+            log(f"помилка циклу: {e}")
             time.sleep(30)
 
 
 def cmd_ci(con, args):
-    """One scheduled CI pass: restore ledger, process taps/edits, draft if due, publish if due, save ledger."""
+    """Один прохід CI за розкладом: відновити журнал, обробити натискання/правки, створити чернетки й опублікувати, якщо настав час, зберегти журнал."""
     cmd_ledger_import(con, args)
     poll_telegram(con)
     last = meta(con, "last_draft")
@@ -583,7 +583,7 @@ def cmd_set(status):
 
 
 def cmd_ledger_export(con, args):
-    """Small, durable state for CI: post decisions + Telegram offset + monitor watermark (committed to git)."""
+    """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft")}
@@ -594,13 +594,13 @@ def cmd_ledger_export(con, args):
     os.makedirs(os.path.dirname(args.path) or ".", exist_ok=True)
     with open(args.path, "w", encoding="utf-8") as fh:
         json.dump({"state": st, "posts": sorted(posts, key=lambda p: p["tender_id"])}, fh, ensure_ascii=False, indent=1)
-    log(f"ledger: {len(posts)} posts -> {args.path}")
+    log(f"журнал: дописів {len(posts)} -> {args.path}")
 
 
 def cmd_ledger_import(con, args):
-    """Restore decisions after a lost CI cache, so nothing is re-offered and published posts are not repeated."""
+    """Відновлює рішення після втрати кешу CI, щоб нічого не пропонувалося вдруге й опубліковане не повторювалося."""
     if not os.path.exists(args.path):
-        log("no ledger yet")
+        log("журналу ще немає")
         return
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
@@ -616,14 +616,14 @@ def cmd_ledger_import(con, args):
         if not con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone():
             con.execute("INSERT INTO meta VALUES ('watermark', ?)", (st["watermark"],))
     con.commit()
-    log(f"ledger: restored {len(j.get('posts', []))} posts")
+    log(f"журнал: відновлено дописів {len(j.get('posts', []))}")
 
 
 def main():
     global DRY
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--db", help="monitor SQLite DB (default from publisher.json or prozorro.db)")
-    p.add_argument("--dry-run", action="store_true", help="print Telegram/X requests instead of sending")
+    p.add_argument("--db", help="SQLite-база монітора (типово з publisher.json або prozorro.db)")
+    p.add_argument("--dry-run", action="store_true", help="друкувати запити до Telegram/X замість надсилання")
     sub = p.add_subparsers(dest="cmd", required=True)
     for name, fn in (("draft", cmd_draft), ("poll", cmd_poll), ("serve", cmd_serve), ("queue", cmd_queue)):
         sub.add_parser(name).set_defaults(fn=fn)
@@ -645,7 +645,7 @@ def main():
     if not DRY and args.cmd in ("draft", "poll", "serve", "ci"):
         missing = [k for k in ("TG_BOT_TOKEN", "TG_ADMIN_IDS", "TG_REVIEW_CHAT_ID") if not ENV(k)]
         if missing:
-            sys.exit(f"missing settings: {', '.join(missing)} (put them in .env or use --dry-run)")
+            sys.exit(f"бракує налаштувань: {', '.join(missing)} (додайте їх у .env або використайте --dry-run)")
     args.fn(db(), args)
 
 
