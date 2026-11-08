@@ -10,5 +10,6 @@
   "military_delay_days": 14,
   "include_military": true,
   "draft_every_min": 60,
-  "hashtags": "#Prozorro"
+  "hashtags": "#Prozorro",
+  "post_to_x": true
 }
