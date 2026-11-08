@@ -4,7 +4,7 @@ Every 30 minutes GitHub runs one pass:
 
 1. Fetch new Prozorro tenders and flag anomalies.
 2. Send strong new cases to your Telegram for review (✅ Опублікувати / ✏️ Редагувати / ❌ Відхилити).
-3. Publish what you approved to X.
+3. Publish what you approved to X (automatically with X API keys, or via a one-tap link you get in Telegram).
 
 Nothing is posted without your tap. Taps are picked up on the next pass, so approvals take effect within 30–60 minutes.
 
@@ -24,7 +24,7 @@ Nothing is posted without your tap. Taps are picked up on the next pass, so appr
    | Secret | Required? |
    | --- | --- |
    | `TG_BOT_TOKEN`, `TG_ADMIN_IDS`, `TG_REVIEW_CHAT_ID` | required |
-   | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | required for X |
+   | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | optional: without them each approved post arrives in Telegram as a one-tap “Відкрити в X” link (free) |
    | `TG_CHANNEL_ID` | optional |
 
 4. **Allow the bot to commit:** *Settings → Actions → General → Workflow permissions → Read and write*.
