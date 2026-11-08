@@ -193,7 +193,7 @@ WITHDREW = re.compile(r"відмовився|не підписав|не укла
 
 def military_class(name, kind, cpvs):
     """1 = military (armed forces, NGU, border guard, MoD bodies, military CPV); 2 = other security / law enforcement."""
-    name = (name or "").replace("­", "")
+    name = (name or "").replace("\u00ad", "")
     if SEC_NAME.search(name) and not re.search(r"військов|національн\w* гвард", name, re.I):
         return 2, "security/law-enforcement buyer"
     if MIL_NAME.search(name):
