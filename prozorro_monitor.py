@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Prozorro anomaly monitor: fetch -> store (SQLite) -> detect red flags -> report.
+"""Монітор аномалій Prozorro: завантаження -> збереження (SQLite) -> пошук червоних прапорців -> звіт.
 
-Setup:      pip install requests
-First run:  python prozorro_monitor.py run --since 2026-11-01     (back-fill from a date)
-Scheduled:  python prozorro_monitor.py run                        (incremental; cron / Task Scheduler)
-Re-report:  python prozorro_monitor.py report --days 7
-Live check: python prozorro_monitor.py probe --n 30               (fetches the newest tenders, shows which
-            fields were found, writes probe_sample.json; run this FIRST against the real API)
-Trial run:  python prozorro_monitor.py --db trial.db run --since 2026-11-05 --limit 500
+Встановлення:   pip install requests
+Перший запуск:  python prozorro_monitor.py run --since 2026-11-01     (дозавантаження з дати)
+За розкладом:   python prozorro_monitor.py run                        (інкрементально; cron / Планувальник завдань)
+Повторний звіт: python prozorro_monitor.py report --days 7
+Перевірка API:  python prozorro_monitor.py probe --n 30               (завантажує найновіші тендери, показує, які
+                поля знайдено, пише probe_sample.json; запустіть ЦЕ першим на реальному API)
+Пробний запуск: python prozorro_monitor.py --db trial.db run --since 2026-11-05 --limit 500
 
-Outputs (in ./reports): anomalies_<date>.md and anomalies_<date>.csv
-Optional:   set PROZORRO_WEBHOOK_URL (Slack/Mattermost-style incoming webhook) for a short alert.
-Tuning:     put any key from CFG below into config.json to override it.
+Результати (у ./reports): anomalies_<дата>.md і anomalies_<дата>.csv
+Необов'язково:  задайте PROZORRO_WEBHOOK_URL (вхідний вебхук у стилі Slack/Mattermost) для короткого сповіщення.
+Налаштування:   будь-який ключ із CFG нижче можна перевизначити у config.json.
 
-Flags are risk INDICATORS for human review, not proof of wrongdoing.
+Прапорці — це ІНДИКАТОРИ ризику для перевірки людиною, а не доказ порушень.
 """
 from __future__ import annotations
 
@@ -40,29 +40,29 @@ PORTAL = "https://prozorro.gov.ua/tender/"
 CFG = {
     "db_path": "prozorro.db",
     "out_dir": "reports",
-    "workers": 12,                      # parallel detail requests; be polite
+    "workers": 12,                      # паралельні запити деталей; не перевантажуйте API
     "max_tenders_per_run": 20000,
-    "min_value_uah": 100_000,          # ignore tiny tenders
+    "min_value_uah": 100_000,          # ігнорувати дрібні тендери
     "high_value_uah": 5_000_000,
-    # minimum normal bidding window (days) per procurementMethodType; types not listed are not checked.
-    # VERIFY against current law / martial-law rules (short-form procedures legitimately run 2-5 days).
+    # мінімальний звичайний строк подання пропозицій (днів) за procurementMethodType; інші типи не перевіряються.
+    # ПЕРЕВІРТЕ за чинним законом / правилами воєнного стану (скорочені процедури законно тривають 2-5 днів).
     "min_bid_period_days": {"aboveThreshold": 7, "aboveThresholdUA": 7, "aboveThresholdEU": 7,
                             "competitiveDialogueUA": 7, "competitiveDialogueEU": 7, "esco": 7,
                             "belowThreshold": 2, "priceQuotation": 2, "requestForProposal": 2},
-    # VERIFY against current Ukrainian procurement law / martial-law rules before relying on these:
+    # ПЕРЕВІРТЕ за чинним законом про публічні закупівлі / правилами воєнного стану, перш ніж покладатися на це:
     "thresholds_uah": {"goods": 200_000, "services": 200_000, "works": 1_500_000},
-    "threshold_margin": 0.03,          # "just below" = within 3% under a threshold
+    "threshold_margin": 0.03,          # «трохи нижче» = у межах 3% під порогом
     "split_window_days": 30,
     "split_min_count": 3,
     "concentration_min_contracts": 5,
-    "concentration_share": 0.60,       # one supplier takes >= 60% of a buyer's competitive award value
+    "concentration_share": 0.60,       # один постачальник отримує >= 60% вартості конкурентних перемог замовника
     "ratio_min_group": 30,
-    "ratio_z": 3.5,                    # robust z-score cut-off for award/estimate ratio
+    "ratio_z": 3.5,                    # поріг робастного z-показника для співвідношення ціна/очікувана вартість
     "buyer_min_tenders": 10,
     "report_min_score": 3,
-    "price_min_peers": 3,               # unit-price check: need this many comparable purchases by other buyers
-    "price_ratio": 1.8,                 # flag when unit price >= 1.8x the peer median ...
-    "price_ratio_max": 15,              # ... but ignore >15x (unit/packaging errors)
+    "price_min_peers": 3,               # перевірка ціни за одиницю: скільки потрібно порівнянних закупівель інших замовників
+    "price_ratio": 1.8,                 # прапорець, коли ціна за одиницю >= 1,8× медіани ...
+    "price_ratio_max": 15,              # ... але ігнорувати >15× (помилки в одиницях/фасуванні)
     "price_min_excess_uah": 200_000,
     "webhook_url": os.getenv("PROZORRO_WEBHOOK_URL", ""),
 }
@@ -70,7 +70,7 @@ if os.path.exists("config.json"):
     with open("config.json", encoding="utf-8") as fh:
         CFG.update(json.load(fh))
 
-DONE = {"complete", "active.awarded"}  # a winner exists
+DONE = {"complete", "active.awarded"}  # переможця визначено
 DECIDED = DONE | {"active.qualification", "active.qualification.stand-still"}
 
 COLS = ["id", "tender_id", "title", "status", "method", "mtype", "category", "currency", "est",
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT);
 """
 
 
-# ---------------------------------------------------------------- helpers
+# ---------------------------------------------------------------- допоміжні функції
 def now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -120,7 +120,7 @@ def log(msg):
     print(f"[{now():%H:%M:%S}] {msg}", file=sys.stderr)
 
 
-# ---------------------------------------------------------------- fetching
+# ---------------------------------------------------------------- завантаження
 def make_session():
     s = requests.Session()
     retry = Retry(total=5, backoff_factor=1.5, status_forcelist=(429, 500, 502, 503, 504),
@@ -131,7 +131,7 @@ def make_session():
 
 
 def iter_feed_desc(s, stop_at: datetime, limit=100):
-    """Walk the tender feed newest -> oldest until we reach `stop_at` (the previous run's watermark)."""
+    """Іде стрічкою тендерів від найновіших до найстаріших, доки не дійде до `stop_at` (позначки попереднього запуску)."""
     params = {"descending": 1, "limit": limit}
     while True:
         r = s.get(f"{API}/tenders", params=params, timeout=60)
@@ -152,7 +152,7 @@ def iter_feed_desc(s, stop_at: datetime, limit=100):
 
 
 def iter_feed_asc(s, start: datetime, limit=100):
-    """Walk the tender feed oldest -> newest from `start`, so a capped or interrupted run resumes cleanly."""
+    """Іде стрічкою тендерів від найстаріших до найновіших з `start`, щоб обмежений чи перерваний запуск чисто продовжувався."""
     params = {"limit": limit, "offset": start.isoformat()}
     while True:
         r = s.get(f"{API}/tenders", params=params, timeout=60)
@@ -187,22 +187,22 @@ MIL_NAME = re.compile(r"військ|війск|в/ч|\bвч\b|\bзсу\b|збр
                       r"оборонн|defen[cs]e|^\s*а\d{4}\b", re.I)
 SEC_NAME = re.compile(r"поліці|служб\w* безпеки|\bсбу\b|спеціального зв|держспецзв|державної охорони|"
                       r"внутрішніх справ|\bмвс\b|прокуратур|бюро розслідувань|\bнабу\b", re.I)
-MIL_CPV = ("353", "354", "355", "356", "357", "358")   # weapons/ammo, military vehicles, ships, aircraft, electronics, kit
+MIL_CPV = ("353", "354", "355", "356", "357", "358")   # зброя/боєприпаси, військова техніка, кораблі, авіація, електроніка, спорядження
 WITHDREW = re.compile(r"відмовився|не підписав|не уклав|відмов\w* від (укладення|підписання)", re.I)
 
 
 def military_class(name, kind, cpvs):
-    """1 = military (armed forces, NGU, border guard, MoD bodies, military CPV); 2 = other security / law enforcement."""
+    """1 = військові (ЗСУ, НГУ, прикордонники, органи Міноборони, військовий CPV); 2 = інші безпекові / правоохоронні."""
     name = (name or "").replace("\u00ad", "")
     if SEC_NAME.search(name) and not re.search(r"військов|національн\w* гвард", name, re.I):
-        return 2, "security/law-enforcement buyer"
+        return 2, "безпековий/правоохоронний замовник"
     if MIL_NAME.search(name):
-        return 1, "military buyer (name)"
+        return 1, "військовий замовник (назва)"
     hit = next((c for c in cpvs if c and c[:3] in MIL_CPV), None)
     if hit:
-        return 1, f"military CPV {hit}"
+        return 1, f"військовий CPV {hit}"
     if kind == "defense":
-        return 2, "security buyer (kind=defense)"
+        return 2, "безпековий замовник (kind=defense)"
     return 0, ""
 
 
@@ -216,7 +216,7 @@ def _party(p):
 
 
 def eliminations(t):
-    """Per lot: cheaper bidders that were rejected or walked away while a pricier bid won."""
+    """По кожному лоту: дешевші учасники, яких відхилили або які відмовилися, тоді як перемогла дорожча пропозиція."""
     lots = {l["id"]: l for l in (t.get("lots") or [])}
     by_lot = defaultdict(list)
     for a in t.get("awards") or []:
@@ -244,7 +244,7 @@ def eliminations(t):
 
 
 def shared_contacts(t):
-    """Different bidders (by EDRPOU) in one tender sharing a phone, e-mail, contact person or street address."""
+    """Різні учасники (за ЄДРПОУ) одного тендера зі спільним телефоном, e-mail, контактною особою чи адресою."""
     seen = defaultdict(set)
     names = {}
     for b in t.get("bids") or []:
@@ -255,9 +255,9 @@ def shared_contacts(t):
             names[pid] = nm
             cp, ad = p.get("contactPoint") or {}, p.get("address") or {}
             ph = re.sub(r"\D", "", cp.get("telephone") or "")[-9:]
-            keys = [("phone", ph if len(ph) == 9 else ""), ("email", (cp.get("email") or "").strip().lower()),
-                    ("person", re.sub(r"\s+", " ", (cp.get("name") or "").strip().lower())),
-                    ("address", re.sub(r"\W+", "", ((ad.get("streetAddress") or "") + (ad.get("locality") or "")).lower())
+            keys = [("телефон", ph if len(ph) == 9 else ""), ("e-mail", (cp.get("email") or "").strip().lower()),
+                    ("контактна особа", re.sub(r"\s+", " ", (cp.get("name") or "").strip().lower())),
+                    ("адреса", re.sub(r"\W+", "", ((ad.get("streetAddress") or "") + (ad.get("locality") or "")).lower())
                                 if re.search(r"\d", ad.get("streetAddress") or "") else "")]
             for k, v in keys:
                 if v and len(v) > 5:
@@ -272,7 +272,7 @@ def shared_contacts(t):
 def complaints_of(t):
     out = []
     for a in [t] + (t.get("awards") or []):
-        on = "tender" if a is t else f"award:{a.get('status')}:{_party((a.get('suppliers') or [{}])[0])[1]}"
+        on = "тендер" if a is t else f"рішення:{a.get('status')}:{_party((a.get('suppliers') or [{}])[0])[1]}"
         for c in a.get("complaints") or []:
             out.append(dict(type=c.get("type"), status=c.get("status"), on=on, date=c.get("dateDecision") or c.get("date")))
     return out
@@ -283,7 +283,7 @@ NON_UNIT = re.compile(r"послуг|робот|лот|умовн|об.?єкт|�
 
 
 def unit_prices(t):
-    """Net unit price per awarded lot that holds a single product (comparable across buyers)."""
+    """Ціна за одиницю без ПДВ для кожного присудженого лоту з одним товаром (порівнянна між замовниками)."""
     out = []
     for a in t.get("awards") or []:
         if a.get("status") != "active":
@@ -310,7 +310,7 @@ def unit_prices(t):
 
 
 def flatten(t: dict) -> dict:
-    """Reduce a full tender document to the flat fields the detectors need."""
+    """Зводить повний документ тендера до плоских полів, потрібних детекторам."""
     pe = t.get("procuringEntity") or {}
     bids = t.get("bids") or []
     nb = t.get("numberOfBids")
@@ -319,7 +319,7 @@ def flatten(t: dict) -> dict:
     active = [a for a in awards if a.get("status") == "active"]
     win = active[-1] if active else {}
     sup = (win.get("suppliers") or [{}])[0]
-    # sum over all active awards (multi-lot tenders) and compare contracts on the same VAT basis as awards
+    # сума за всіма активними рішеннями (багатолотові тендери); договори порівнюються на тій самій базі ПДВ, що й рішення
     a_amt = sum(num((a.get("value") or {}).get("amount")) or 0 for a in active) or None
     award_vat = any((a.get("value") or {}).get("valueAddedTaxIncluded") for a in active)
     contracts = [c for c in (t.get("contracts") or []) if c.get("status") in ("active", "pending")]
@@ -374,7 +374,7 @@ def flatten(t: dict) -> dict:
     )
 
 
-# ---------------------------------------------------------------- storage
+# ---------------------------------------------------------------- зберігання
 def db():
     con = sqlite3.connect(CFG["db_path"])
     con.row_factory = sqlite3.Row
@@ -403,7 +403,7 @@ def meta_set(con, k, v):
 
 
 def save_flags(con, flags, stamp):
-    """Store flags; return only those never seen before (so alerts don't repeat)."""
+    """Зберігає прапорці; повертає лише нові (щоб сповіщення не повторювалися)."""
     new = []
     for tid, code, w, detail in flags:
         cur = con.execute("INSERT OR IGNORE INTO flags VALUES (?,?,?,?,?)", (tid, code, w, detail, stamp))
@@ -413,7 +413,7 @@ def save_flags(con, flags, stamp):
     return new
 
 
-# ---------------------------------------------------------------- detectors: single tender
+# ---------------------------------------------------------------- детектори: окремий тендер
 def tender_flags(r: dict):
     out = []
     est = r["est"] if r["currency"] == "UAH" else None
@@ -426,55 +426,55 @@ def tender_flags(r: dict):
         out.append((r["id"], code, w, detail))
 
     if competitive and nb == 1 and r["status"] in DECIDED:
-        add("SINGLE_BIDDER", 3 if big else 2, f"Only 1 bid on a {est:,.0f} UAH competitive tender")
+        add("SINGLE_BIDDER", 3 if big else 2, f"Лише 1 пропозиція в конкурентному тендері на {est:,.0f} грн")
 
     d, mind = r["period_days"], CFG["min_bid_period_days"].get(r["mtype"])
     if competitive and d is not None and mind and d < mind - 0.05:
-        add("SHORT_BID_PERIOD", 2, f"Bidding window only {d:.1f} days (normal minimum {mind} for {r['mtype']})")
+        add("SHORT_BID_PERIOD", 2, f"Строк подання лише {d:.1f} дн. (звичайний мінімум {mind} для {r['mtype']})")
 
     thr = CFG["thresholds_uah"].get(r["category"])
     if thr and thr * (1 - CFG["threshold_margin"]) <= est < thr:
-        add("JUST_BELOW_THRESHOLD", 1, f"Estimate {est:,.0f} sits just under the {thr:,.0f} UAH threshold")
+        add("JUST_BELOW_THRESHOLD", 1, f"Очікувана вартість {est:,.0f} трохи нижча за поріг {thr:,.0f} грн")
 
     if r["award_amt"]:
         ratio = r["award_amt"] / est
         if competitive and 0.9999 <= ratio <= 1.0:
-            add("BID_AT_ESTIMATE_EXACT", 2, f"Winning price {r['award_amt']:,.0f} is {est - r['award_amt']:,.0f} UAH "
-                                            f"under the {est:,.0f} estimate ({ratio:.3%})")
+            add("BID_AT_ESTIMATE_EXACT", 2, f"Ціна переможця {r['award_amt']:,.0f} лише на {est - r['award_amt']:,.0f} грн "
+                                            f"нижча за очікувану {est:,.0f} ({ratio:.3%})")
         elif competitive and ratio >= 0.99 and nb is not None and nb <= 2:
-            add("AWARD_AT_ESTIMATE", 1, f"Award is {ratio:.1%} of estimate with only {nb} bid(s)")
+            add("AWARD_AT_ESTIMATE", 1, f"Сума рішення — {ratio:.1%} очікуваної вартості, пропозицій лише {nb}")
         if ratio <= 0.5:
-            add("VERY_LOW_AWARD", 1, f"Award is only {ratio:.0%} of estimate")
+            add("VERY_LOW_AWARD", 1, f"Сума рішення лише {ratio:.0%} очікуваної вартості")
         if r["contract_amt"] and r["contract_amt"] > r["award_amt"] * 1.005:
             add("CONTRACT_ABOVE_AWARD", 3,
-                f"Contract {r['contract_amt']:,.0f} exceeds award {r['award_amt']:,.0f} UAH")
+                f"Договір {r['contract_amt']:,.0f} перевищує суму рішення {r['award_amt']:,.0f} грн")
 
     gap, gp = r.get("elim_gap"), r.get("elim_gap_pct")
     if competitive and gap:
         w = 2 + (1 if (gp or 0) >= 0.2 or gap >= 1_000_000 else 0)
-        what = {"withdrew": "walked away / refused to sign", "rejected": "were disqualified",
-                "mixed": "were disqualified or walked away"}[r["elim_kind"]]
+        what = {"withdrew": "відмовилися / не підписали договір", "rejected": "були відхилені",
+                "mixed": "були відхилені або відмовилися"}[r["elim_kind"]]
         add("CHEAPER_BIDS_WITHDREW" if r["elim_kind"] == "withdrew" else "CHEAPER_BIDS_REJECTED", w,
-            f"Cheaper bidders {what}; winner paid {gap:,.0f} UAH (+{gp:.0%}) over the cheapest of them")
+            f"Дешевші учасники {what}; переможець дорожчий на {gap:,.0f} грн (+{gp:.0%}) за найдешевшого з них")
     elif competitive and nb and nb >= 2 and r["n_unsuccessful"] >= nb - 1 and r["supplier_id"]:
-        add("COMPETITORS_ELIMINATED", 1, f"{r['n_unsuccessful']} of {nb} bidders disqualified; winner left by elimination")
+        add("COMPETITORS_ELIMINATED", 1, f"Відхилено {r['n_unsuccessful']} з {nb} учасників; переможець залишився методом виключення")
     if r.get("shared_contacts"):
         sc = json.loads(r["shared_contacts"])
         add("SHARED_BIDDER_CONTACTS", 3, "; ".join(
-            f"{h['field']} shared by " + " & ".join(n or i for i, n in h["bidders"]) for h in sc)[:400])
+            f"збіг ({h['field']}): " + " & ".join(n or i for i, n in h["bidders"]) for h in sc)[:400])
     if r.get("complaints"):
         sat = [c for c in json.loads(r["complaints"]) if c["type"] == "complaint" and c["status"] == "satisfied"]
         if sat:
-            add("AMCU_COMPLAINT_UPHELD", 2, f"{len(sat)} AMCU complaint(s) upheld ({sat[0]['on']})")
+            add("AMCU_COMPLAINT_UPHELD", 2, f"АМКУ задовольнив скарг: {len(sat)} ({sat[0]['on']})")
 
     if not competitive and big:
-        add("DIRECT_AWARD_HIGH_VALUE", 1, f"Non-competitive procedure for {est:,.0f} UAH")
+        add("DIRECT_AWARD_HIGH_VALUE", 1, f"Неконкурентна процедура на {est:,.0f} грн")
     if (r["mtype"] or "").startswith("negotiation") and not r["cause_desc"]:
-        add("NEGOTIATION_NO_JUSTIFICATION", 2, "Negotiated procedure without a cause description")
+        add("NEGOTIATION_NO_JUSTIFICATION", 2, "Переговорна процедура без обґрунтування")
     return out
 
 
-# ---------------------------------------------------------------- detectors: patterns over a window
+# ---------------------------------------------------------------- детектори: закономірності за період
 def aggregate_flags(con, days: int):
     since = (now() - timedelta(days=days)).isoformat()
     rows = [dict(r) for r in con.execute(
@@ -484,7 +484,7 @@ def aggregate_flags(con, days: int):
     def add(tid, code, w, detail):
         flags.setdefault((tid, code), (tid, code, w, detail))
 
-    # 1) possible split purchases: several sub-threshold tenders by one buyer/CPV group that sum past the threshold
+    # 1) можливий поділ закупівлі: кілька допорогових тендерів одного замовника/групи CPV, що разом перевищують поріг
     groups = defaultdict(list)
     for r in rows:
         thr = CFG["thresholds_uah"].get(r["category"])
@@ -503,12 +503,12 @@ def aggregate_flags(con, days: int):
             if len(w) >= CFG["split_min_count"] and sum(x["est"] for x in w) >= thr:
                 for x in w:
                     add(x["id"], "POSSIBLE_SPLIT_PURCHASE", 2,
-                        f"{len(w)} sub-threshold tenders in CPV {cpv5}* within {CFG['split_window_days']}d "
-                        f"total {sum(y['est'] for y in w):,.0f} UAH (threshold {thr:,.0f})")
+                        f"{len(w)} допорогових тендерів за CPV {cpv5}* протягом {CFG['split_window_days']} дн., "
+                        f"разом {sum(y['est'] for y in w):,.0f} грн (поріг {thr:,.0f})")
 
     competitive_done = [r for r in rows if r["method"] != "limited" and r["status"] in DONE]
 
-    # 2) one supplier dominating a buyer's competitive awards
+    # 2) один постачальник домінує в конкурентних перемогах замовника
     by_buyer = defaultdict(list)
     for r in competitive_done:
         if r["supplier_id"] and r["buyer_id"] and r["award_amt"]:
@@ -525,9 +525,9 @@ def aggregate_flags(con, days: int):
             for x in g:
                 if x["supplier_id"] == sid:
                     add(x["id"], "SUPPLIER_CONCENTRATION", 2,
-                        f"{x['supplier']} holds {share:.0%} of this buyer's competitive award value ({len(g)} contracts)")
+                        f"{x['supplier']} має {share:.0%} вартості конкурентних перемог цього замовника ({len(g)} договорів)")
 
-    # 3) award/estimate ratio far from what is normal for the CPV division (robust z-score)
+    # 3) співвідношення ціна/очікувана вартість далеке від типового для розділу CPV (робастний z-показник)
     by_cpv = defaultdict(list)
     for r in competitive_done:
         if r["currency"] == "UAH" and r["est"] and r["award_amt"] and r["cpv"]:
@@ -544,9 +544,9 @@ def aggregate_flags(con, days: int):
             z = 0.6745 * (x - med) / mad
             if abs(z) >= CFG["ratio_z"]:
                 add(r["id"], "RATIO_OUTLIER", 1,
-                    f"Award/estimate {x:.0%} vs CPV {div}* median {med:.0%} (z={z:+.1f})")
+                    f"Ціна/очікувана {x:.0%} проти медіани {med:.0%} для CPV {div}* (z={z:+.1f})")
 
-    # 3a) unit price far above what other buyers paid for the same product (same CPV + unit + similar description)
+    # 3a) ціна за одиницю значно вища, ніж у інших замовників за той самий товар (той самий CPV + одиниця + схожий опис)
     stop = {"або", "еквівалент", "код", "дк", "021", "2015", "для", "згідно", "шт", "товар"}
 
     def toks(x):
@@ -570,13 +570,13 @@ def aggregate_flags(con, days: int):
                 continue
             med = statistics.median(p[1]["price"] for p in peers)
             ratio, excess = u["price"] / med, (u["price"] - med) * u["qty"]
-            # very large ratios are almost always unit/packaging mistakes, not overpricing
+            # дуже великі коефіцієнти — майже завжди помилки в одиницях/фасуванні, а не завищення ціни
             if CFG["price_ratio"] <= ratio <= CFG["price_ratio_max"] and excess >= CFG["price_min_excess_uah"]:
                 add(r["id"], "PRICE_ABOVE_PEERS", 3,
-                    f"{u['descr'][:60]}: {u['price']:,.2f} UAH/{u['unit_name']} vs median {med:,.2f} at "
-                    f"{len(peers)} other buyers (x{ratio:.1f}); ~{excess:,.0f} UAH above median")
+                    f"{u['descr'][:60]}: {u['price']:,.2f} грн/{u['unit_name']} проти медіани {med:,.2f} у "
+                    f"{len(peers)} інших замовників (x{ratio:.1f}); ~{excess:,.0f} грн понад медіану")
 
-    # 3b) the same cheaper bidder repeatedly walking away in favour of the same winner
+    # 3b) той самий дешевший учасник неодноразово відмовляється на користь того самого переможця
     pairs = defaultdict(list)
     for r in rows:
         for e in json.loads(r.get("elim") or "[]"):
@@ -592,10 +592,10 @@ def aggregate_flags(con, days: int):
             extra = sum(e["winner_price"] - e["price"] for _, e in lst)
             for x, _ in lst:
                 add(x["id"], "REPEAT_WITHDRAWAL_PAIR", 3,
-                    f"{e0['name']} ({rid}) stepped aside for {e0['winner']} ({wid}) in {len(tids)} tenders at "
-                    f"{len(buyers)} buyer(s); extra cost {extra:,.0f} UAH")
+                    f"{e0['name']} ({rid}) поступився {e0['winner']} ({wid}) у {len(tids)} тендерах у "
+                    f"{len(buyers)} замовника(ів); переплата {extra:,.0f} грн")
 
-    # 4) buyer-level habits (single-bid rate compared with the national rate for the same procedure types)
+    # 4) звички замовника (частка тендерів з однією пропозицією порівняно з загальною для тих самих типів процедур)
     pop = [r for r in competitive_done if r["n_bids"] is not None]
     base = defaultdict(lambda: [0, 0])
     for r in pop:
@@ -624,15 +624,15 @@ def aggregate_flags(con, days: int):
         exp = b.get("expected", 0)
         if b["n"] >= m and b["single"] / b["n"] >= 0.8 and b["single"] >= 1.3 * exp:
             add(f"buyer:{bid}", "BUYER_HIGH_SINGLE_BID_RATE", 2,
-                f"{b['name']}: {b['single']}/{b['n']} competitive tenders had a single bid "
-                f"(expected about {exp:.0f} for this procedure mix)")
+                f"{b['name']}: {b['single']}/{b['n']} конкурентних тендерів мали одну пропозицію "
+                f"(очікувано близько {exp:.0f} для такого набору процедур)")
         if b["all_n"] >= m and b["all_val"] and b["lim_val"] / b["all_val"] >= 0.5:
             add(f"buyer:{bid}", "BUYER_HIGH_DIRECT_AWARD_SHARE", 1,
-                f"{b['name']}: {b['lim_val'] / b['all_val']:.0%} of tender value via non-competitive procedures")
+                f"{b['name']}: {b['lim_val'] / b['all_val']:.0%} вартості тендерів — через неконкурентні процедури")
     return list(flags.values())
 
 
-# ---------------------------------------------------------------- reporting
+# ---------------------------------------------------------------- звіти
 def cell(x, n=60):
     return (str(x or "-").replace("|", "/").replace("\n", " "))[:n]
 
@@ -657,30 +657,30 @@ def build_report(con, since_iso: str):
 
     with open(csv_path, "w", newline="", encoding="utf-8-sig") as fh:
         w = csv.writer(fh)
-        w.writerow(["score", "tender_id", "url", "buyer", "buyer_id", "supplier", "supplier_id", "estimate_uah",
-                    "award_uah", "bids", "method", "status", "region", "military", "military_reason", "flags", "details"])
+        w.writerow(["бали", "id_тендера", "посилання", "замовник", "єдрпоу_замовника", "постачальник", "єдрпоу_постачальника", "очікувана_грн",
+                    "сума_рішення_грн", "пропозицій", "процедура", "статус", "регіон", "військовий", "чому_військовий", "прапорці", "деталі"])
         for score, t, fl in items:
             w.writerow([score, t["tender_id"], PORTAL + str(t["tender_id"]), t["buyer"], t["buyer_id"],
                         t["supplier"], t["supplier_id"], t["est"], t["award_amt"], t["n_bids"], t["mtype"],
                         t["status"], t["region"], t.get("military"), t.get("mil_reason"), ";".join(f["code"] for f in fl), " | ".join(f["detail"] for f in fl)])
 
-    lines = [f"# Prozorro anomaly report, {day}", "",
-             f"{len(items)} tenders with new flags; {len(top)} at score >= {CFG['report_min_score']}. "
-             "Flags are risk indicators for review, not proof of wrongdoing.", "",
-             "## Highest-risk tenders", "",
-             "| Score | Mil | Tender | Buyer | Supplier | Estimate (UAH) | Flags |", "|---|---|---|---|---|---|---|"]
+    lines = [f"# Звіт про аномалії Prozorro, {day}", "",
+             f"Тендерів з новими прапорцями: {len(items)}; з балом >= {CFG['report_min_score']}: {len(top)}. "
+             "Прапорці — індикатори ризику для перевірки, а не доказ порушень.", "",
+             "## Тендери з найвищим ризиком", "",
+             "| Бали | Військ. | Тендер | Замовник | Постачальник | Очікувана (грн) | Прапорці |", "|---|---|---|---|---|---|---|"]
     for score, t, fl in top[:50]:
-        lines.append(f"| {score} | {'MIL' if t.get('military') == 1 else 'SEC' if t.get('military') == 2 else ''} | [{t['tender_id']}]({PORTAL}{t['tender_id']}) | {cell(t['buyer'])} | "
+        lines.append(f"| {score} | {'ВІЙСЬК' if t.get('military') == 1 else 'БЕЗП' if t.get('military') == 2 else ''} | [{t['tender_id']}]({PORTAL}{t['tender_id']}) | {cell(t['buyer'])} | "
                      f"{cell(t['supplier'])} | {(t['est'] or 0):,.0f} | {', '.join(f['code'] for f in fl)} |")
     mil = [i for i in top if i[1].get("military") == 1]
     if mil:
-        lines += ["", f"## Military / defence purchases ({len(mil)} at score >= {CFG['report_min_score']})", "",
-                  "| Score | Tender | Buyer | Why military | Estimate (UAH) | Flags |", "|---|---|---|---|---|---|"]
+        lines += ["", f"## Військові / оборонні закупівлі ({len(mil)} з балом >= {CFG['report_min_score']})", "",
+                  "| Бали | Тендер | Замовник | Чому військова | Очікувана (грн) | Прапорці |", "|---|---|---|---|---|---|"]
         for score, t, fl in mil[:30]:
             lines.append(f"| {score} | [{t['tender_id']}]({PORTAL}{t['tender_id']}) | {cell(t['buyer'])} | "
                          f"{t['mil_reason']} | {(t['est'] or 0):,.0f} | {', '.join(f['code'] for f in fl)} |")
     if buyer_rows:
-        lines += ["", "## Buyer-level patterns", ""]
+        lines += ["", "## Закономірності на рівні замовника", ""]
         lines += [f"- **{f['code']}**: {f['detail']}" for f in buyer_rows]
     with open(md_path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
@@ -690,30 +690,30 @@ def build_report(con, since_iso: str):
 def notify(top, buyer_rows, md_path):
     if not CFG["webhook_url"] or not (top or buyer_rows):
         return
-    text = [f"Prozorro: {len(top)} high-risk tenders, {len(buyer_rows)} buyer patterns ({md_path})"]
+    text = [f"Prozorro: тендерів високого ризику — {len(top)}, закономірностей замовників — {len(buyer_rows)} ({md_path})"]
     for score, t, fl in top[:10]:
         text.append(f"- [{score}] {PORTAL}{t['tender_id']} {cell(t['buyer'], 40)}: {', '.join(f['code'] for f in fl)}")
     try:
         requests.post(CFG["webhook_url"], json={"text": "\n".join(text)}, timeout=20)
     except requests.RequestException as e:
-        log(f"webhook failed: {e}")
+        log(f"помилка вебхука: {e}")
 
 
-# ---------------------------------------------------------------- commands
+# ---------------------------------------------------------------- команди
 def cmd_run(args):
     con = db()
     s = make_session()
     started = now()
     stamp = started.isoformat()
     wm = ts(meta_get(con, "watermark")) or ts(args.since) or (started - timedelta(days=1))
-    log(f"collecting tenders modified after {wm.isoformat()}")
+    log(f"збираю тендери, змінені після {wm.isoformat()}")
 
     def work(row):
         try:
             t = fetch_tender(s, row["id"])
             return flatten(t) if t else None
-        except Exception as e:  # keep going; the tender reappears in the feed if modified again
-            log(f"skip {row['id']}: {e}")
+        except Exception as e:  # продовжуємо; тендер знову з'явиться в стрічці, якщо його змінять
+            log(f"пропущено {row['id']}: {e}")
             return None
 
     feed = islice(iter_feed_asc(s, wm), CFG["max_tenders_per_run"])
@@ -726,26 +726,26 @@ def cmd_run(args):
             recs = [r for r in ex.map(work, batch) if r]
             upsert(con, recs)
             new += save_flags(con, [f for r in recs for f in tender_flags(r)], stamp)
-            meta_set(con, "watermark", batch[-1]["dateModified"])  # progress is saved per batch
+            meta_set(con, "watermark", batch[-1]["dateModified"])  # прогрес зберігається після кожної партії
             total += len(recs)
-            log(f"stored {total} tenders (up to {batch[-1]['dateModified']})")
+            log(f"збережено тендерів: {total} (до {batch[-1]['dateModified']})")
     if not total:
-        log("nothing new")
+        log("нічого нового")
         return
     if total >= CFG["max_tenders_per_run"]:
-        log("hit max_tenders_per_run; the next run continues from here")
+        log("досягнуто max_tenders_per_run; наступний запуск продовжить звідси")
 
     new += save_flags(con, aggregate_flags(con, days=args.window), stamp)
-    log(f"{len(new)} new flags")
+    log(f"нових прапорців: {len(new)}")
     if not new:
         return
     top, buyers, md, cs = build_report(con, stamp)
     notify(top, buyers, md)
-    log(f"report: {md} | {cs}")
+    log(f"звіт: {md} | {cs}")
 
 
 def cmd_probe(args):
-    """Fetch the newest N tenders and show which fields the parser actually found."""
+    """Завантажує N найновіших тендерів і показує, які поля парсер справді знайшов."""
     s = make_session()
     epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
     feed = list(islice(iter_feed_desc(s, epoch, limit=min(args.n, 100)), args.n))
@@ -756,7 +756,7 @@ def cmd_probe(args):
             t = fetch_tender(s, row["id"])
             return (t, flatten(t)) if t else None
         except Exception as e:
-            log(f"skip {row['id']}: {e}")
+            log(f"пропущено {row['id']}: {e}")
             return None
 
     with ThreadPoolExecutor(CFG["workers"]) as ex:
@@ -765,26 +765,26 @@ def cmd_probe(args):
                 raw.append(res[0])
                 recs.append(res[1])
     if not recs:
-        log("no tenders fetched; check network access to public-api.prozorro.gov.ua")
+        log("не завантажено жодного тендера; перевірте доступ до public-api.prozorro.gov.ua")
         return
     with open("probe_sample.json", "w", encoding="utf-8") as fh:
         json.dump(raw[:3], fh, ensure_ascii=False, indent=1)
-    print(f"\nFetched {len(recs)} tenders (newest first). Field coverage:")
+    print(f"\nЗавантажено тендерів: {len(recs)} (найновіші першими). Заповненість полів:")
     for k in ("status", "method", "mtype", "category", "currency", "est", "n_bids", "buyer_id", "cpv",
               "period_days", "published", "supplier_id", "award_amt", "contract_amt"):
         n = sum(r[k] not in (None, "") for r in recs)
         print(f"  {k:13} {n:>4}/{len(recs)}")
-    print("\nStatuses:", dict(sorted(((st, sum(r['status'] == st for r in recs)) for st in {r['status'] for r in recs}))))
+    print("\nСтатуси:", dict(sorted(((st, sum(r['status'] == st for r in recs)) for st in {r['status'] for r in recs}))))
     flagged = [(r, tender_flags(r)) for r in recs]
     flagged = [(r, f) for r, f in flagged if f]
-    print(f"\n{len(flagged)} of {len(recs)} tenders trip at least one single-tender flag:")
+    print(f"\n{len(flagged)} з {len(recs)} тендерів мають щонайменше один прапорець окремого тендера:")
     for r, f in flagged[:15]:
         print(f"  {PORTAL}{r['tender_id']}  " + ", ".join(c for _, c, _, _ in f))
-    print("\nA field at 0 coverage means the API names it differently. Share probe_sample.json to adjust the parser.")
+    print("\nПоле з нульовою заповненістю означає, що API називає його інакше. Надішліть probe_sample.json, щоб підлаштувати парсер.")
 
 
 def cmd_prune(args):
-    """Keep the DB small enough for CI caches: drop tenders not modified for N days unless recently flagged."""
+    """Тримає БД малою для кешу CI: видаляє тендери, не змінені N днів, якщо їх нещодавно не позначено."""
     con = db()
     cut = (now() - timedelta(days=args.days)).isoformat()
     keep = (now() - timedelta(days=args.keep_flagged_days)).isoformat()
@@ -794,33 +794,33 @@ def cmd_prune(args):
                     (cut,)).rowcount
     con.commit()
     con.execute("VACUUM")
-    log(f"pruned {n} tenders and {m} flags older than {args.days} days")
+    log(f"видалено тендерів: {n}, прапорців: {m} (старші за {args.days} дн.)")
 
 
 def cmd_report(args):
     con = db()
     since = (now() - timedelta(days=args.days)).isoformat()
     _, _, md, cs = build_report(con, since)
-    log(f"report: {md} | {cs}")
+    log(f"звіт: {md} | {cs}")
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--db", help="SQLite path (default prozorro.db); use a throwaway file for trials")
+    p.add_argument("--db", help="шлях до SQLite (типово prozorro.db); для проб використовуйте тимчасовий файл")
     sub = p.add_subparsers(dest="cmd", required=True)
-    r = sub.add_parser("run", help="fetch new tenders, detect anomalies, write report")
-    r.add_argument("--since", help="ISO date to back-fill from on the very first run (default: 1 day ago)")
-    r.add_argument("--window", type=int, default=90, help="days of history used for pattern detectors")
-    r.add_argument("--limit", type=int, help="cap tenders fetched this run (trial runs only)")
+    r = sub.add_parser("run", help="завантажити нові тендери, знайти аномалії, записати звіт")
+    r.add_argument("--since", help="ISO-дата, з якої дозавантажити під час першого запуску (типово: 1 день тому)")
+    r.add_argument("--window", type=int, default=90, help="скільки днів історії використовують детектори закономірностей")
+    r.add_argument("--limit", type=int, help="максимум тендерів за цей запуск")
     r.set_defaults(fn=cmd_run)
-    pr = sub.add_parser("probe", help="fetch the newest tenders and check parser field coverage")
+    pr = sub.add_parser("probe", help="завантажити найновіші тендери й перевірити заповненість полів")
     pr.add_argument("--n", type=int, default=30)
     pr.set_defaults(fn=cmd_probe)
-    pz = sub.add_parser("prune", help="delete old tenders to keep the database small")
+    pz = sub.add_parser("prune", help="видалити старі тендери, щоб база лишалася малою")
     pz.add_argument("--days", type=int, default=45)
     pz.add_argument("--keep-flagged-days", type=int, default=30)
     pz.set_defaults(fn=cmd_prune)
-    q = sub.add_parser("report", help="rebuild the report from flags already in the database")
+    q = sub.add_parser("report", help="перебудувати звіт із прапорців, що вже є в базі")
     q.add_argument("--days", type=int, default=7)
     q.set_defaults(fn=cmd_report)
     args = p.parse_args()
