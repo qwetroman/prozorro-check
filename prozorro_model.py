@@ -92,6 +92,19 @@ def snapshot(con, tender_id):
 
 def vectorize(f):
     """Сирі ознаки -> розріджений вектор {назва: значення}."""
+    if f.get("kind") == "pattern":
+        v = {"bias": 1.0, "kind:pattern": 1.0, f"pattern:{f.get('pattern')}": 1.0,
+             "log_total": (f.get("log_total") or 0) / 20}
+        for k in ("share", "one_bid_share"):
+            if f.get(k) is not None:
+                v[k] = float(f[k])
+        if f.get("n") is not None:
+            v["pattern_n"] = min(f["n"], 50) / 50
+        if f.get("over_threshold") is not None:
+            v["over_threshold"] = min(f["over_threshold"], 10) / 10
+        if f.get("category"):
+            v[f"category:{f['category']}"] = 1.0
+        return v
     v = {"bias": 1.0}
     est = math.expm1(f.get("log_est") or 0)
     big = est >= 1_000_000
@@ -175,7 +188,14 @@ def run(args):
     model_path = os.path.join(args.state, "model.json")
 
     have_posts = con.execute("SELECT name FROM sqlite_master WHERE name='posts'").fetchone()
-    posts = [dict(r) for r in con.execute("SELECT tender_id, status, approved_at FROM posts")] if have_posts else []
+    cols = {r[1] for r in con.execute("PRAGMA table_info(posts)")} if have_posts else set()
+    extra = ", kind, features" if {"kind", "features"} <= cols else ""
+    posts = [dict(r) for r in con.execute(f"SELECT tender_id, status, approved_at{extra} FROM posts")] if have_posts else []
+
+    def features_of(p):
+        if p.get("kind") == "pattern":           # закономірність: ознаки збережені під час створення чернетки
+            return json.loads(p["features"]) if p.get("features") else None
+        return snapshot(con, p["tender_id"])
 
     # 1) нові рішення -> знімки ознак
     decisions = read_jsonl(dec_path)
@@ -184,10 +204,10 @@ def run(args):
     for p in posts:
         if p["tender_id"] in seen or p["status"] not in POS | NEG:
             continue
-        f = snapshot(con, p["tender_id"])
+        f = features_of(p)
         if f is None:
             continue
-        new.append({"tender_id": p["tender_id"], "label": 1 if p["status"] in POS else 0,
+        new.append({"tender_id": p["tender_id"], "label": 1 if p["status"] in POS else 0, "kind": p.get("kind") or "tender",
                     "decided_at": p.get("approved_at") or now(), "logged_at": now(), "features": f})
     append_jsonl(dec_path, new)
     decisions += new
@@ -220,7 +240,7 @@ def run(args):
     for p in posts:
         if p["status"] != "in_review" or p["tender_id"] in scored or not model["weights"]:
             continue
-        f = snapshot(con, p["tender_id"])
+        f = features_of(p)
         if f is None:
             continue
         rows.append({"tender_id": p["tender_id"], "p_approve": round(predict(model["weights"], vectorize(f)), 3),
