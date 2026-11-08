@@ -5,7 +5,7 @@
   "big_money_uah": 2000000,
   "max_drafts_per_run": 5,
   "max_posts_per_day": 5,
-  "min_minutes_between_posts": 90,
+  "min_minutes_between_posts": 0,
   "quiet_hours_kyiv": [23, 8],
   "military_delay_days": 14,
   "include_military": true,
