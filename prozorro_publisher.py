@@ -57,6 +57,7 @@ CFG = {
     "include_military": True,           # якщо False, військові випадки ніколи не потрапляють у чернетки
     "draft_every_min": 60,
     "hashtags": "#Prozorro",
+    "post_to_x": True,                  # False = тільки Telegram-канал (потрібен TG_CHANNEL_ID)
 }
 if os.path.exists(os.path.join(HERE, "publisher.json")):
     with open(os.path.join(HERE, "publisher.json"), encoding="utf-8") as fh:
@@ -322,7 +323,7 @@ def buttons(tid):
 
 
 def review_html(tid, text, ctx, status=None):
-    s = (f"<b>Чернетка для X</b> ({weighted_len(text)}/280)\n<pre>{html.escape(text)}</pre>\n"
+    s = (f"<b>Чернетка для {'X' if CFG['post_to_x'] else 'Telegram-каналу'}</b> ({weighted_len(text)}/280)\n<pre>{html.escape(text)}</pre>\n"
          f"<b>Для перевірки:</b>\n{html.escape(ctx)}\n{PORTAL}{tid}")
     if status:
         s += f"\n\n<b>{html.escape(status)}</b>"
@@ -490,11 +491,15 @@ def publish_due(con):
     if not p:
         return
     try:
-        if ENV("X_API_KEY") or DRY:
-            xid = x_post(p["text"])
-        else:
-            send_manual_post(p["tender_id"], p["text"])
-            xid = "manual"
+        xid = None
+        if CFG["post_to_x"]:
+            if ENV("X_API_KEY") or DRY:
+                xid = x_post(p["text"])
+            else:
+                send_manual_post(p["tender_id"], p["text"])
+                xid = "manual"
+        elif not ENV("TG_CHANNEL_ID"):
+            raise RuntimeError("post_to_x вимкнено, а TG_CHANNEL_ID не задано, нема куди публікувати")
         chan = None
         if ENV("TG_CHANNEL_ID"):
             chan = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=p["text"])["message_id"]
@@ -502,8 +507,13 @@ def publish_due(con):
                     (xid, chan, now().isoformat(), p["tender_id"]))
         con.commit()
         link = f"https://x.com/i/web/status/{xid}" if xid and not str(xid).startswith(("dry", "manual")) else xid
-        set_review_status(con, p["tender_id"], "📤 Надіслано вам для публікації в X" if xid == "manual"
-                          else f"📤 Опубліковано {link or ''}")
+        if xid == "manual":
+            status = "📤 Надіслано вам для публікації в X"
+        elif not CFG["post_to_x"]:
+            status = "📤 Опубліковано в Telegram-каналі"
+        else:
+            status = f"📤 Опубліковано {link or ''}"
+        set_review_status(con, p["tender_id"], status)
         log(f"опубліковано {p['tender_id']} -> X {xid}")
     except Exception as e:
         con.execute("UPDATE posts SET status='failed', note=? WHERE tender_id=?", (str(e)[:500], p["tender_id"]))
