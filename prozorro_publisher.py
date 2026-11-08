@@ -481,7 +481,7 @@ def send_manual_post(tid, text):
            text=body + f'\n<a href="{html.escape(url)}">Відкрити в X</a>')
 
 
-def publish_due(con):
+def publish_one(con):
     if meta(con, "paused") == "1":
         return
     kyiv = now() + timedelta(hours=2)  # київський зимовий час; для тихих годин цього достатньо
@@ -523,11 +523,18 @@ def publish_due(con):
             status = f"📤 Опубліковано {link or ''}"
         set_review_status(con, p["tender_id"], status)
         log(f"опубліковано {p['tender_id']} -> X {xid}")
+        return True
     except Exception as e:
         con.execute("UPDATE posts SET status='failed', note=? WHERE tender_id=?", (str(e)[:500], p["tender_id"]))
         con.commit()
         set_review_status(con, p["tender_id"], f"⚠️ Помилка публікації: {e}")
         log(f"помилка публікації {p['tender_id']}: {e}")
+
+
+def publish_due(con):
+    # публікуємо всі схвалені, поки дозволяють денний ліміт та інтервал (min_minutes_between_posts)
+    while publish_one(con):
+        pass
 
 
 # ------------------------------------------------------------------ команди
