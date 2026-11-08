@@ -58,6 +58,8 @@ CFG = {
     "draft_every_min": 60,
     "hashtags": "#Prozorro",
     "post_to_x": True,                  # False = тільки Telegram-канал (потрібен TG_CHANNEL_ID)
+    "channel_minutes_between_posts": 60,  # Telegram-канал: не частіше ніж раз на стільки хвилин
+    "digest_hour_kyiv": 18,             # тижневий підсумок: неділя, з цієї години
 }
 if os.path.exists(os.path.join(HERE, "publisher.json")):
     with open(os.path.join(HERE, "publisher.json"), encoding="utf-8") as fh:
@@ -85,6 +87,22 @@ def log(msg):
 
 def now():
     return datetime.now(timezone.utc)
+
+
+def _kyiv_tz():
+    try:
+        from zoneinfo import ZoneInfo
+        for name in ("Europe/Kyiv", "Europe/Kiev"):
+            try:
+                return ZoneInfo(name)
+            except Exception:
+                pass
+    except ImportError:
+        pass
+    return timezone(timedelta(hours=2))
+
+
+KYIV = _kyiv_tz()  # з переходом на літній час
 
 
 # ------------------------------------------------------------------ зберігання
@@ -270,21 +288,44 @@ def weighted_len(text):
                or 0x2032 <= ord(ch) <= 0x2037 else 2 for ch in t)
 
 
+def is_person(name):
+    return bool(re.search(r"фізична особа|\bФОП\b", name or "", re.I))
+
+
+def edrpou_line(r):
+    # тільки 8-значні коди юросіб; у ФОП 10-значний ІПН, це персональні дані. Для військових не показуємо.
+    if r.get("military") == 1:
+        return None
+    parts = []
+    if re.fullmatch(r"\d{8}", str(r.get("buyer_id") or "")):
+        parts.append(f"замовник {r['buyer_id']}")
+    if re.fullmatch(r"\d{8}", str(r.get("supplier_id") or "")):
+        parts.append(f"переможець {r['supplier_id']}")
+    return "ЄДРПОУ: " + ", ".join(parts) if parts else None
+
+
 def compose(r):
-    buyer = "Військовий замовник" if r.get("military") == 1 else short_name(r["buyer"], 50)
+    if r.get("military") == 1:
+        buyer = "Військовий замовник"
+    elif is_person(r.get("buyer")):
+        buyer = "Замовник (ФОП)"
+    else:
+        buyer = short_name(r["buyer"], 50)
     more = f" (+{r['siblings']} аналогічн. лот.)" if r.get("siblings") else ""
     head = f"{buyer}: {subject(r)}, {money(r.get('award_amt') or r.get('est'))}{more}."
     tail = f"Сигнал ризику, не доказ порушення.\n{PORTAL}{r['tender_id']} {CFG['hashtags']}".rstrip()
     sigs = signal_lines(r)
-    for k in range(len(sigs), 0, -1):                      # відкидаємо слабші сигнали, доки не вміститься в 280
-        text = "\n".join([head] + sigs[:k] + [tail])
-        if weighted_len(text) <= 280:
-            return text
-    text = "\n".join([head, sigs[0] if sigs else "", tail])
+    ids = edrpou_line(r)
+    for k in (range(len(sigs), 0, -1) if sigs else [0]):   # відкидаємо слабші сигнали, доки не вміститься в 280
+        for extra in ([ids] if ids else []) + [None]:
+            text = "\n".join([head] + sigs[:k] + ([extra] if extra else []) + [tail])
+            if weighted_len(text) <= 280:
+                return text
+    text = "\n".join([head] + sigs[:1] + [tail])
     while weighted_len(text) > 280 and len(buyer) > 20:   # крайній захід: скорочуємо назву замовника
         buyer = buyer[:-8].rstrip() + "…"
         head = f"{buyer}: {subject(r)}, {money(r.get('award_amt') or r.get('est'))}{more}."
-        text = "\n".join([head, sigs[0] if sigs else "", tail])
+        text = "\n".join([head] + sigs[:1] + [tail])
     return text
 
 
@@ -481,14 +522,16 @@ def send_manual_post(tid, text):
            text=body + f'\n<a href="{html.escape(url)}">Відкрити в X</a>')
 
 
-def publish_one(con):
-    if meta(con, "paused") == "1":
-        return
-    kyiv = now() + timedelta(hours=2)  # київський зимовий час; для тихих годин цього достатньо
+def quiet_now():
+    kyiv = now().astimezone(KYIV)
     a, b = CFG["quiet_hours_kyiv"]
-    if (kyiv.hour >= a or kyiv.hour < b) if a > b else (a <= kyiv.hour < b):
+    return (kyiv.hour >= a or kyiv.hour < b) if a > b else (a <= kyiv.hour < b)
+
+
+def publish_one(con):
+    if meta(con, "paused") == "1" or quiet_now():
         return
-    day0 = now().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    day0 = now().astimezone(KYIV).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).isoformat()
     n_today = con.execute("SELECT COUNT(*) FROM posts WHERE status='published' AND published_at>=?", (day0,)).fetchone()[0]
     last = con.execute("SELECT MAX(published_at) FROM posts WHERE status='published'").fetchone()[0]
     if n_today >= CFG["max_posts_per_day"]:
@@ -508,17 +551,14 @@ def publish_one(con):
                 xid = "manual"
         elif not ENV("TG_CHANNEL_ID"):
             raise RuntimeError("post_to_x вимкнено, а TG_CHANNEL_ID не задано, нема куди публікувати")
-        chan = None
-        if ENV("TG_CHANNEL_ID"):
-            chan = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=p["text"])["message_id"]
-        con.execute("UPDATE posts SET status='published', x_id=?, tg_channel_msg_id=?, published_at=? WHERE tender_id=?",
-                    (xid, chan, now().isoformat(), p["tender_id"]))
+        con.execute("UPDATE posts SET status='published', x_id=?, published_at=? WHERE tender_id=?",
+                    (xid, now().isoformat(), p["tender_id"]))
         con.commit()
         link = f"https://x.com/i/web/status/{xid}" if xid and not str(xid).startswith(("dry", "manual")) else xid
         if xid == "manual":
             status = "📤 Надіслано вам для публікації в X"
         elif not CFG["post_to_x"]:
-            status = "📤 Опубліковано в Telegram-каналі"
+            status = "🕒 У черзі на Telegram-канал"
         else:
             status = f"📤 Опубліковано {link or ''}"
         set_review_status(con, p["tender_id"], status)
@@ -535,6 +575,81 @@ def publish_due(con):
     # публікуємо всі схвалені, поки дозволяють денний ліміт та інтервал (min_minutes_between_posts)
     while publish_one(con):
         pass
+    publish_channel(con)
+
+
+def publish_channel(con):
+    # Telegram-канал: по одному допису за прохід, не частіше ніж раз на channel_minutes_between_posts
+    if not ENV("TG_CHANNEL_ID") or meta(con, "paused") == "1" or quiet_now():
+        return
+    last = meta(con, "last_channel_post")
+    # -5 хв запасу, бо GitHub запускає проходи з запізненням
+    if last and datetime.fromisoformat(last) > now() - timedelta(minutes=CFG["channel_minutes_between_posts"] - 5):
+        return
+    p = con.execute("SELECT * FROM posts WHERE status='published' AND tg_channel_msg_id IS NULL "
+                    "ORDER BY published_at LIMIT 1").fetchone()
+    if not p:
+        return
+    try:
+        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=p["text"])["message_id"]
+    except Exception as e:
+        log(f"помилка публікації в канал {p['tender_id']}: {e}")
+        set_review_status(con, p["tender_id"], f"⚠️ Помилка публікації в канал: {e}")
+        return
+    con.execute("UPDATE posts SET tg_channel_msg_id=? WHERE tender_id=?", (mid, p["tender_id"]))
+    con.commit()
+    meta(con, "last_channel_post", now().isoformat())
+    extra = " (посилання для X надіслано окремо)" if p["x_id"] == "manual" else ""
+    set_review_status(con, p["tender_id"], f"📣 Опубліковано в Telegram-каналі{extra}")
+    log(f"опубліковано в канал {p['tender_id']}")
+
+
+def model_summary(path="state/model.json"):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            m = json.load(fh)
+    except Exception:
+        return None
+    met = m.get("metrics")
+    s = f"Тіньова модель: рішень {m.get('n', 0)}"
+    if met:
+        s += f", точність {met['cv_accuracy']:.0%} (базова {met['baseline_accuracy']:.0%}), AUC {met['cv_auc']}"
+    else:
+        s += f" ({m.get('note') or 'ще вчиться'})"
+    return s
+
+
+def weekly_digest(con):
+    # щонеділі ввечері: статистика вам і підсумки тижня в канал
+    k = now().astimezone(KYIV)
+    week = k.strftime("%G-W%V")
+    if k.weekday() != 6 or k.hour < CFG["digest_hour_kyiv"] or meta(con, "last_digest") == week:
+        return
+    since = (now() - timedelta(days=7)).isoformat()
+    rows = [dict(r) for r in con.execute(
+        "SELECT tender_id, status, text, created, published_at FROM posts WHERE created >= ? OR published_at >= ?",
+        (since, since))]
+    created = [r for r in rows if (r["created"] or "") >= since]
+    published = [r for r in rows if r["status"] == "published" and (r["published_at"] or "") >= since]
+    n_ok = sum(r["status"] in ("approved", "published") for r in created)
+    n_no = sum(r["status"] == "rejected" for r in created)
+    n_wait = sum(r["status"] in ("in_review", "awaiting_edit", "draft") for r in created)
+    rate = f" ({n_ok * 100 // (n_ok + n_no)}% схвалень)" if n_ok + n_no else ""
+    stats = [f"📊 Тиждень {week}",
+             f"Чернеток: {len(created)}; схвалено {n_ok}, відхилено {n_no}, без рішення {n_wait}{rate}",
+             f"Опубліковано: {len(published)}"]
+    ms = model_summary()
+    if ms:
+        stats.append(ms)
+    tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text="\n".join(stats))
+    if ENV("TG_CHANNEL_ID") and published:
+        lines = [f"Підсумки тижня: сигналів ризику в закупівлях — {len(published)}", ""]
+        for p in published[:5]:
+            lines += [f"• {(p['text'] or '').splitlines()[0]}", f"  {PORTAL}{p['tender_id']}"]
+        lines += ["", "Сигнал ризику, не доказ порушення."]
+        tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text="\n".join(lines), disable_web_page_preview=True)
+    meta(con, "last_digest", week)
+    log(f"тижневий підсумок {week} надіслано")
 
 
 # ------------------------------------------------------------------ команди
@@ -583,6 +698,10 @@ def cmd_ci(con, args):
     if not last or datetime.fromisoformat(last) < now() - timedelta(minutes=CFG["draft_every_min"]):
         cmd_draft(con, None)
     publish_due(con)
+    try:
+        weekly_digest(con)
+    except Exception as e:
+        log(f"помилка тижневого підсумку: {e}")
     cmd_ledger_export(con, args)
 
 
@@ -610,8 +729,8 @@ def cmd_set(status):
 def cmd_ledger_export(con, args):
     """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
-        "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at FROM posts")]
-    st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft")}
+        "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id FROM posts")]
+    st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest")}
     try:
         st["watermark"] = con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone()[0]
     except Exception:
@@ -630,10 +749,10 @@ def cmd_ledger_import(con, args):
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
         con.execute("""INSERT OR IGNORE INTO posts (tender_id, created, status, text, approved_by, approved_at, x_id,
-                       published_at) VALUES (:tender_id,:created,:status,:text,:approved_by,:approved_at,:x_id,
-                       :published_at)""", p)
+                       published_at, tg_channel_msg_id) VALUES (:tender_id,:created,:status,:text,:approved_by,
+                       :approved_at,:x_id,:published_at,:tg_channel_msg_id)""", {"tg_channel_msg_id": None, **p})
     st = j.get("state", {})
-    for k in ("tg_offset", "paused", "last_draft"):
+    for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest"):
         if st.get(k) and not meta(con, k):
             meta(con, k, st[k])
     if st.get("watermark"):
