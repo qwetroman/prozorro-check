@@ -29,13 +29,16 @@ import hashlib
 import hmac
 import html
 import json
+import math
 import os
+import random
 import re
 import secrets
 import sqlite3
 import sys
 import time
 import urllib.parse
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -49,7 +52,13 @@ CFG = {
     "min_money_uah": 300_000,           # переплата / різниця / сума під ризиком, щоб випадок «вартував допису»
     "big_money_uah": 2_000_000,         # ...а за такої суми під ризиком достатньо меншого балу
     "lookback_days": 14,                # розглядати лише тендери, позначені за цей період
-    "max_drafts_per_run": 5,
+    "max_drafts_per_run": 0,            # 0 = без обмеження: усі, що пройшли поріг
+    "pattern_min_money_uah": 2_000_000,  # закономірності (замовник/постачальник): мінімальна сума
+    "explore_share": 0.25,              # пошукові випадки: ~1 на 5 чернеток, для навчання моделі
+    "explore_max_per_run": 3,
+    # типи закономірностей для чернеток; buyer_direct (частка неконкурентних процедур) за замовчуванням вимкнено:
+    # для енергетики й комунальних монополій прямі договори - норма, тому сигналів забагато
+    "pattern_types": ["dominance", "split", "buyer_single"],
     "max_posts_per_day": 5,
     "min_minutes_between_posts": 90,
     "quiet_hours_kyiv": [23, 8],        # не публікувати з 23:00 до 08:00 за київським часом
@@ -119,6 +128,10 @@ def db():
     con = sqlite3.connect(CFG["db_path"])
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    have = {r[1] for r in con.execute("PRAGMA table_info(posts)")}
+    for c in ("kind", "features"):            # kind: tender / pattern / explore; features: ознаки закономірності
+        if c not in have:
+            con.execute(f"ALTER TABLE posts ADD COLUMN {c} TEXT")
     return con
 
 
@@ -145,24 +158,23 @@ def price_info(detail):
                 ratio=float(m.group(5)), excess=f(m.group(6)))
 
 
-def candidates(con, limit=50):
+def candidates(con, limit=None, explore=False):
+    # explore=True: навпаки, випадки з прапорцями, які НЕ пройшли звичайні фільтри
     since = (now() - timedelta(days=CFG["lookback_days"])).isoformat()
     rows = con.execute(f"""
         SELECT t.*, SUM(f.weight) AS score, GROUP_CONCAT(f.code, '|') AS codes, GROUP_CONCAT(f.detail, '||') AS details
         FROM flags f JOIN tenders t ON t.id = f.tender_id
         WHERE f.first_seen >= ? AND t.status NOT IN ('cancelled', 'unsuccessful')
           AND t.tender_id NOT IN (SELECT tender_id FROM posts)
-        GROUP BY t.id HAVING score >= 3""", (since,)).fetchall()
-    out = []
+        GROUP BY t.id HAVING score >= ?""", (since, 2 if explore else 3)).fetchall()
+    out, rest = [], []
     for r in rows:
         r = dict(r)
         codes = set((r["codes"] or "").split("|"))
         flags = dict(zip((r["codes"] or "").split("|"), (r["details"] or "").split("||")))
         strong = codes & STRONG
-        if not strong:
-            continue
-        if strong == {"BID_AT_ESTIMATE_EXACT"} and not ("SINGLE_BIDDER" in codes and (r["est"] or 0) >= 5e6):
-            continue
+        weak_only = not strong or (strong == {"BID_AT_ESTIMATE_EXACT"}
+                                   and not ("SINGLE_BIDDER" in codes and (r["est"] or 0) >= 5e6))
         if (r.get("elim_gap_pct") or 0) > 5:            # різниця >500% = майже завжди помилка учасника в одиницях
             codes -= {"CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED"}
         pi = price_info(flags.get("PRICE_ABOVE_PEERS"))
@@ -174,28 +186,27 @@ def candidates(con, limit=50):
                     0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
             money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
-        if money < CFG["min_money_uah"]:
-            continue
-        if r["score"] < CFG["min_score"] and money < CFG["big_money_uah"]:
-            continue
         if r.get("military") == 1:
-            if not CFG["include_military"]:
+            if not CFG["include_military"] or explore:
                 continue
             pub = r.get("period_start") or r.get("published") or r.get("modified")  # дата оголошення
             if pub and datetime.fromisoformat(pub) > now() - timedelta(days=CFG["military_delay_days"]):
                 continue
         r.update(codes=codes, flags=flags, price=pi, money=money)
-        out.append(r)
-    out.sort(key=lambda r: (-r["money"], -r["score"]))
+        ok = (not weak_only and money >= CFG["min_money_uah"]
+              and not (r["score"] < CFG["min_score"] and money < CFG["big_money_uah"]))
+        (out if ok else rest).append(r)
+    pool = rest if explore else out
+    pool.sort(key=lambda r: (-r["money"], -r["score"]))
     seen, uniq = {}, []
-    for r in out:                                        # один допис на замовника + предмет (лоти однієї закупівлі)
+    for r in pool:                                        # один допис на замовника + предмет (лоти однієї закупівлі)
         k = (r["buyer_id"], subject(r)[:40])
         if k in seen:
             seen[k]["siblings"] = seen[k].get("siblings", 0) + 1
             continue
         seen[k] = r
         uniq.append(r)
-    return uniq[:limit]
+    return uniq if limit is None else uniq[:limit]
 
 
 # ------------------------------------------------------------------ генерування тексту
@@ -329,6 +340,42 @@ def compose(r):
     return text
 
 
+def compose_pattern(p):
+    """Текст для закономірності (замовник/постачальник), до 280 символів."""
+    def head(n):
+        buyer = "Замовник (ФОП)" if is_person(p["buyer"]) else short_name(p["buyer"], n)
+        if p["pattern"] == "dominance":
+            sup = "переможець-ФОП" if is_person(p["supplier"]) else short_name(p["supplier"], n - 5)
+            return (f"{buyer}: {sup} отримав {p['n']} з {p['n_buyer']} конкурентних закупівель за {p['days']} дн., "
+                    f"{p['share']:.0%} їхньої вартості ({money(p['total'])}).")
+        if p["pattern"] == "split":
+            subj = subject({"title": p.get("title"), "military": 0})
+            return (f"{buyer}: {p['n']} закупівель «{subj}» за {p['days']} дн. на {money(p['total'])}. "
+                    f"Кожна нижча за поріг {money(p['threshold'])}, разом більше. Можливий поділ закупівлі.")
+        return f"{buyer}: за останні 30 днів {p['detail'].rstrip('.')}."
+    lines = [f"У {p['one_bid']} з {p['n']} була лише одна пропозиція."] if p.get("one_bid") else []
+    ids = edrpou_line({"buyer_id": p["buyer_id"], "supplier_id": p.get("supplier_id"), "military": 0})
+    ex = f"Приклад: {PORTAL}{p['example']} " if p.get("example") else ""
+    tail = f"Сигнал ризику, не доказ порушення.\n{ex}{CFG['hashtags']}".rstrip()
+    for n in (45, 30, 20):
+        for extra in (lines + ([ids] if ids else []), lines, []):
+            text = "\n".join([head(n)] + extra + [tail])
+            if weighted_len(text) <= 280:
+                return text
+    return text
+
+
+def pattern_context(p):
+    lines = ["🔗 Закономірність (замовник/постачальник), а не окремий тендер.",
+             f"Замовник: {p['buyer']} ({p['buyer_id']})"]
+    if p.get("supplier"):
+        lines.append(f"Постачальник: {p['supplier']} ({p['supplier_id']})")
+    lines.append(f"Сума: {money(p['total'])}")
+    if p.get("example"):
+        lines.append(f"Найбільша закупівля: {PORTAL}{p['example']}")
+    return "\n".join(lines)
+
+
 def context(r):
     """Додаткові факти лише для того, хто перевіряє (ніколи не публікуються)."""
     lines = [f"Сума/оцінка: {money(r.get('award_amt'))} / {money(r.get('est'))}; учасників: {r.get('n_bids') or '—'}; "
@@ -346,11 +393,16 @@ def tg(method, **params):
     if DRY:
         log(f"DRY telegram.{method} {json.dumps(params, ensure_ascii=False)[:600]}")
         return {"message_id": int(time.time()) % 100000, "result": []}
-    r = requests.post(f"https://api.telegram.org/bot{ENV('TG_BOT_TOKEN')}/{method}", json=params, timeout=70)
-    j = r.json()
-    if not j.get("ok"):
+    for attempt in range(3):
+        r = requests.post(f"https://api.telegram.org/bot{ENV('TG_BOT_TOKEN')}/{method}", json=params, timeout=70)
+        j = r.json()
+        if j.get("ok"):
+            return j["result"]
+        wait = (j.get("parameters") or {}).get("retry_after")
+        if j.get("error_code") == 429 and wait and attempt < 2:   # забагато повідомлень: Telegram каже, скільки чекати
+            time.sleep(min(wait, 60) + 1)
+            continue
         raise RuntimeError(f"telegram {method}: {j}")
-    return j["result"]
 
 
 def admin_ids():
@@ -365,7 +417,7 @@ def buttons(tid):
 
 def review_html(tid, text, ctx, status=None):
     s = (f"<b>Чернетка для {'X' if CFG['post_to_x'] else 'Telegram-каналу'}</b> ({weighted_len(text)}/280)\n<pre>{html.escape(text)}</pre>\n"
-         f"<b>Для перевірки:</b>\n{html.escape(ctx)}\n{PORTAL}{tid}")
+         f"<b>Для перевірки:</b>\n{html.escape(ctx)}" + ("" if tid.startswith("PAT-") else f"\n{PORTAL}{tid}"))
     if status:
         s += f"\n\n<b>{html.escape(status)}</b>"
     return s[:4090]
@@ -443,7 +495,8 @@ def handle_update(con, u):
         p = con.execute("SELECT * FROM posts WHERE status='awaiting_edit' AND note=?", (str(reply_to),)).fetchone()
         if p:
             if text.endswith("+link"):
-                text = text[:-5].rstrip() + f"\n{PORTAL}{p['tender_id']}"
+                link = "" if p["tender_id"].startswith("PAT-") else f"\n{PORTAL}{p['tender_id']}"
+                text = text[:-5].rstrip() + link
             if weighted_len(text) > 280:
                 tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
                    text=f"Задовго: {weighted_len(text)}/280. Спробуйте ще раз (reply на попереднє прохання).")
@@ -645,7 +698,9 @@ def weekly_digest(con):
     if ENV("TG_CHANNEL_ID") and published:
         lines = [f"Підсумки тижня: сигналів ризику в закупівлях — {len(published)}", ""]
         for p in published[:5]:
-            lines += [f"• {(p['text'] or '').splitlines()[0]}", f"  {PORTAL}{p['tender_id']}"]
+            lines.append(f"• {(p['text'] or '').splitlines()[0]}")
+            if not p["tender_id"].startswith("PAT-"):
+                lines.append(f"  {PORTAL}{p['tender_id']}")
         lines += ["", "Сигнал ризику, не доказ порушення."]
         tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text="\n".join(lines), disable_web_page_preview=True)
     meta(con, "last_digest", week)
@@ -654,18 +709,49 @@ def weekly_digest(con):
 
 # ------------------------------------------------------------------ команди
 def cmd_draft(con, _args):
-    made = 0
-    for r in candidates(con):
-        if made >= CFG["max_drafts_per_run"]:
-            break
-        text, ctx = compose(r), context(r)
-        con.execute("INSERT OR IGNORE INTO posts (tender_id, created, status, text, context) VALUES (?,?,?,?,?)",
-                    (r["tender_id"], now().isoformat(), "draft", text, ctx))
+    items = [("tender", r) for r in candidates(con)]
+    try:
+        import prozorro_patterns as PP
+        PP.sync_awards(con)
+        have = {r[0] for r in con.execute("SELECT tender_id FROM posts")}
+        items += [("pattern", p) for p in PP.find_patterns(con)
+                  if p["key"] not in have and p["pattern"] in CFG["pattern_types"]
+                  and p["money"] >= CFG["pattern_min_money_uah"]]
+    except Exception as e:
+        log(f"помилка закономірностей: {e}")
+    if CFG["max_drafts_per_run"]:
+        items = items[:CFG["max_drafts_per_run"]]
+    n_explore = min(CFG["explore_max_per_run"], math.ceil(len(items) * CFG["explore_share"])) if items else 0
+    if n_explore:
+        pool = candidates(con, explore=True)
+        items += [("explore", r) for r in random.sample(pool, min(n_explore, len(pool)))]
+    made = Counter()
+    for kind, r in items:
+        if kind == "pattern":
+            key, text, ctx = r["key"], compose_pattern(r), pattern_context(r)
+            feats = json.dumps(r["features"], ensure_ascii=False)
+        else:
+            key, text, ctx, feats = r["tender_id"], compose(r), context(r), None
+            if kind == "explore":
+                ctx = "🧪 Пошуковий випадок: не пройшов звичайні фільтри, показую для навчання моделі.\n" + ctx
+        cur = con.execute("INSERT OR IGNORE INTO posts (tender_id, created, status, text, context, kind, features) "
+                          "VALUES (?,?,?,?,?,?,?)", (key, now().isoformat(), "draft", text, ctx, kind, feats))
         con.commit()
-        send_for_review(con, r["tender_id"], text, ctx)
-        made += 1
+        if not cur.rowcount:
+            continue
+        try:
+            send_for_review(con, key, text, ctx)
+        except Exception as e:                  # не губимо чернетку: спробуємо в наступному проході
+            log(f"не вдалося надіслати чернетку {key}: {e}")
+            con.execute("DELETE FROM posts WHERE tender_id=? AND status='draft'", (key,))
+            con.commit()
+            break
+        made[kind] += 1
+        if not DRY:
+            time.sleep(1)                       # Telegram: не частіше ~1 повідомлення на секунду в один чат
     meta(con, "last_draft", now().isoformat())
-    log(f"надіслано на перевірку чернеток: {made}")
+    log(f"надіслано на перевірку чернеток: {sum(made.values())} "
+        f"(тендерів {made['tender']}, закономірностей {made['pattern']}, пошукових {made['explore']})")
 
 
 def cmd_poll(con, _args):
@@ -729,7 +815,8 @@ def cmd_set(status):
 def cmd_ledger_export(con, args):
     """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
-        "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id FROM posts")]
+        "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
+        "kind, features FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest")}
     try:
         st["watermark"] = con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone()[0]
@@ -749,8 +836,9 @@ def cmd_ledger_import(con, args):
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
         con.execute("""INSERT OR IGNORE INTO posts (tender_id, created, status, text, approved_by, approved_at, x_id,
-                       published_at, tg_channel_msg_id) VALUES (:tender_id,:created,:status,:text,:approved_by,
-                       :approved_at,:x_id,:published_at,:tg_channel_msg_id)""", {"tg_channel_msg_id": None, **p})
+                       published_at, tg_channel_msg_id, kind, features) VALUES (:tender_id,:created,:status,:text,
+                       :approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features)""",
+                    {"tg_channel_msg_id": None, "kind": None, "features": None, **p})
     st = j.get("state", {})
     for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest"):
         if st.get(k) and not meta(con, k):
