@@ -59,7 +59,7 @@ CFG = {
     # типи закономірностей для чернеток; buyer_direct (частка неконкурентних процедур) за замовчуванням вимкнено:
     # для енергетики й комунальних монополій прямі договори - норма, тому сигналів забагато
     "pattern_types": ["dominance", "split", "buyer_single"],
-    "max_posts_per_day": 5,
+    "max_posts_per_day": 0,             # 0 = без денного ліміту
     "min_minutes_between_posts": 90,
     "quiet_hours_kyiv": [23, 8],        # не публікувати з 23:00 до 08:00 за київським часом
     "military_delay_days": 14,          # військові випадки чекають стільки днів після оголошення на Prozorro
@@ -587,7 +587,7 @@ def publish_one(con):
     day0 = now().astimezone(KYIV).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).isoformat()
     n_today = con.execute("SELECT COUNT(*) FROM posts WHERE status='published' AND published_at>=?", (day0,)).fetchone()[0]
     last = con.execute("SELECT MAX(published_at) FROM posts WHERE status='published'").fetchone()[0]
-    if n_today >= CFG["max_posts_per_day"]:
+    if CFG["max_posts_per_day"] and n_today >= CFG["max_posts_per_day"]:
         return
     if last and datetime.fromisoformat(last) > now() - timedelta(minutes=CFG["min_minutes_between_posts"]):
         return
