@@ -2,8 +2,10 @@
  "state": {
   "tg_offset": "705662504",
   "paused": null,
-  "last_draft": "2026-11-08T20:46:25.433559+00:00",
-  "watermark": "2026-11-08T22:51:11.946236+02:00"
+  "last_draft": "2026-11-08T22:00:13.319947+00:00",
+  "last_channel_post": null,
+  "last_digest": null,
+  "watermark": "2026-11-08T23:59:33.307637+02:00"
  },
  "posts": [
   {
@@ -14,7 +16,8 @@
    "approved_by": "444946839",
    "approved_at": "2026-11-08T20:51:29.766468+00:00",
    "x_id": "manual",
-   "published_at": "2026-11-08T20:51:35.886320+00:00"
+   "published_at": "2026-11-08T20:51:35.886320+00:00",
+   "tg_channel_msg_id": 2
   },
   {
    "tender_id": "UA-2026-08-14-007919-a",
@@ -24,7 +27,8 @@
    "approved_by": null,
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-08-19-008469-a",
@@ -34,7 +38,41 @@
    "approved_by": "444946839",
    "approved_at": "2026-11-08T20:51:32.966000+00:00",
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
+  },
+  {
+   "tender_id": "UA-2026-08-28-004039-a",
+   "created": "2026-11-08T22:00:12.785347+00:00",
+   "status": "in_review",
+   "text": "ТОВ \"Оператор Газотранспортної Системи України\": Баласти для розрядних ламп чи трубок (Джерела безперебійного…, 18,8 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 5,0 млн грн (+36%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-28-004039-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null
+  },
+  {
+   "tender_id": "UA-2026-08-31-013008-a",
+   "created": "2026-11-08T22:00:11.618206+00:00",
+   "status": "in_review",
+   "text": "Управління забезпечення Оперативно-рятувал…: Вантажні автомобілі спеціалізовані (з гаковим навантажувачем…, 196,5 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 6,3 млн грн (+3%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-31-013008-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null
+  },
+  {
+   "tender_id": "UA-2026-09-04-006329-a",
+   "created": "2026-11-08T22:00:12.263775+00:00",
+   "status": "in_review",
+   "text": "КНТ \"Дніпропетровський Обласний Центр Кров…: Центрифуга для банків крові на 6 стаканів для 12-ти контейне…, 17,4 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 5,4 млн грн (+45%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-04-006329-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-09-18-007896-a",
@@ -44,7 +82,8 @@
    "approved_by": null,
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-09-21-014629-a",
@@ -54,7 +93,8 @@
    "approved_by": null,
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-10-05-010933-a",
@@ -64,7 +104,8 @@
    "approved_by": null,
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-10-06-013320-a",
@@ -74,7 +115,8 @@
    "approved_by": "444946839",
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-10-06-013559-a",
@@ -84,7 +126,30 @@
    "approved_by": null,
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
+  },
+  {
+   "tender_id": "UA-2026-10-12-011545-a",
+   "created": "2026-11-08T22:00:10.462912+00:00",
+   "status": "in_review",
+   "text": "Військовий замовник: Повсякденні набори сухих продуктів (раціон №1-3), 64,6 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 9,4 млн грн (+17%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-12-011545-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null
+  },
+  {
+   "tender_id": "UA-2026-10-19-009714-a",
+   "created": "2026-11-08T22:00:11.046068+00:00",
+   "status": "in_review",
+   "text": "КНТ «Перше Клінічне Територіальне Медичне Об'єдна…: Фентаніл, розчин для ін'єкцій, 0,05 мг/мл, по 2 мл, 10,8 млн грн.\nЦіна 80,00 грн/штука — у 5,6 раза вища за медіану (14,40 грн) у 9 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-19-009714-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-10-20-005180-a",
@@ -94,7 +159,8 @@
    "approved_by": "444946839",
    "approved_at": null,
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   },
   {
    "tender_id": "UA-2026-10-28-005834-a",
@@ -104,7 +170,8 @@
    "approved_by": "444946839",
    "approved_at": "2026-11-08T20:51:31.560284+00:00",
    "x_id": null,
-   "published_at": null
+   "published_at": null,
+   "tg_channel_msg_id": null
   }
  ]
 }
