@@ -1,0 +1,4 @@
+state/prozorro.db
+.env
+reports/
+__pycache__/
