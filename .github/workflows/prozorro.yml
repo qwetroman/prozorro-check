@@ -1,0 +1,82 @@
+name: prozorro-bot
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"        # every 30 min (GitHub may start runs 5-20 min late)
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Back-fill from date (YYYY-MM-DD) on the first run; leave empty afterwards"
+        required: false
+      limit:
+        description: "Max tenders to fetch this run"
+        required: false
+        default: "8000"
+
+permissions:
+  contents: write                 # to commit state/ledger.json
+
+concurrency:
+  group: prozorro-bot             # never run two passes at once (one SQLite DB)
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      TG_ADMIN_IDS: ${{ secrets.TG_ADMIN_IDS }}
+      TG_REVIEW_CHAT_ID: ${{ secrets.TG_REVIEW_CHAT_ID }}
+      TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+      X_API_KEY: ${{ secrets.X_API_KEY }}
+      X_API_SECRET: ${{ secrets.X_API_SECRET }}
+      X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests==2.32.3
+
+      # The tender database lives in the Actions cache (fast, up to 10 GB/repo).
+      # Each run saves a new cache entry; the newest one is restored next time.
+      - name: Restore database
+        uses: actions/cache/restore@v4
+        with:
+          path: state/prozorro.db
+          key: prozorro-db-${{ github.run_id }}
+          restore-keys: prozorro-db-
+
+      # If the cache was ever evicted, the ledger (in git) restores decisions and the fetch watermark.
+      - name: Restore ledger into database
+        run: python prozorro_publisher.py --db state/prozorro.db ledger-import --path state/ledger.json
+
+      - name: Fetch tenders and flag anomalies
+        run: |
+          ARGS="--window 30 --limit ${{ github.event.inputs.limit || '8000' }}"
+          if [ -n "${{ github.event.inputs.since }}" ]; then ARGS="$ARGS --since ${{ github.event.inputs.since }}"; fi
+          python prozorro_monitor.py --db state/prozorro.db run $ARGS
+
+      - name: Telegram review + publish approved
+        run: python prozorro_publisher.py --db state/prozorro.db ci --path state/ledger.json
+
+      - name: Keep database small
+        run: python prozorro_monitor.py --db state/prozorro.db prune --days 45 --keep-flagged-days 30
+
+      - name: Save database
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state/prozorro.db
+          key: prozorro-db-${{ github.run_id }}
+
+      - name: Commit ledger
+        run: |
+          git config user.name "prozorro-bot"
+          git config user.email "prozorro-bot@users.noreply.github.com"
+          git add state/ledger.json
+          git diff --cached --quiet || (git commit -m "ledger update" && git push)
