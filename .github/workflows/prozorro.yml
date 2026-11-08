@@ -2,22 +2,22 @@ name: prozorro-bot
 
 on:
   schedule:
-    - cron: "7,37 * * * *"        # every 30 min (GitHub may start runs 5-20 min late)
+    - cron: "7,37 * * * *"        # кожні 30 хв (GitHub може запускати із запізненням 5-20 хв)
   workflow_dispatch:
     inputs:
       since:
-        description: "Back-fill from date (YYYY-MM-DD) on the first run; leave empty afterwards"
+        description: "Дозавантажити з дати (РРРР-ММ-ДД) під час першого запуску; надалі залишайте порожнім"
         required: false
       limit:
-        description: "Max tenders to fetch this run"
+        description: "Максимум тендерів за цей запуск"
         required: false
         default: "8000"
 
 permissions:
-  contents: write                 # to commit state/ledger.json
+  contents: write                 # щоб комітити state/ledger.json
 
 concurrency:
-  group: prozorro-bot             # never run two passes at once (one SQLite DB)
+  group: prozorro-bot             # ніколи не запускати два проходи одночасно (одна база SQLite)
   cancel-in-progress: false
 
 jobs:
@@ -40,43 +40,44 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install requests==2.32.3
+      - name: Встановити залежності
+        run: pip install requests==2.32.3
 
-      # The tender database lives in the Actions cache (fast, up to 10 GB/repo).
-      # Each run saves a new cache entry; the newest one is restored next time.
-      - name: Restore database
+      # База тендерів зберігається в кеші Actions (швидко, до 10 ГБ на репозиторій).
+      # Кожен запуск зберігає новий запис кешу; наступного разу відновлюється найновіший.
+      - name: Відновити базу даних
         uses: actions/cache/restore@v4
         with:
           path: state/prozorro.db
           key: prozorro-db-${{ github.run_id }}
           restore-keys: prozorro-db-
 
-      # If the cache was ever evicted, the ledger (in git) restores decisions and the fetch watermark.
-      - name: Restore ledger into database
+      # Якщо кеш буде витіснено, журнал (у git) відновить рішення та позначку завантаження.
+      - name: Відновити журнал у базу даних
         run: python prozorro_publisher.py --db state/prozorro.db ledger-import --path state/ledger.json
 
-      - name: Fetch tenders and flag anomalies
+      - name: Завантажити тендери й позначити аномалії
         run: |
           ARGS="--window 30 --limit ${{ github.event.inputs.limit || '8000' }}"
           if [ -n "${{ github.event.inputs.since }}" ]; then ARGS="$ARGS --since ${{ github.event.inputs.since }}"; fi
           python prozorro_monitor.py --db state/prozorro.db run $ARGS
 
-      - name: Telegram review + publish approved
+      - name: Перевірка в Telegram і публікація схваленого
         run: python prozorro_publisher.py --db state/prozorro.db ci --path state/ledger.json
 
-      - name: Keep database small
+      - name: Тримати базу малою
         run: python prozorro_monitor.py --db state/prozorro.db prune --days 45 --keep-flagged-days 30
 
-      - name: Save database
+      - name: Зберегти базу даних
         if: always()
         uses: actions/cache/save@v4
         with:
           path: state/prozorro.db
           key: prozorro-db-${{ github.run_id }}
 
-      - name: Commit ledger
+      - name: Закомітити журнал
         run: |
           git config user.name "prozorro-bot"
           git config user.email "prozorro-bot@users.noreply.github.com"
           git add state/ledger.json
-          git diff --cached --quiet || (git commit -m "ledger update" && git push)
+          git diff --cached --quiet || (git commit -m "оновлення журналу" && git push)
