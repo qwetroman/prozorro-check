@@ -350,29 +350,37 @@ def set_review_status(con, tid, status, keep_buttons=False):
         log(f"не вдалося змінити повідомлення для перевірки: {e}")
 
 
+def answer_cb(q, text):
+    # Telegram приймає відповідь на натискання лише кілька хвилин, а бот читає його в наступному проході
+    try:
+        tg("answerCallbackQuery", callback_query_id=q["id"], text=text)
+    except Exception as e:
+        log(f"не вдалося відповісти на натискання (застаре): {e}")
+
+
 def handle_update(con, u):
     if "callback_query" in u:
         q = u["callback_query"]
         uid = str(q["from"]["id"])
         if uid not in admin_ids():
-            tg("answerCallbackQuery", callback_query_id=q["id"], text="Немає прав")
+            answer_cb(q, text="Немає прав")
             log(f"проігноровано натискання від не-адміністратора {uid}")
             return
         action, tid = q.get("data", ":").split(":", 1)
         p = con.execute("SELECT * FROM posts WHERE tender_id=?", (tid,)).fetchone()
         if not p or p["status"] not in ("in_review", "awaiting_edit"):
-            tg("answerCallbackQuery", callback_query_id=q["id"], text="Вже оброблено")
+            answer_cb(q, text="Вже оброблено")
             return
         if action == "ok":
             con.execute("UPDATE posts SET status='approved', approved_by=?, approved_at=? WHERE tender_id=?",
                         (uid, now().isoformat(), tid))
             con.commit()
-            tg("answerCallbackQuery", callback_query_id=q["id"], text="Схвалено — стане в чергу")
+            answer_cb(q, text="Схвалено — стане в чергу")
             set_review_status(con, tid, "✅ Схвалено, у черзі на публікацію")
         elif action == "no":
             con.execute("UPDATE posts SET status='rejected', approved_by=? WHERE tender_id=?", (uid, tid))
             con.commit()
-            tg("answerCallbackQuery", callback_query_id=q["id"], text="Відхилено")
+            answer_cb(q, text="Відхилено")
             set_review_status(con, tid, "❌ Відхилено")
         elif action == "ed":
             res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
@@ -382,7 +390,7 @@ def handle_update(con, u):
             con.execute("UPDATE posts SET status='awaiting_edit', note=? WHERE tender_id=?",
                         (str(res["message_id"]), tid))
             con.commit()
-            tg("answerCallbackQuery", callback_query_id=q["id"], text="Чекаю новий текст")
+            answer_cb(q, text="Чекаю новий текст")
         return
     msg = u.get("message") or {}
     uid = str((msg.get("from") or {}).get("id", ""))
