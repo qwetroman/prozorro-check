@@ -235,7 +235,7 @@ def signal_lines(r):
     c, lines = r["codes"], []
     pi = r.get("price")
     if pi:
-        lines.append(f"Ціна {num_ua(pi['price'], 2 if pi['price'] < 100 else 0)} грн/{pi['unit']} — у {pi['ratio']:.1f} раза "
+        lines.append(f"Ціна {num_ua(pi['price'], 2 if pi['price'] < 100 else 0)} грн/{pi['unit']} — у {num_ua(pi['ratio'], 1)} раза "
                      f"вища за медіану ({num_ua(pi['med'], 2 if pi['med'] < 100 else 0)} грн) у {pi['n']} інших замовників.")
     if c & {"CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED"} and r.get("elim_gap"):
         how = "відмовились від договору" if "CHEAPER_BIDS_WITHDREW" in c else "були відхилені"
@@ -254,9 +254,9 @@ def signal_lines(r):
             lines.append(f"Той самий дешевший учасник уже {m.group(1)} раз(и) «поступався» цьому переможцю.")
     if "SHARED_BIDDER_CONTACTS" in c:
         f = r["flags"].get("SHARED_BIDDER_CONTACTS", "")
-        what = [w for k, w in (("(телефон)", "телефон"), ("(e-mail)", "e-mail"), ("(контактна особа)", "контактну особу"),
-                               ("(адреса)", "адресу")) if k in f]
-        lines.append(f"Конкуруючі учасники мають спільні {', '.join(what) or 'контакти'}.")
+        what = [w for k, w in (("(телефон)", "телефон"), ("(e-mail)", "e-mail"), ("(контактна особа)", "контактна особа"),
+                               ("(адреса)", "адреса")) if k in f]
+        lines.append(f"Конкуруючі учасники мають спільні контакти{' (' + ', '.join(what) + ')' if what else ''}.")
     if "AMCU_COMPLAINT_UPHELD" in c:
         lines.append("АМКУ задовольнив скаргу в цій закупівлі.")
     return lines
@@ -564,7 +564,7 @@ def cmd_ci(con, args):
 def cmd_preview(con, args):
     for r in candidates(con, limit=args.n):
         t = compose(r)
-        print(f"--- {r['tender_id']} score={r['score']} money={money(r['money'])} len={weighted_len(t)}\n{t}\n")
+        print(f"--- {r['tender_id']} бали={r['score']} сума={money(r['money'])} довжина={weighted_len(t)}\n{t}\n")
 
 
 def cmd_queue(con, _args):
