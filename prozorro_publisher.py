@@ -18,6 +18,7 @@ Secrets come from environment variables (or a .env file next to this script):
   TG_REVIEW_CHAT_ID (where drafts are sent; usually your own user id),
   TG_CHANNEL_ID (optional, e.g. @my_channel -> also publish there),
   X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET (OAuth 1.0a user context, Read+Write app)
+  Without the X keys, approved posts are sent to you in Telegram as a one-tap link that opens X pre-filled.
 Use --dry-run to print every outgoing request instead of sending it.
 """
 from __future__ import annotations
@@ -453,6 +454,24 @@ def x_post(text):
     return r.json()["data"]["id"]
 
 
+def x_intent_url(text):
+    return "https://x.com/intent/post?text=" + urllib.parse.quote(text, safe="")
+
+
+def send_manual_post(tid, text):
+    """Free mode (no X API keys): send a one-tap link that opens X with the post pre-filled."""
+    url = x_intent_url(text)
+    body = (f"<b>Готово до публікації в X</b> ({tid})\nНатисніть кнопку, перевірте текст і натисніть Post.\n"
+            f"<pre>{html.escape(text)}</pre>")
+    try:
+        tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=body, parse_mode="HTML",
+           disable_web_page_preview=True, reply_markup={"inline_keyboard": [[{"text": "Відкрити в X", "url": url}]]})
+    except Exception as e:  # e.g. URL too long for a button: fall back to a plain link
+        log(f"button failed ({e}); sending plain link")
+        tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), parse_mode="HTML", disable_web_page_preview=True,
+           text=body + f'\n<a href="{html.escape(url)}">Відкрити в X</a>')
+
+
 def publish_due(con):
     if meta(con, "paused") == "1":
         return
@@ -471,15 +490,20 @@ def publish_due(con):
     if not p:
         return
     try:
-        xid = x_post(p["text"]) if ENV("X_API_KEY") or DRY else None
+        if ENV("X_API_KEY") or DRY:
+            xid = x_post(p["text"])
+        else:
+            send_manual_post(p["tender_id"], p["text"])
+            xid = "manual"
         chan = None
         if ENV("TG_CHANNEL_ID"):
             chan = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=p["text"])["message_id"]
         con.execute("UPDATE posts SET status='published', x_id=?, tg_channel_msg_id=?, published_at=? WHERE tender_id=?",
                     (xid, chan, now().isoformat(), p["tender_id"]))
         con.commit()
-        link = f"https://x.com/i/web/status/{xid}" if xid and not str(xid).startswith("dry") else xid
-        set_review_status(con, p["tender_id"], f"📤 Опубліковано {link or ''}")
+        link = f"https://x.com/i/web/status/{xid}" if xid and not str(xid).startswith(("dry", "manual")) else xid
+        set_review_status(con, p["tender_id"], "📤 Надіслано вам для публікації в X" if xid == "manual"
+                          else f"📤 Опубліковано {link or ''}")
         log(f"published {p['tender_id']} -> X {xid}")
     except Exception as e:
         con.execute("UPDATE posts SET status='failed', note=? WHERE tender_id=?", (str(e)[:500], p["tender_id"]))
