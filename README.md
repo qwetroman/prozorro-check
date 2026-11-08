@@ -1,45 +1,45 @@
-# Prozorro anomaly bot (GitHub Actions)
+# Бот аномалій Prozorro (GitHub Actions)
 
-Every 30 minutes GitHub runs one pass:
+Кожні 30 хвилин GitHub виконує один прохід:
 
-1. Fetch new Prozorro tenders and flag anomalies.
-2. Send strong new cases to your Telegram for review (✅ Опублікувати / ✏️ Редагувати / ❌ Відхилити).
-3. Publish what you approved to X (automatically with X API keys, or via a one-tap link you get in Telegram).
+1. Завантажує нові тендери Prozorro і позначає аномалії.
+2. Надсилає нові сильні випадки вам у Telegram на перевірку (✅ Опублікувати / ✏️ Редагувати / ❌ Відхилити).
+3. Публікує схвалене в X (автоматично з ключами X API або через посилання «Відкрити в X», яке ви отримуєте в Telegram).
 
-Nothing is posted without your tap. Taps are picked up on the next pass, so approvals take effect within 30–60 minutes.
+Без вашого натискання нічого не публікується. Натискання обробляються під час наступного проходу, тож схвалення спрацьовує за 30–60 хвилин.
 
-**Where state lives**
+**Де зберігається стан**
 
-- The tender database is in the Actions cache, saved each run and kept as long as the bot runs at least weekly.
-- Your decisions and the fetch position are in `state/ledger.json`, committed to the repo by the bot. If the cache is ever lost, nothing is re-offered and nothing is posted twice.
+- База тендерів — у кеші Actions; вона зберігається після кожного запуску й живе, поки бот запускається хоча б раз на тиждень.
+- Ваші рішення та позиція завантаження — у `state/ledger.json`, який бот комітить у репозиторій. Якщо кеш буде втрачено, нічого не буде запропоновано вдруге й нічого не буде опубліковано двічі.
 
-## Setup (done by you)
+## Налаштування (робите ви)
 
-1. **Create a repository.**
-   - Public: Actions minutes are free and unlimited.
-   - Private: the free plan includes 2,000 minutes a month. A pass takes about 1.5–3 minutes, so change the cron line in `.github/workflows/prozorro.yml` to hourly (`"7 * * * *"`).
-2. **Upload these files** (web UI: *Add file → Upload files*, drag the whole folder so `.github/workflows/` is kept).
-3. **Add secrets:** *Settings → Secrets and variables → Actions → New repository secret*. Add one for each line in `.env.example`:
+1. **Створіть репозиторій.**
+   - Публічний: хвилини Actions безкоштовні й необмежені.
+   - Приватний: безкоштовний план містить 2 000 хвилин на місяць. Прохід триває приблизно 1,5–3 хвилини, тож змініть рядок cron у `.github/workflows/prozorro.yml` на щогодинний (`"7 * * * *"`).
+2. **Завантажте ці файли** (вебінтерфейс: *Add file → Upload files*; перетягніть усю теку, щоб зберегти `.github/workflows/`).
+3. **Додайте секрети:** *Settings → Secrets and variables → Actions → New repository secret*. По одному для кожного рядка в `.env.example`:
 
-   | Secret | Required? |
+   | Секрет | Обов'язковий? |
    | --- | --- |
-   | `TG_BOT_TOKEN`, `TG_ADMIN_IDS`, `TG_REVIEW_CHAT_ID` | required |
-   | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | optional: without them each approved post arrives in Telegram as a one-tap “Відкрити в X” link (free) |
-   | `TG_CHANNEL_ID` | optional |
+   | `TG_BOT_TOKEN`, `TG_ADMIN_IDS`, `TG_REVIEW_CHAT_ID` | так |
+   | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | ні: без них кожен схвалений допис надходить у Telegram як посилання «Відкрити в X» (безкоштовно) |
+   | `TG_CHANNEL_ID` | ні |
 
-4. **Allow the bot to commit:** *Settings → Actions → General → Workflow permissions → Read and write*.
-5. **First fill:** *Actions → prozorro-bot → Run workflow*, with `since` = a date about 10 days ago and `limit` = 40000. Repeat with an empty `since` until the log stops saying "hit max_tenders_per_run". Each run takes ≤ ~15 min, and every run continues where the last stopped.
-6. Send `/start` to your Telegram bot. Drafts start arriving after the next scheduled pass.
+4. **Дозвольте боту комітити:** *Settings → Actions → General → Workflow permissions → Read and write* (необов'язково: workflow сам запитує `contents: write`).
+5. **Перше наповнення:** *Actions → prozorro-bot → Run workflow*, з `since` = дата приблизно 10 днів тому та `limit` = 40000. Повторюйте з порожнім `since`, доки в журналі не зникне «досягнуто max_tenders_per_run». Кожен запуск триває до ~15 хв і продовжує з місця, де зупинився попередній.
+6. Надішліть `/start` своєму боту в Telegram. Чернетки почнуть надходити після наступного проходу за розкладом.
 
-## Day to day
+## Щодня
 
-- Review drafts in Telegram.
-- `/pause` and `/resume` stop and restart publishing. `/queue` shows what's waiting.
-- Tune volume and thresholds in `publisher.json`, then commit.
-- Test without posting by running a pass locally with `--dry-run`, e.g. `python prozorro_publisher.py --dry-run ci`.
+- Перевіряйте чернетки в Telegram.
+- `/pause` і `/resume` зупиняють і відновлюють публікацію. `/queue` показує, що чекає в черзі.
+- Обсяг і пороги налаштовуються в `publisher.json` (потім закомітьте).
+- Перевірити без публікації можна локальним запуском з `--dry-run`, напр. `python prozorro_publisher.py --dry-run ci`.
 
-## Notes
+## Примітки
 
-- GitHub can start scheduled runs 5–20 minutes late.
-- In public repositories, schedules pause after 60 days without commits. The bot's ledger commits normally keep it active.
-- Military purchases are anonymised ("Військовий замовник", no unit numbers) and delayed 14 days.
+- GitHub може запускати проходи за розкладом із запізненням 5–20 хвилин.
+- У публічних репозиторіях розклад призупиняється після 60 днів без комітів. Коміти журналу від бота зазвичай підтримують його активним.
+- Військові закупівлі анонімізуються («Військовий замовник», без номерів частин) і публікуються із затримкою 14 днів.
