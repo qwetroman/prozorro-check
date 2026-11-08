@@ -8,7 +8,7 @@
   "explore_share": 0.25,
   "explore_max_per_run": 3,
   "pattern_types": ["dominance", "split", "buyer_single"],
-  "max_posts_per_day": 5,
+  "max_posts_per_day": 0,
   "min_minutes_between_posts": 0,
   "quiet_hours_kyiv": [23, 8],
   "military_delay_days": 14,
