@@ -51,9 +51,12 @@ CFG = {
                             "belowThreshold": 2, "priceQuotation": 2, "requestForProposal": 2},
     # ПЕРЕВІРТЕ за чинним законом про публічні закупівлі / правилами воєнного стану, перш ніж покладатися на це:
     "thresholds_uah": {"goods": 200_000, "services": 200_000, "works": 1_500_000},
+    # замовники в окремих сферах господарювання (енергетика, транспорт, водопостачання...; kind=special)
+    "thresholds_special_uah": {"goods": 1_000_000, "services": 1_000_000, "works": 5_000_000},
     "threshold_margin": 0.03,          # «трохи нижче» = у межах 3% під порогом
     "split_window_days": 30,
     "split_min_count": 3,
+    "split_max_count": 10,             # десятки договорів за місяць - це вже звичайна робота, а не поділ
     "concentration_min_contracts": 5,
     "concentration_share": 0.60,       # один постачальник отримує >= 60% вартості конкурентних перемог замовника
     "ratio_min_group": 30,
@@ -97,6 +100,11 @@ def num(x):
         return float(x)
     except (TypeError, ValueError):
         return None
+
+
+def threshold(r):
+    t = CFG["thresholds_special_uah"] if r.get("buyer_kind") == "special" else CFG["thresholds_uah"]
+    return t.get(r.get("category"))
 
 
 def ts(x):
@@ -432,7 +440,7 @@ def tender_flags(r: dict):
     if competitive and d is not None and mind and d < mind - 0.05:
         add("SHORT_BID_PERIOD", 2, f"Строк подання лише {d:.1f} дн. (звичайний мінімум {mind} для {r['mtype']})")
 
-    thr = CFG["thresholds_uah"].get(r["category"])
+    thr = threshold(r)
     if thr and thr * (1 - CFG["threshold_margin"]) <= est < thr:
         add("JUST_BELOW_THRESHOLD", 1, f"Очікувана вартість {est:,.0f} трохи нижча за поріг {thr:,.0f} грн")
 
@@ -487,19 +495,21 @@ def aggregate_flags(con, days: int):
     # 1) можливий поділ закупівлі: кілька допорогових тендерів одного замовника/групи CPV, що разом перевищують поріг
     groups = defaultdict(list)
     for r in rows:
-        thr = CFG["thresholds_uah"].get(r["category"])
+        thr = threshold(r)
         if (thr and r["currency"] == "UAH" and r["est"] and r["buyer_id"] and r["cpv"] and r["published"]
                 and CFG["min_value_uah"] <= r["est"] < thr):
-            groups[(r["buyer_id"], r["category"], r["cpv"][:5])].append(r)
+            groups[(r["buyer_id"], r["category"], r["cpv"][:5], thr)].append(r)
     win = timedelta(days=CFG["split_window_days"])
-    for (_, cat, cpv5), g in groups.items():
-        thr = CFG["thresholds_uah"][cat]
+    for (_, cat, cpv5, thr), g in groups.items():
         g.sort(key=lambda x: x["published"])
-        lo = 0
+        wins, lo = [], 0
         for hi in range(len(g)):
             while ts(g[hi]["published"]) - ts(g[lo]["published"]) > win:
                 lo += 1
-            w = g[lo:hi + 1]
+            wins.append(g[lo:hi + 1])
+        if max(len(w) for w in wins) > CFG["split_max_count"]:   # десятки за місяць: звичайна робота, не поділ
+            continue
+        for w in wins:
             if len(w) >= CFG["split_min_count"] and sum(x["est"] for x in w) >= thr:
                 for x in w:
                     add(x["id"], "POSSIBLE_SPLIT_PURCHASE", 2,
