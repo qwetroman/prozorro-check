@@ -2,12 +2,1664 @@
  "state": {
   "tg_offset": "705662504",
   "paused": null,
-  "last_draft": "2026-11-08T23:45:03.168307+00:00",
+  "last_draft": "2026-11-09T02:40:49.023290+00:00",
   "last_channel_post": null,
   "last_digest": null,
-  "watermark": "2026-11-09T01:33:25.836346+02:00"
+  "watermark": "2026-11-09T04:30:46.284161+02:00"
  },
  "posts": [
+  {
+   "tender_id": "PAT-BUY-single-00699690-2026Q4",
+   "created": "2026-11-09T02:33:39.699982+00:00",
+   "status": "in_review",
+   "text": "Державний науково-дослідний інститут з лабор…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 00699690\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 18.2162}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-00719406-2026Q4",
+   "created": "2026-11-09T02:36:12.909075+00:00",
+   "status": "in_review",
+   "text": "Львівська Регіональна Державна Лабораторія Д…: за останні 30 днів 11/11 конкурентних тендерів мали одну пропозицію (очікувано близько 8 для такого набору процедур).\nЄДРПОУ: замовник 00719406\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.7614}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-01984636-2026Q4",
+   "created": "2026-11-09T02:35:48.529147+00:00",
+   "status": "in_review",
+   "text": "КНП \"Клінічна лікарня швидкої медичної допом…: за останні 30 днів 11/11 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 01984636\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.9842}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-01994132-2026Q4",
+   "created": "2026-11-09T02:38:22.479335+00:00",
+   "status": "in_review",
+   "text": "КНП \"Бориспільська багатопрофільна лікарня і…: за останні 30 днів 8/10 конкурентних тендерів мали одну пропозицію (очікувано близько 5 для такого набору процедур).\nЄДРПОУ: замовник 01994132\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.1045}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-01996792-2026Q4",
+   "created": "2026-11-09T02:38:25.955327+00:00",
+   "status": "in_review",
+   "text": "КНП Львівської Обласної РАДИ \"Львівський Онк…: за останні 30 днів 12/15 конкурентних тендерів мали одну пропозицію (очікувано близько 9 для такого набору процедур).\nЄДРПОУ: замовник 01996792\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.0887}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-01999106-2026Q4",
+   "created": "2026-11-09T02:37:05.750382+00:00",
+   "status": "in_review",
+   "text": "КП \"Полтавська обласна клінічна лікарня ім.М…: за останні 30 днів 10/11 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 01999106\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.5996}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-02010787-2026Q4",
+   "created": "2026-11-09T02:36:51.797480+00:00",
+   "status": "in_review",
+   "text": "Національний медичний університет імені О.О.…: за останні 30 днів 8/10 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 02010787\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.6668}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-02012154-2026Q4",
+   "created": "2026-11-09T02:34:45.895164+00:00",
+   "status": "in_review",
+   "text": "Державна Установа \"Інститут Загальної ТА Нев…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 02012154\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.6674}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-02142282-2026Q4",
+   "created": "2026-11-09T02:37:30.157252+00:00",
+   "status": "in_review",
+   "text": "Відділ Освіти Виконкому Покровської Районної…: за останні 30 днів 9/11 конкурентних тендерів мали одну пропозицію (очікувано близько 5 для такого набору процедур).\nЄДРПОУ: замовник 02142282\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.3805}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-02220763-2026Q4",
+   "created": "2026-11-09T02:35:34.610587+00:00",
+   "status": "in_review",
+   "text": "КП \"Центральний ПАРК\": за останні 30 днів 10/11 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 02220763\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.114}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-03359018-2026Q4",
+   "created": "2026-11-09T02:33:53.731867+00:00",
+   "status": "in_review",
+   "text": "КП по ремонту і утриманню мостів і шляхів м.…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 03359018\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.6945}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-03361780-2026Q4",
+   "created": "2026-11-09T02:34:18.033152+00:00",
+   "status": "in_review",
+   "text": "КП \"Чернівціводоканал\": за останні 30 днів 9/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 03361780\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.9113}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-04058516-2026Q4",
+   "created": "2026-11-09T02:33:25.818207+00:00",
+   "status": "in_review",
+   "text": "Департамент З Благоустрою, Відбудови ТА Реко…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 04058516\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 18.9423}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-04372313-2026Q4",
+   "created": "2026-11-09T02:33:36.224609+00:00",
+   "status": "in_review",
+   "text": "Давидівська сільська рада Львівського району…: за останні 30 днів 12/12 конкурентних тендерів мали одну пропозицію (очікувано близько 8 для такого набору процедур).\nЄДРПОУ: замовник 04372313\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 18.257}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-04543536-2026Q4",
+   "created": "2026-11-09T02:35:59.023782+00:00",
+   "status": "in_review",
+   "text": "КНТ \"Регіональний медичний центр родинного з…: за останні 30 днів 10/12 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 04543536\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.9172}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-05415792-2026Q4",
+   "created": "2026-11-09T02:35:24.199035+00:00",
+   "status": "in_review",
+   "text": "Клінічна лікарня \"Феофанія\" Державного управ…: за останні 30 днів 9/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 05415792\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.1504}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-05498677-2026Q4",
+   "created": "2026-11-09T02:35:06.819688+00:00",
+   "status": "in_review",
+   "text": "КНП \"Міська Лікарня Екстреної ТА Швидкої Мед…: за останні 30 днів 14/17 конкурентних тендерів мали одну пропозицію (очікувано близько 10 для такого набору процедур).\nЄДРПОУ: замовник 05498677\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.4805}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-24241808-2026Q4",
+   "created": "2026-11-09T02:35:17.257224+00:00",
+   "status": "in_review",
+   "text": "КП \"Розвиток Територій Міста\" Дніпровської м…: за останні 30 днів 11/11 конкурентних тендерів мали одну пропозицію (очікувано близько 8 для такого набору процедур).\nЄДРПОУ: замовник 24241808\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.1966}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-24687786-2026Q4",
+   "created": "2026-11-09T02:40:31.615747+00:00",
+   "status": "in_review",
+   "text": "КНП \"Івано-франківський Обласний Перинатальн…: за останні 30 днів 9/10 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 24687786\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.5295}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-25772436-2026Q4",
+   "created": "2026-11-09T02:34:11.098133+00:00",
+   "status": "in_review",
+   "text": "КП \"Група впровадження проекту з енергозбере…: за останні 30 днів 12/12 конкурентних тендерів мали одну пропозицію (очікувано близько 9 для такого набору процедур).\nЄДРПОУ: замовник 25772436\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.0367}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-26200529-2026Q4",
+   "created": "2026-11-09T02:34:07.621983+00:00",
+   "status": "in_review",
+   "text": "Філія «Відокремлений Підрозділ «Управління С…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 26200529\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.0837}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-32375554-2026Q4",
+   "created": "2026-11-09T02:35:27.673756+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча компанія з обслуговування житлов…: за останні 30 днів 11/13 конкурентних тендерів мали одну пропозицію (очікувано близько 8 для такого набору процедур).\nЄДРПОУ: замовник 32375554\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.1382}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-32616520-2026Q4",
+   "created": "2026-11-09T02:35:45.052266+00:00",
+   "status": "in_review",
+   "text": "КП \"Дніпровський електротранспорт\" Дніпровсь…: за останні 30 днів 14/14 конкурентних тендерів мали одну пропозицію (очікувано близько 10 для такого набору процедур).\nЄДРПОУ: замовник 32616520\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.082}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-32955518-2026Q4",
+   "created": "2026-11-09T02:33:43.180868+00:00",
+   "status": "in_review",
+   "text": "КП \"Центр Організації Дорожнього РУХУ\": за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 32955518\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 18.1223}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-33945469-2026Q4",
+   "created": "2026-11-09T02:33:22.358660+00:00",
+   "status": "in_review",
+   "text": "Управління забезпечення Оперативно-рятувальн…: за останні 30 днів 12/14 конкурентних тендерів мали одну пропозицію (очікувано близько 9 для такого набору процедур).\nЄДРПОУ: замовник 33945469\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 19.8348}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-34621490-2026Q4",
+   "created": "2026-11-09T02:34:52.931720+00:00",
+   "status": "in_review",
+   "text": "КП Дніпропетровської Обласної РАДИ \"Аульськи…: за останні 30 днів 14/16 конкурентних тендерів мали одну пропозицію (очікувано близько 11 для такого набору процедур).\nЄДРПОУ: замовник 34621490\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.6163}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-34849106-2026Q4",
+   "created": "2026-11-09T02:36:16.388556+00:00",
+   "status": "in_review",
+   "text": "Департамент комунального господарства та бла…: за останні 30 днів 10/11 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 34849106\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.7565}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-35756919-2026Q4",
+   "created": "2026-11-09T02:34:14.555518+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компанія З Обслуговування Житлов…: за останні 30 днів 18/18 конкурентних тендерів мали одну пропозицію (очікувано близько 11 для такого набору процедур).\nЄДРПОУ: замовник 35756919\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.0314}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-36094821-2026Q4",
+   "created": "2026-11-09T02:36:09.444905+00:00",
+   "status": "in_review",
+   "text": "КП \"Інфо-рада-дніпро\" Дніпровської міськради: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 36094821\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.7707}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-37393735-2026Q4",
+   "created": "2026-11-09T02:34:49.392014+00:00",
+   "status": "in_review",
+   "text": "Управління житлово-комунального господарства…: за останні 30 днів 12/12 конкурентних тендерів мали одну пропозицію (очікувано близько 8 для такого набору процедур).\nЄДРПОУ: замовник 37393735\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.6495}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-37393777-2026Q4",
+   "created": "2026-11-09T02:38:36.376216+00:00",
+   "status": "in_review",
+   "text": "Управління освіти Подільської районної в міс…: за останні 30 днів 14/16 конкурентних тендерів мали одну пропозицію (очікувано близько 11 для такого набору процедур).\nЄДРПОУ: замовник 37393777\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.066}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-37448113-2026Q4",
+   "created": "2026-11-09T02:34:32.014222+00:00",
+   "status": "in_review",
+   "text": "Управління освіти Дарницької районної в міст…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 37448113\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.7659}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-37479398-2026Q4",
+   "created": "2026-11-09T02:33:32.750280+00:00",
+   "status": "in_review",
+   "text": "Управління освіти Голосіївської районної в м…: за останні 30 днів 12/14 конкурентних тендерів мали одну пропозицію (очікувано близько 9 для такого набору процедур).\nЄДРПОУ: замовник 37479398\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 18.5395}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-37501648-2026Q4",
+   "created": "2026-11-09T02:34:00.667669+00:00",
+   "status": "in_review",
+   "text": "Управління житлово-комунального господарства…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 37501648\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.2527}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-39605452-2026Q4",
+   "created": "2026-11-09T02:39:53.170900+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компанія З Обслуговування Житлов…: за останні 30 днів 12/12 конкурентних тендерів мали одну пропозицію (очікувано близько 8 для такого набору процедур).\nЄДРПОУ: замовник 39605452\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.7102}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-39609111-2026Q4",
+   "created": "2026-11-09T02:34:35.475282+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компанія З Обслуговування Житлов…: за останні 30 днів 12/12 конкурентних тендерів мали одну пропозицію (очікувано близько 9 для такого набору процедур).\nЄДРПОУ: замовник 39609111\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.7627}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-39611267-2026Q4",
+   "created": "2026-11-09T02:33:57.205265+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компанія З Обслуговування Житлов…: за останні 30 днів 21/21 конкурентних тендерів мали одну пропозицію (очікувано близько 15 для такого набору процедур).\nЄДРПОУ: замовник 39611267\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.2736}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-40506248-2026Q4",
+   "created": "2026-11-09T02:33:50.272329+00:00",
+   "status": "in_review",
+   "text": "Департамент Гуманітарної Політики Дніпровськ…: за останні 30 днів 17/17 конкурентних тендерів мали одну пропозицію (очікувано близько 12 для такого набору процедур).\nЄДРПОУ: замовник 40506248\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 17.7738}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-41781513-2026Q4",
+   "created": "2026-11-09T02:34:38.947977+00:00",
+   "status": "in_review",
+   "text": "КП \"Енергодім\" Дніпровської міськради: за останні 30 днів 15/15 конкурентних тендерів мали одну пропозицію (очікувано близько 11 для такого набору процедур).\nЄДРПОУ: замовник 41781513\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.7574}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-42078561-2026Q4",
+   "created": "2026-11-09T02:39:07.756701+00:00",
+   "status": "in_review",
+   "text": "КП «Волинське Обласне Територіальне Медичне…: за останні 30 днів 8/10 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 42078561\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.9192}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-42260364-2026Q4",
+   "created": "2026-11-09T02:37:33.616782+00:00",
+   "status": "in_review",
+   "text": "Комунальна Установа \"Центр ПО Обслуговуванню…: за останні 30 днів 9/10 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 42260364\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.3779}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-42902258-2026Q4",
+   "created": "2026-11-09T02:34:56.391525+00:00",
+   "status": "in_review",
+   "text": "Служба Судової Охорони: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 7 для такого набору процедур).\nЄДРПОУ: замовник 42902258\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.5511}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-43369291-2026Q4",
+   "created": "2026-11-09T02:37:58.059099+00:00",
+   "status": "in_review",
+   "text": "Відділ Освіти, Культури, Молоді ТА Спорту Па…: за останні 30 днів 10/11 конкурентних тендерів мали одну пропозицію (очікувано близько 5 для такого набору процедур).\nЄДРПОУ: замовник 43369291\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.2282}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-43927048-2026Q4",
+   "created": "2026-11-09T02:35:41.597473+00:00",
+   "status": "in_review",
+   "text": "Департамент Житлово-комунального Господарств…: за останні 30 днів 17/17 конкурентних тендерів мали одну пропозицію (очікувано близько 12 для такого набору процедур).\nЄДРПОУ: замовник 43927048\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.0845}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-44035446-2026Q4",
+   "created": "2026-11-09T02:39:46.217972+00:00",
+   "status": "in_review",
+   "text": "Відділ освіти Таращанської міськради: за останні 30 днів 11/11 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 44035446\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.7273}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-44080090-2026Q4",
+   "created": "2026-11-09T02:36:48.323856+00:00",
+   "status": "in_review",
+   "text": "Відділ Освіти, Культури, Молоді ТА Спорту Ко…: за останні 30 днів 12/13 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 44080090\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.6933}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-44124263-2026Q4",
+   "created": "2026-11-09T02:34:21.499079+00:00",
+   "status": "in_review",
+   "text": "Департамент З Питань Самоорганізації Населен…: за останні 30 днів 15/15 конкурентних тендерів мали одну пропозицію (очікувано близько 11 для такого набору процедур).\nЄДРПОУ: замовник 44124263\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 16.8673}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-44625774-2026Q4",
+   "created": "2026-11-09T02:33:29.293675+00:00",
+   "status": "in_review",
+   "text": "КНТ Друге Клінічне Територіальне Медичне Об'…: за останні 30 днів 9/11 конкурентних тендерів мали одну пропозицію (очікувано близько 6 для такого набору процедур).\nЄДРПОУ: замовник 44625774\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 18.7687}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-45042480-2026Q4",
+   "created": "2026-11-09T02:39:49.690174+00:00",
+   "status": "in_review",
+   "text": "Відділ освіти, молоді, спорту, культури та т…: за останні 30 днів 10/10 конкурентних тендерів мали одну пропозицію (очікувано близько 5 для такого набору процедур).\nЄДРПОУ: замовник 45042480\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.712}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-45656012-2026Q4",
+   "created": "2026-11-09T02:39:35.744558+00:00",
+   "status": "in_review",
+   "text": "Управління Освіти, Культури, Туризму, Молоді…: за останні 30 днів 8/10 конкурентних тендерів мали одну пропозицію (очікувано близько 5 для такого набору процедур).\nЄДРПОУ: замовник 45656012\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.7484}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-DOM-02544610-33565713",
+   "created": "2026-11-09T02:40:03.768002+00:00",
+   "status": "in_review",
+   "text": "Заклад професійної (професійно-технічної) ос…: ТОВ \"Фроніус Україна\" отримав 7 з 9 конкурентних закупівель за 180 дн., 99% їхньої вартості (2,3 млн грн).\nУ 6 з 7 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-08-31-007063-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 7, \"n_buyer\": 9, \"share\": 0.988, \"log_total\": 14.6604, \"one_bid_share\": 0.857, \"category\": \"goods\"}",
+   "text_tg": "Заклад професійної (професійно-технічної) ос…: ТОВ \"Фроніус Україна\" отримав 7 з 9 конкурентних закупівель за 180 дн., 99% їхньої вартості (2,3 млн грн).\nУ 6 з 7 була лише одна пропозиція.\nЄДРПОУ: замовник 02544610, переможець 33565713\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-08-31-007063-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-02549204-13683489",
+   "created": "2026-11-09T02:34:28.437071+00:00",
+   "status": "in_review",
+   "text": "Державний навчальний заклад \"Запорізький пол…: Дочірнє підприємство \"Фесто\" отримав 5 з 5 конкурентних закупівель за 180 дн., 100% їхньої вартості (19,3 млн грн).\nУ 5 з 5 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-08-008971-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 5, \"n_buyer\": 5, \"share\": 1.0, \"log_total\": 16.7732, \"one_bid_share\": 1.0, \"category\": \"goods\"}",
+   "text_tg": "Державний навчальний заклад \"Запорізький пол…: Дочірнє підприємство \"Фесто\" отримав 5 з 5 конкурентних закупівель за 180 дн., 100% їхньої вартості (19,3 млн грн).\nУ 5 з 5 була лише одна пропозиція.\nЄДРПОУ: замовник 02549204, переможець 13683489\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-08-008971-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-04061754-3541412932",
+   "created": "2026-11-09T02:39:21.738488+00:00",
+   "status": "in_review",
+   "text": "Остерська Міська РАДА: переможець-ФОП отримав 8 з 8 конкурентних закупівель за 180 дн., 100% їхньої вартості (2,8 млн грн).\nУ 8 з 8 була лише одна пропозиція.\nЄДРПОУ: замовник 04061754\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-07-009145-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 8, \"n_buyer\": 8, \"share\": 1.0, \"log_total\": 14.8318, \"one_bid_share\": 1.0, \"category\": \"services\"}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-DOM-25843931-34252469",
+   "created": "2026-11-09T02:33:18.882751+00:00",
+   "status": "in_review",
+   "text": "Служба відновлення та розвитку інфраструктур…: ТОВ \"Автомагістраль-Південь\" отримав 6 з 14 конкурентних закупівель за 180 дн., 100% їхньої вартості (15,80 млрд грн).\nУ 6 з 6 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-15-009532-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 6, \"n_buyer\": 14, \"share\": 1.0, \"log_total\": 23.4835, \"one_bid_share\": 1.0, \"category\": \"services\"}",
+   "text_tg": "Служба відновлення та розвитку інфраструктур…: ТОВ \"Автомагістраль-Південь\" отримав 6 з 14 конкурентних закупівель за 180 дн., 100% їхньої вартості (15,80 млрд грн).\nУ 6 з 6 була лише одна пропозиція.\nЄДРПОУ: замовник 25843931, переможець 34252469\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-15-009532-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-34953769-43012009",
+   "created": "2026-11-09T02:35:38.113069+00:00",
+   "status": "in_review",
+   "text": "КП \"Комплекс з експлуатації об`єктів водозни…: ТОВ \"Укрнафта-постач\" отримав 5 з 8 конкурентних закупівель за 180 дн., 81% їхньої вартості (9,7 млн грн).\nЄДРПОУ: замовник 34953769, переможець 43012009\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-010013-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 5, \"n_buyer\": 8, \"share\": 0.809, \"log_total\": 16.0861, \"one_bid_share\": 0.0, \"category\": \"goods\"}",
+   "text_tg": null
+  },
+  {
+   "tender_id": "PAT-DOM-37501648-41235604",
+   "created": "2026-11-09T02:34:04.141975+00:00",
+   "status": "in_review",
+   "text": "Управління житлово-комунального господарства…: ТОВ \"Будівельна Компанія \"МЕГА Стайл\"\" отримав 10 з 10 конкурентних закупівель за 180 дн., 100% їхньої вартості (30,2 млн грн).\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-20-010128-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 10, \"n_buyer\": 10, \"share\": 1.0, \"log_total\": 17.2225, \"one_bid_share\": 1.0, \"category\": \"works\"}",
+   "text_tg": "Управління житлово-комунального господарства…: ТОВ \"Будівельна Компанія \"МЕГА Стайл\"\" отримав 10 з 10 конкурентних закупівель за 180 дн., 100% їхньої вартості (30,2 млн грн).\nУ 10 з 10 була лише одна пропозиція.\nЄДРПОУ: замовник 37501648, переможець 41235604\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-20-010128-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-38501853-32408385",
+   "created": "2026-11-09T02:37:37.093891+00:00",
+   "status": "in_review",
+   "text": "Державна Установа \"Львівський Обласний Центр…: ПП Олбуд отримав 5 з 5 конкурентних закупівель за 180 дн., 100% їхньої вартості (4,6 млн грн).\nУ 5 з 5 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-012758-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 5, \"n_buyer\": 5, \"share\": 1.0, \"log_total\": 15.3511, \"one_bid_share\": 1.0, \"category\": \"services\"}",
+   "text_tg": "Державна Установа \"Львівський Обласний Центр…: ПП Олбуд отримав 5 з 5 конкурентних закупівель за 180 дн., 100% їхньої вартості (4,6 млн грн).\nУ 5 з 5 була лише одна пропозиція.\nЄДРПОУ: замовник 38501853, переможець 32408385\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-012758-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-39604270-41239593",
+   "created": "2026-11-09T02:38:53.790996+00:00",
+   "status": "in_review",
+   "text": "КП «Керуюча компанія з обслуговування житлов…: ТОВ \"Промстройгрупп\" отримав 6 з 8 конкурентних закупівель за 180 дн., 74% їхньої вартості (3,3 млн грн).\nУ 6 з 6 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-07-004055-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 6, \"n_buyer\": 8, \"share\": 0.744, \"log_total\": 15.0191, \"one_bid_share\": 1.0, \"category\": \"services\"}",
+   "text_tg": "КП «Керуюча компанія з обслуговування житлов…: ТОВ \"Промстройгрупп\" отримав 6 з 8 конкурентних закупівель за 180 дн., 74% їхньої вартості (3,3 млн грн).\nУ 6 з 6 була лише одна пропозиція.\nЄДРПОУ: замовник 39604270, переможець 41239593\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-07-004055-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-39609111-41235604",
+   "created": "2026-11-09T02:35:13.790923+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компанія З Обслуговування Житлов…: ТОВ \"Будівельна Компанія \"МЕГА Стайл\"\" отримав 6 з 8 конкурентних закупівель за 180 дн., 82% їхньої вартості (12,4 млн грн).\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-08-006513-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 6, \"n_buyer\": 8, \"share\": 0.824, \"log_total\": 16.3318, \"one_bid_share\": 1.0, \"category\": \"works\"}",
+   "text_tg": "КП \"Керуюча Компанія З Обслуговування Житлов…: ТОВ \"Будівельна Компанія \"МЕГА Стайл\"\" отримав 6 з 8 конкурентних закупівель за 180 дн., 82% їхньої вартості (12,4 млн грн).\nУ 6 з 6 була лише одна пропозиція.\nЄДРПОУ: замовник 39609111, переможець 41235604\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-08-006513-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-40535043-42774816",
+   "created": "2026-11-09T02:33:46.641249+00:00",
+   "status": "in_review",
+   "text": "КП \"Управління Комунального Господарства\" Ви…: ТОВ \"Будівельна Компанія Альянсбудпром\" отримав 6 з 7 конкурентних закупівель за 180 дн., 92% їхньої вартості (71,0 млн грн).\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-24-007616-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 6, \"n_buyer\": 7, \"share\": 0.924, \"log_total\": 18.0779, \"one_bid_share\": 1.0, \"category\": \"works\"}",
+   "text_tg": "КП \"Управління Комунального Господарства\" Ви…: ТОВ \"Будівельна Компанія Альянсбудпром\" отримав 6 з 7 конкурентних закупівель за 180 дн., 92% їхньої вартості (71,0 млн грн).\nУ 6 з 6 була лише одна пропозиція.\nЄДРПОУ: замовник 40535043, переможець 42774816\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-24-007616-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-41781513-45171089",
+   "created": "2026-11-09T02:34:42.414092+00:00",
+   "status": "in_review",
+   "text": "КП \"Енергодім\" Дніпровської міськради: ТОВ «Свгруп» отримав 15 з 16 конкурентних закупівель за 180 дн., 94% їхньої вартості (17,9 млн грн).\nУ 15 з 15 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-01-009851-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 15, \"n_buyer\": 16, \"share\": 0.942, \"log_total\": 16.6975, \"one_bid_share\": 1.0, \"category\": \"goods\"}",
+   "text_tg": "КП \"Енергодім\" Дніпровської міськради: ТОВ «Свгруп» отримав 15 з 16 конкурентних закупівель за 180 дн., 94% їхньої вартості (17,9 млн грн).\nУ 15 з 15 була лише одна пропозиція.\nЄДРПОУ: замовник 41781513, переможець 45171089\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-01-009851-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-DOM-44124263-45509065",
+   "created": "2026-11-09T02:35:31.132803+00:00",
+   "status": "in_review",
+   "text": "Департамент З Питань Самоорганізації Населен…: ТОВ \"Будівельна Компанія „Голден Сервіс… отримав 8 з 18 конкурентних закупівель за 180 дн., 74% їхньої вартості (10,1 млн грн).\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-21-005517-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 8, \"n_buyer\": 18, \"share\": 0.742, \"log_total\": 16.1243, \"one_bid_share\": 1.0, \"category\": \"services\"}",
+   "text_tg": "Департамент З Питань Самоорганізації Населен…: ТОВ \"Будівельна Компанія „Голден Сервіс… отримав 8 з 18 конкурентних закупівель за 180 дн., 74% їхньої вартості (10,1 млн грн).\nУ 8 з 8 була лише одна пропозиція.\nЄДРПОУ: замовник 44124263, переможець 45509065\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-21-005517-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00130694-45310-2026-11",
+   "created": "2026-11-09T02:38:32.908344+00:00",
+   "status": "in_review",
+   "text": "АТ Вінницяобленерго: 7 закупівель «Електропостачання земельної ділянки за адресою: м. Жмеринка…» за 7 дн. на 3,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-002569-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 7, \"log_total\": 15.0841, \"over_threshold\": 2.371, \"category\": \"works\"}",
+   "text_tg": "АТ Вінницяобленерго: 7 закупівель «Електропостачання земельної ділянки за адресою: м. Жмеринка…» за 7 дн. на 3,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00130694\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-002569-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00130725-45310-2026-11",
+   "created": "2026-11-09T02:34:59.865759+00:00",
+   "status": "in_review",
+   "text": "АТ 'Тернопільобленерго': 48 закупівель «Будівельно-монтажні і налагоджувальні роботи для приєднання…» за 8 дн. на 15,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-000450-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 48, \"log_total\": 16.5379, \"over_threshold\": 10.145, \"category\": \"works\"}",
+   "text_tg": "АТ 'Тернопільобленерго': 48 закупівель «Будівельно-монтажні і налагоджувальні роботи для приєднання…» за 8 дн. на 15,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00130725\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-000450-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00131529-45000-2026-11",
+   "created": "2026-11-09T02:39:14.777289+00:00",
+   "status": "in_review",
+   "text": "Приватне АТ \"Закарп…: 3 закупівель «Будівельно-монтажні роботи для зовнішнього електропостачання…» за 7 дн. на 2,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-005430-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.8448, \"over_threshold\": 1.866, \"category\": \"works\"}",
+   "text_tg": "Приватне АТ \"Закарпаттяобленерго\": 3 закупівель «Будівельно-монтажні роботи для зовнішнього електропостачання…» за 7 дн. на 2,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00131529\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-005430-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00131564-45317-2026-11",
+   "created": "2026-11-09T02:38:50.309834+00:00",
+   "status": "in_review",
+   "text": "АТ Прикарпаттяоблен…: 11 закупівель «Електромонтажні роботи згідно технічних умов №30-431/2025, в…» за 8 дн. на 3,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-000583-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 11, \"log_total\": 15.0215, \"over_threshold\": 2.227, \"category\": \"works\"}",
+   "text_tg": "АТ Прикарпаттяобленерго: 11 закупівель «Електромонтажні роботи згідно технічних умов №30-431/2025, в…» за 8 дн. на 3,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00131564\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-000583-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00131819-50530-2026-10",
+   "created": "2026-11-09T02:37:44.041920+00:00",
+   "status": "in_review",
+   "text": "АТ Полтаваобленерго: 6 закупівель «ДК 021-2015 - Послуги з ремонту і технічного обслуговування…» за 1 дн. на 4,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-005999-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 6, \"log_total\": 15.3079, \"over_threshold\": 2.965, \"category\": \"works\"}",
+   "text_tg": "АТ Полтаваобленерго: 6 закупівель «ДК 021-2015 - Послуги з ремонту і технічного обслуговування…» за 1 дн. на 4,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00131819\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-005999-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00131954-45310-2026-11",
+   "created": "2026-11-09T02:36:58.788578+00:00",
+   "status": "in_review",
+   "text": "АТ \"Харківобленерго\": 6 закупівель «Аварійно-відновлювальні роботи (капітальний ремонт) з розбир…» за 2 дн. на 6,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-010182-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 6, \"log_total\": 15.6177, \"over_threshold\": 4.042, \"category\": \"works\"}",
+   "text_tg": "АТ \"Харківобленерго\": 6 закупівель «Аварійно-відновлювальні роботи (капітальний ремонт) з розбир…» за 2 дн. на 6,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00131954\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-010182-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00131954-45340-2026-11",
+   "created": "2026-11-09T02:37:40.564217+00:00",
+   "status": "in_review",
+   "text": "АТ \"Харківобленерго\": 4 закупівель «Роботи з влаштування габіонів для захисту електротехнічного…» за 7 дн. на 4,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-011760-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 15.3299, \"over_threshold\": 3.031, \"category\": \"works\"}",
+   "text_tg": "АТ \"Харківобленерго\": 4 закупівель «Роботи з влаштування габіонів для захисту електротехнічного…» за 7 дн. на 4,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00131954\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-011760-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-00135390-45220-2026-11",
+   "created": "2026-11-09T02:35:20.730819+00:00",
+   "status": "in_review",
+   "text": "АТ \"Укpнaфта\": 28 закупівель «Послуги з влаштування +++ операторної АЗС +++ за адресою: За…» за 11 дн. на 10,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-02-004849-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 28, \"log_total\": 16.1788, \"over_threshold\": 7.084, \"category\": \"works\"}",
+   "text_tg": "АТ \"Укpнaфта\": 28 закупівель «Послуги з влаштування +++ операторної АЗС +++ за адресою: За…» за 11 дн. на 10,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 00135390\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-02-004849-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-03328675-45310-2026-11",
+   "created": "2026-11-09T02:38:05.081969+00:00",
+   "status": "in_review",
+   "text": "КП \"Черкасиелектрот…: 9 закупівель «Реконструкція телемеханіки на ТП-1 КП «ЧЕТС» за адресою: Чер…» за 2 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-005153-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 9, \"log_total\": 15.1461, \"over_threshold\": 2.522, \"category\": \"works\"}",
+   "text_tg": "КП \"Черкасиелектротранс\" Черкаської міськрад…: 9 закупівель «Реконструкція телемеханіки на ТП-1 КП «ЧЕТС» за адресою: Чер…» за 2 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 03328675\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-005153-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-03346696-45453-2026-11",
+   "created": "2026-11-09T02:36:55.274858+00:00",
+   "status": "in_review",
+   "text": "Департамент житлово…: 8 закупівель «Виконання невідкладних першочергових заходів з ліквідації на…» за 6 дн. на 6,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-24-000906-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 8, \"log_total\": 15.6439, \"over_threshold\": 4.149, \"category\": \"works\"}",
+   "text_tg": "Департамент житлово-комунального господарств…: 8 закупівель «Виконання невідкладних першочергових заходів з ліквідації на…» за 6 дн. на 6,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 03346696\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-24-000906-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-03350083-45453-2026-11",
+   "created": "2026-11-09T02:38:29.419127+00:00",
+   "status": "in_review",
+   "text": "КП \"Спеціалізоване…: 3 закупівель «Капітальний ремонт кремаційної печі № 4 крематорію, розташов…» за 1 дн. на 3,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-008142-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 15.085, \"over_threshold\": 2.373, \"category\": \"works\"}",
+   "text_tg": "КП \"Спеціалізоване підприємство комунально-п…: 3 закупівель «Капітальний ремонт кремаційної печі № 4 крематорію, розташов…» за 1 дн. на 3,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 03350083\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-008142-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04054228-45230-2026-11",
+   "created": "2026-11-09T02:37:47.547325+00:00",
+   "status": "in_review",
+   "text": "Косівська Міська РА…: 4 закупівель «Капітальний ремонт дорожнього покриття по вул.Камениста в м.…» за 3 дн. на 4,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-003049-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 15.3011, \"over_threshold\": 2.945, \"category\": \"works\"}",
+   "text_tg": "Косівська Міська РАДА Косівського Району Іва…: 4 закупівель «Капітальний ремонт дорожнього покриття по вул.Камениста в м.…» за 3 дн. на 4,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04054228\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-003049-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04056084-45453-2026-11",
+   "created": "2026-11-09T02:38:08.544382+00:00",
+   "status": "in_review",
+   "text": "Залізнична районна…: 3 закупівель «Проведення невідкладних аварійно-відновлювальних робіт з вив…» за 1 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-28-011499-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 15.146, \"over_threshold\": 2.522, \"category\": \"works\"}",
+   "text_tg": "Залізнична районна адміністрація Львівської…: 3 закупівель «Проведення невідкладних аварійно-відновлювальних робіт з вив…» за 1 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04056084\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-28-011499-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04057600-71320-2026-11",
+   "created": "2026-11-09T02:39:39.230926+00:00",
+   "status": "in_review",
+   "text": "Управління Капіталь…: 3 закупівель «Виготовлення проєктної документації по об'єкту: \"Реконструкц…» за 7 дн. на 2,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-008380-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.7477, \"over_threshold\": 1.693, \"category\": \"works\"}",
+   "text_tg": "Управління Капітального Будівництва Полтавсь…: 3 закупівель «Виготовлення проєктної документації по об'єкту: \"Реконструкц…» за 7 дн. на 2,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04057600\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-008380-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04351280-45230-2026-11",
+   "created": "2026-11-09T02:37:02.265449+00:00",
+   "status": "in_review",
+   "text": "Тур'є-Реметівська с…: 4 закупівель «Капітальний ремонт вул. Незалежна, с. Тур'ї Ремети, Ужгородс…» за 4 дн. на 6,0 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-004095-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 15.6055, \"over_threshold\": 3.993, \"category\": \"works\"}",
+   "text_tg": "Тур'є-Реметівська сільська рада Ужгородськог…: 4 закупівель «Капітальний ремонт вул. Незалежна, с. Тур'ї Ремети, Ужгородс…» за 4 дн. на 6,0 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04351280\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-004095-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04356461-45453-2026-11",
+   "created": "2026-11-09T02:36:05.965600+00:00",
+   "status": "in_review",
+   "text": "Ямницька Сільська РАДА: 6 закупівель «Капітальний ремонт дорожнього покриття вулиці урочище Заруба…» за 6 дн. на 7,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-004283-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 6, \"log_total\": 15.776, \"over_threshold\": 4.735, \"category\": \"works\"}",
+   "text_tg": "Ямницька Сільська РАДА: 6 закупівель «Капітальний ремонт дорожнього покриття вулиці урочище Заруба…» за 6 дн. на 7,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04356461\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-004283-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04362183-45230-2026-11",
+   "created": "2026-11-09T02:39:25.208789+00:00",
+   "status": "in_review",
+   "text": "Макарівська селищна…: 17 закупівель «Поточний ремонт дорожнього покриття (ямковий ремонт струмене…» за 7 дн. на 2,7 млн грн. Кожна нижча за поріг 200 000 грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-000139-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 17, \"log_total\": 14.8084, \"over_threshold\": 13.495, \"category\": \"services\"}",
+   "text_tg": "Макарівська селищна рада: 17 закупівель «Поточний ремонт дорожнього покриття (ямковий ремонт струмене…» за 7 дн. на 2,7 млн грн. Кожна нижча за поріг 200 000 грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04362183\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-000139-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-04417636-45230-2026-11",
+   "created": "2026-11-09T02:40:28.147354+00:00",
+   "status": "in_review",
+   "text": "Магальська Сільська…: 13 закупівель «Поточний ремонт дорожнього покриття вулиці Ярошинської в с.…» за 5 дн. на 2,1 млн грн. Кожна нижча за поріг 200 000 грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-006710-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 13, \"log_total\": 14.5627, \"over_threshold\": 10.556, \"category\": \"services\"}",
+   "text_tg": "Магальська Сільська РАДА Чернівецького Район…: 13 закупівель «Поточний ремонт дорожнього покриття вулиці Ярошинської в с.…» за 5 дн. на 2,1 млн грн. Кожна нижча за поріг 200 000 грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 04417636\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-006710-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-05408355-45453-2026-11",
+   "created": "2026-11-09T02:39:56.635195+00:00",
+   "status": "in_review",
+   "text": "Управління освіти і…: 3 закупівель «Капітальний ремонт санвузлів Бориспільського ліцею \"Лідер\" п…» за 2 дн. на 2,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-010388-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.7046, \"over_threshold\": 1.622, \"category\": \"works\"}",
+   "text_tg": "Управління освіти і науки Бориспільської міс…: 3 закупівель «Капітальний ремонт санвузлів Бориспільського ліцею \"Лідер\" п…» за 2 дн. на 2,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 05408355\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-010388-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-21467647-45000-2026-11",
+   "created": "2026-11-09T02:38:15.513750+00:00",
+   "status": "in_review",
+   "text": "Департамент регіона…: 5 закупівель «Розроблення проєктної документації стадії «РП» для об'єкту б…» за 5 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-006310-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 15.141, \"over_threshold\": 2.509, \"category\": \"works\"}",
+   "text_tg": "Департамент регіонального розвитку Київської…: 5 закупівель «Розроблення проєктної документації стадії «РП» для об'єкту б…» за 5 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 21467647\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-006310-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-22767506-45310-2026-11",
+   "created": "2026-11-09T02:39:28.726625+00:00",
+   "status": "in_review",
+   "text": "АТ \"Хмельницькобленерго\": 3 закупівель «Роботи з \"Капітального ремонту ділянки ПЛ-10 Л-323-37 та ПЛ-…» за 1 дн. на 2,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-000958-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.7767, \"over_threshold\": 1.743, \"category\": \"works\"}",
+   "text_tg": "АТ \"Хмельницькобленерго\": 3 закупівель «Роботи з \"Капітального ремонту ділянки ПЛ-10 Л-323-37 та ПЛ-…» за 1 дн. на 2,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 22767506\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-000958-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-23399393-45310-2026-11",
+   "created": "2026-11-09T02:40:24.669469+00:00",
+   "status": "in_review",
+   "text": "АТ \"Миколаївобленерго\": 4 закупівель «Реконструкція РУ-0,4 кВ ТП-350194 з метою зміни технічних па…» за 1 дн. на 2,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-009729-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 14.5828, \"over_threshold\": 1.436, \"category\": \"works\"}",
+   "text_tg": "АТ \"Миколаївобленерго\": 4 закупівель «Реконструкція РУ-0,4 кВ ТП-350194 з метою зміни технічних па…» за 1 дн. на 2,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 23399393\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-009729-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-24013674-45453-2026-11",
+   "created": "2026-11-09T02:37:51.096093+00:00",
+   "status": "in_review",
+   "text": "Департамент інфраст…: 5 закупівель «Капітальний ремонт житлового фонду – капремонт ліфтів у 1, 2…» за 4 дн. на 4,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-001830-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 15.2745, \"over_threshold\": 2.868, \"category\": \"works\"}",
+   "text_tg": "Департамент інфраструктури міста Сумської мі…: 5 закупівель «Капітальний ремонт житлового фонду – капремонт ліфтів у 1, 2…» за 4 дн. на 4,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 24013674\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-001830-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-25449824-71340-2026-11",
+   "created": "2026-11-09T02:38:43.321914+00:00",
+   "status": "in_review",
+   "text": "Служба відновлення…: 3 закупівель «Розроблення проектної документації на будівництво пункту про…» за 1 дн. на 3,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-06-002623-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 15.0433, \"over_threshold\": 2.276, \"category\": \"works\"}",
+   "text_tg": "Служба відновлення та розвитку інфраструктур…: 3 закупівель «Розроблення проектної документації на будівництво пункту про…» за 1 дн. на 3,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 25449824\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-06-002623-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-25772436-45453-2026-11",
+   "created": "2026-11-09T02:37:23.170493+00:00",
+   "status": "in_review",
+   "text": "КП \"Група впровадже…: 4 закупівель «Капітальний ремонт та модернізація внутрішньобудинкових мере…» за 4 дн. на 5,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-07-013238-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 15.465, \"over_threshold\": 3.47, \"category\": \"works\"}",
+   "text_tg": "КП \"Група впровадження проекту з енергозбере…: 4 закупівель «Капітальний ремонт та модернізація внутрішньобудинкових мере…» за 4 дн. на 5,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 25772436\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-07-013238-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-26198169-45450-2026-11",
+   "created": "2026-11-09T02:37:19.679908+00:00",
+   "status": "in_review",
+   "text": "Управління Освіти І…: 4 закупівель «Капітальний ремонт з влаштуванням малих архітектурних форм н…» за 1 дн. на 5,7 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-004313-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 15.5531, \"over_threshold\": 3.789, \"category\": \"works\"}",
+   "text_tg": "Управління Освіти І Науки Тернопільської міс…: 4 закупівель «Капітальний ремонт з влаштуванням малих архітектурних форм н…» за 1 дн. на 5,7 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 26198169\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-004313-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-26286152-45310-2026-11",
+   "created": "2026-11-09T02:39:11.283674+00:00",
+   "status": "in_review",
+   "text": "Територіальне управ…: 4 закупівель «Виконання робіт на об'єкті: \" Капітальний ремонт електромере…» за 1 дн. на 2,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-008553-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 14.8518, \"over_threshold\": 1.879, \"category\": \"works\"}",
+   "text_tg": "Територіальне управління Державної судової а…: 4 закупівель «Виконання робіт на об'єкті: \" Капітальний ремонт електромере…» за 1 дн. на 2,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 26286152\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-008553-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-26303235-45450-2026-11",
+   "created": "2026-11-09T02:38:57.252749+00:00",
+   "status": "in_review",
+   "text": "Пересипська Районна…: 5 закупівель «Капітальний ремонт (роботи з усунення аварії в житловому фон…» за 1 дн. на 3,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-015532-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 14.9642, \"over_threshold\": 2.103, \"category\": \"works\"}",
+   "text_tg": "Пересипська Районна Адміністрація Одеської м…: 5 закупівель «Капітальний ремонт (роботи з усунення аварії в житловому фон…» за 1 дн. на 3,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 26303235\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-015532-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-31958324-71220-2026-11",
+   "created": "2026-11-09T02:38:46.839316+00:00",
+   "status": "in_review",
+   "text": "КП з питань будівни…: 5 закупівель «Виконаня проектно-кошторисної документації стадії «Робочий п…» за 8 дн. на 3,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-23-013007-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 15.0358, \"over_threshold\": 2.259, \"category\": \"works\"}",
+   "text_tg": "КП з питань будівництва житлових будинків \"Ж…: 5 закупівель «Виконаня проектно-кошторисної документації стадії «Робочий п…» за 8 дн. на 3,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 31958324\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-23-013007-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-32375554-45450-2026-11",
+   "created": "2026-11-09T02:39:32.213026+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча компані…: 8 закупівель «Капітальний ремонт (заміна вікон) житлового будинку за адрес…» за 7 дн. на 2,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-26-011287-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 8, \"log_total\": 14.7535, \"over_threshold\": 1.703, \"category\": \"works\"}",
+   "text_tg": "КП \"Керуюча компанія з обслуговування житлов…: 8 закупівель «Капітальний ремонт (заміна вікон) житлового будинку за адрес…» за 7 дн. на 2,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 32375554\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-26-011287-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-34674154-45260-2026-11",
+   "created": "2026-11-09T02:38:39.850625+00:00",
+   "status": "in_review",
+   "text": "Департамент Міськог…: 3 закупівель «Капітальний ремонт (роботи з усунення аварії в житловому фон…» за 4 дн. на 3,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-007130-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 15.0597, \"over_threshold\": 2.313, \"category\": \"works\"}",
+   "text_tg": "Департамент Міського Господарства Одеської м…: 3 закупівель «Капітальний ремонт (роботи з усунення аварії в житловому фон…» за 4 дн. на 3,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 34674154\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-007130-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-34674154-45330-2026-11",
+   "created": "2026-11-09T02:37:26.640641+00:00",
+   "status": "in_review",
+   "text": "Департамент Міськог…: 5 закупівель «Капітальний ремонт (роботи з усунення аварії в житловому фон…» за 7 дн. на 5,0 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-014315-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 15.4347, \"over_threshold\": 3.366, \"category\": \"works\"}",
+   "text_tg": "Департамент Міського Господарства Одеської м…: 5 закупівель «Капітальний ремонт (роботи з усунення аварії в житловому фон…» за 7 дн. на 5,0 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 34674154\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-03-014315-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-34849106-45453-2026-11",
+   "created": "2026-11-09T02:39:42.742063+00:00",
+   "status": "in_review",
+   "text": "Департамент комунал…: 4 закупівель «Капітальний ремонт тролейбусної зупинки \"вулиця Валентина От…» за 8 дн. на 2,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-12-001509-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 14.7458, \"over_threshold\": 1.69, \"category\": \"works\"}",
+   "text_tg": "Департамент комунального господарства та бла…: 4 закупівель «Капітальний ремонт тролейбусної зупинки \"вулиця Валентина От…» за 8 дн. на 2,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 34849106\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-12-001509-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-35692211-45450-2026-11",
+   "created": "2026-11-09T02:40:07.250163+00:00",
+   "status": "in_review",
+   "text": "КП Керуюча компанія…: 5 закупівель «Капітальний ремонт електричних мереж/електрощитових житловог…» за 1 дн. на 2,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-015699-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 14.6532, \"over_threshold\": 1.541, \"category\": \"works\"}",
+   "text_tg": "КП Керуюча компанія з обслуговування житлово…: 5 закупівель «Капітальний ремонт електричних мереж/електрощитових житловог…» за 1 дн. на 2,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 35692211\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-015699-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-35756919-45450-2026-11",
+   "created": "2026-11-09T02:35:51.995141+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компані…: 16 закупівель «Капітальний ремонт найпростіших укриттів та захисних споруд…» за 7 дн. на 8,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-30-008622-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 16, \"log_total\": 15.9665, \"over_threshold\": 5.729, \"category\": \"works\"}",
+   "text_tg": "КП \"Керуюча Компанія З Обслуговування Житлов…: 16 закупівель «Капітальний ремонт найпростіших укриттів та захисних споруд…» за 7 дн. на 8,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 35756919\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-30-008622-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-35939939-45453-2026-11",
+   "created": "2026-11-09T02:39:04.268025+00:00",
+   "status": "in_review",
+   "text": "Управління житлово-…: 18 закупівель «Капітальний ремонт ліфта по вул. Київська, 9/8 під’їзд в м.…» за 7 дн. на 3,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-06-005183-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 18, \"log_total\": 14.9324, \"over_threshold\": 2.037, \"category\": \"works\"}",
+   "text_tg": "Управління житлово-комунального господарства…: 18 закупівель «Капітальний ремонт ліфта по вул. Київська, 9/8 під’їзд в м.…» за 7 дн. на 3,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 35939939\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-06-005183-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-36359583-45230-2026-11",
+   "created": "2026-11-09T02:40:35.090983+00:00",
+   "status": "in_review",
+   "text": "Головне Управління…: 12 закупівель «Будівництво трубопроводів, ліній зв’язку та електропередач…» за 6 дн. на 2,0 млн грн. Кожна нижча за поріг 200 000 грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-003299-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 12, \"log_total\": 14.5087, \"over_threshold\": 10.0, \"category\": \"services\"}",
+   "text_tg": "Головне Управління Житлово-комунального Госп…: 12 закупівель «Будівництво трубопроводів, ліній зв’язку та електропередач…» за 6 дн. на 2,0 млн грн. Кожна нижча за поріг 200 000 грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 36359583\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-02-003299-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-37393735-45233-2026-11",
+   "created": "2026-11-09T02:37:54.564193+00:00",
+   "status": "in_review",
+   "text": "Управління житлово-…: 3 закупівель «Капітальний ремонт асфальтового покриття прибудинкової терит…» за 5 дн. на 4,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-002965-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 15.2577, \"over_threshold\": 2.82, \"category\": \"works\"}",
+   "text_tg": "Управління житлово-комунального господарства…: 3 закупівель «Капітальний ремонт асфальтового покриття прибудинкової терит…» за 5 дн. на 4,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 37393735\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-002965-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-37501648-45450-2026-11",
+   "created": "2026-11-09T02:38:19.013910+00:00",
+   "status": "in_review",
+   "text": "Управління житлово-…: 3 закупівель «Капітальний ремонт по заміні вікон та дверей (підготовка до…» за 1 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-20-010405-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 15.1409, \"over_threshold\": 2.509, \"category\": \"works\"}",
+   "text_tg": "Управління житлово-комунального господарства…: 3 закупівель «Капітальний ремонт по заміні вікон та дверей (підготовка до…» за 1 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 37501648\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-20-010405-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-37739041-45260-2026-11",
+   "created": "2026-11-09T02:38:12.037626+00:00",
+   "status": "in_review",
+   "text": "ТОВ \"Євро-реконструкція\": 4 закупівель «Аварійно-відновлювальні роботи з ремонту дерев’яних конструк…» за 7 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-001095-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 15.1445, \"over_threshold\": 2.518, \"category\": \"works\"}",
+   "text_tg": "ТОВ \"Євро-реконструкція\": 4 закупівель «Аварійно-відновлювальні роботи з ремонту дерев’яних конструк…» за 7 дн. на 3,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 37739041\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-001095-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-38461952-45453-2026-11",
+   "created": "2026-11-09T02:40:00.187812+00:00",
+   "status": "in_review",
+   "text": "Департамент З Управ…: 3 закупівель «Капітальний ремонт. Улаштування пандусу у третьому під’їзді…» за 8 дн. на 2,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-001890-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.6843, \"over_threshold\": 1.589, \"category\": \"works\"}",
+   "text_tg": "Департамент З Управління Житлово-комунальним…: 3 закупівель «Капітальний ремонт. Улаштування пандусу у третьому під’їзді…» за 8 дн. на 2,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 38461952\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-001890-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-38519070-71320-2026-11",
+   "created": "2026-11-09T02:34:24.976084+00:00",
+   "status": "in_review",
+   "text": "АТ «ФОНД Декарбоніз…: 90 закупівель «Розробка проєктної документації по об’єкту: «Капітальний рем…» за 5 дн. на 19,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-001531-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 90, \"log_total\": 16.8023, \"over_threshold\": 13.214, \"category\": \"works\"}",
+   "text_tg": "АТ «ФОНД Декарбонізації України»: 90 закупівель «Розробка проєктної документації по об’єкту: «Капітальний рем…» за 5 дн. на 19,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 38519070\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-04-001531-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39408088-45450-2026-11",
+   "created": "2026-11-09T02:37:09.266747+00:00",
+   "status": "in_review",
+   "text": "Орган Державної Вла…: 8 закупівель «Капітальний ремонт (заміна вікон та дверей) у житловому буди…» за 2 дн. на 6,0 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-20-008683-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 8, \"log_total\": 15.5989, \"over_threshold\": 3.967, \"category\": \"works\"}",
+   "text_tg": "Орган Державної Влади \"Управління Будівництв…: 8 закупівель «Капітальний ремонт (заміна вікон та дверей) у житловому буди…» за 2 дн. на 6,0 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39408088\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-20-008683-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39604270-45310-2026-11",
+   "created": "2026-11-09T02:35:10.300510+00:00",
+   "status": "in_review",
+   "text": "КП «Керуюча компані…: 15 закупівель «Капітальний Ремонт Електричних Мереж/електрощитових Житловог…» за 7 дн. на 12,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-06-002994-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 15, \"log_total\": 16.3337, \"over_threshold\": 8.271, \"category\": \"works\"}",
+   "text_tg": "КП «Керуюча компанія з обслуговування житлов…: 15 закупівель «Капітальний Ремонт Електричних Мереж/електрощитових Житловог…» за 7 дн. на 12,4 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39604270\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-06-002994-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39606435-45453-2026-11",
+   "created": "2026-11-09T02:36:02.501085+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча компані…: 6 закупівель «ДК 021:21015 (CPV)-Капітальний ремонт і реставрація. Капітал…» за 1 дн. на 7,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-08-008607-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 6, \"log_total\": 15.8388, \"over_threshold\": 5.042, \"category\": \"works\"}",
+   "text_tg": "КП \"Керуюча компанія з обслуговування житлов…: 6 закупівель «ДК 021:21015 (CPV)-Капітальний ремонт і реставрація. Капітал…» за 1 дн. на 7,6 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39606435\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-08-008607-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39609111-45450-2026-10",
+   "created": "2026-11-09T02:40:14.203844+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компані…: 4 закупівель «Капітальний ремонт вхідних груп з улаштуванням пандусів у жи…» за 1 дн. на 2,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-010951-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 14.6357, \"over_threshold\": 1.514, \"category\": \"works\"}",
+   "text_tg": "КП \"Керуюча Компанія З Обслуговування Житлов…: 4 закупівель «Капітальний ремонт вхідних груп з улаштуванням пандусів у жи…» за 1 дн. на 2,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39609111\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-010951-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39611267-45453-2026-11",
+   "created": "2026-11-09T02:35:03.328732+00:00",
+   "status": "in_review",
+   "text": "КП \"Керуюча Компані…: 14 закупівель «Капітальний ремонт електричних мереж/електрощитових (підгото…» за 7 дн. на 15,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-005486-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 14, \"log_total\": 16.5318, \"over_threshold\": 10.083, \"category\": \"works\"}",
+   "text_tg": "КП \"Керуюча Компанія З Обслуговування Житлов…: 14 закупівель «Капітальний ремонт електричних мереж/електрощитових (підгото…» за 7 дн. на 15,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39611267\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-005486-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39612276-45453-2026-11",
+   "created": "2026-11-09T02:37:12.728610+00:00",
+   "status": "in_review",
+   "text": "Управління будівниц…: 8 закупівель «Розроблення проектної документації (стадія РП) по об'єкту: «…» за 6 дн. на 5,9 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-006046-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 8, \"log_total\": 15.5858, \"over_threshold\": 3.915, \"category\": \"works\"}",
+   "text_tg": "Управління будівництва Голосіївської районно…: 8 закупівель «Розроблення проектної документації (стадія РП) по об'єкту: «…» за 6 дн. на 5,9 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39612276\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-006046-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39682379-45233-2026-11",
+   "created": "2026-11-09T02:37:16.214975+00:00",
+   "status": "in_review",
+   "text": "Управління будівниц…: 5 закупівель «Капітальний ремонт асфальтового покриття прибудинкових терит…» за 1 дн. на 5,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-08-010248-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 5, \"log_total\": 15.5789, \"over_threshold\": 3.888, \"category\": \"works\"}",
+   "text_tg": "Управління будівництва та житлово-комунально…: 5 закупівель «Капітальний ремонт асфальтового покриття прибудинкових терит…» за 1 дн. на 5,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39682379\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-08-010248-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39682379-45443-2026-11",
+   "created": "2026-11-09T02:40:10.716831+00:00",
+   "status": "in_review",
+   "text": "Управління будівниц…: 3 закупівель «Капітальний ремонт фасаду у житловому будинку за адресою: Ха…» за 2 дн. на 2,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-27-014307-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.6515, \"over_threshold\": 1.538, \"category\": \"works\"}",
+   "text_tg": "Управління будівництва та житлово - комуналь…: 3 закупівель «Капітальний ремонт фасаду у житловому будинку за адресою: Ха…» за 2 дн. на 2,3 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39682379\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-27-014307-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-39682379-45453-2026-11",
+   "created": "2026-11-09T02:39:00.744801+00:00",
+   "status": "in_review",
+   "text": "Управління будівниц…: 7 закупівель «Капітальний ремонт вхідних груп з облаштуванням пандусів жит…» за 6 дн. на 3,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-08-011747-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 7, \"log_total\": 14.9325, \"over_threshold\": 2.037, \"category\": \"works\"}",
+   "text_tg": "Управління будівництва та житлово-комунально…: 7 закупівель «Капітальний ремонт вхідних груп з облаштуванням пандусів жит…» за 6 дн. на 3,1 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 39682379\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-08-011747-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-40506248-45453-2026-11",
+   "created": "2026-11-09T02:40:21.172610+00:00",
+   "status": "in_review",
+   "text": "Департамент Гуманіт…: 4 закупівель «Капітальний ремонт системи пожежної сигналізації та оповіщен…» за 1 дн. на 2,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-19-010555-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 14.5893, \"over_threshold\": 1.445, \"category\": \"works\"}",
+   "text_tg": "Департамент Гуманітарної Політики Дніпровськ…: 4 закупівель «Капітальний ремонт системи пожежної сигналізації та оповіщен…» за 1 дн. на 2,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 40506248\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-19-010555-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-40538421-45220-2026-11",
+   "created": "2026-11-09T02:35:55.555087+00:00",
+   "status": "in_review",
+   "text": "КП Виконавчого Орга…: 32 закупівель «Виконання будівельних робіт за об'єктом: «Реконструкція інже…» за 8 дн. на 8,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-15-000195-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 32, \"log_total\": 15.9515, \"over_threshold\": 5.644, \"category\": \"works\"}",
+   "text_tg": "КП Виконавчого Органу Київради (Київської Мі…: 32 закупівель «Виконання будівельних робіт за об'єктом: «Реконструкція інже…» за 8 дн. на 8,5 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 40538421\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-15-000195-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-40538421-71247-2026-11",
+   "created": "2026-11-09T02:40:17.671040+00:00",
+   "status": "in_review",
+   "text": "КП Виконавчого Орга…: 3 закупівель «Виконання робіт із здійснення технічного нагляду під час буд…» за 6 дн. на 2,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-005549-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 3, \"log_total\": 14.6058, \"over_threshold\": 1.469, \"category\": \"works\"}",
+   "text_tg": "КП Виконавчого Органу Київради (Київської Мі…: 3 закупівель «Виконання робіт із здійснення технічного нагляду під час буд…» за 6 дн. на 2,2 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 40538421\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-30-005549-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-41834402-45453-2026-11",
+   "created": "2026-11-09T02:39:18.245383+00:00",
+   "status": "in_review",
+   "text": "Центр фінансово-гос…: 4 закупівель «Капітальний ремонт частини доріжки із заміною покриття Розва…» за 1 дн. на 2,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-013430-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 4, \"log_total\": 14.8445, \"over_threshold\": 1.865, \"category\": \"works\"}",
+   "text_tg": "Центр фінансово-господарського та навчально-…: 4 закупівель «Капітальний ремонт частини доріжки із заміною покриття Розва…» за 1 дн. на 2,8 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 41834402\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-11-05-013430-a #Prozorro"
+  },
+  {
+   "tender_id": "PAT-SPLIT-43946694-45450-2026-10",
+   "created": "2026-11-09T02:38:01.594804+00:00",
+   "status": "in_review",
+   "text": "Управління капіталь…: 8 закупівель «Капітальний ремонт приміщень на 1-ому поверсі Великоолександ…» за 1 дн. на 3,9 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-009455-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"split\", \"n\": 8, \"log_total\": 15.1669, \"over_threshold\": 2.575, \"category\": \"works\"}",
+   "text_tg": "Управління капітального будівництва, житлово…: 8 закупівель «Капітальний ремонт приміщень на 1-ому поверсі Великоолександ…» за 1 дн. на 3,9 млн грн. Кожна нижча за поріг 1,5 млн грн, разом більше. Можливий поділ закупівлі.\nЄДРПОУ: замовник 43946694\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-29-009455-a #Prozorro"
+  },
   {
    "tender_id": "UA-2026-07-17-010166-a",
    "created": "2026-11-08T23:41:09.470470+00:00",
@@ -19,7 +1671,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-04-007258-a",
@@ -32,7 +1685,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-06-008880-a",
@@ -45,7 +1699,8 @@
    "published_at": "2026-11-08T20:51:35.886320+00:00",
    "tg_channel_msg_id": 2,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-10-009082-a",
@@ -58,7 +1713,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-11-012672-a",
@@ -71,7 +1727,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-14-007919-a",
@@ -84,7 +1741,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-08-18-000356-a",
+   "created": "2026-11-09T02:33:01.501292+00:00",
+   "status": "in_review",
+   "text": "АТ \"Укргазвидобування\": Магістралі, трубопроводи, труби, обсадні труби, тюбінги та с…, 15,5 млн грн.\nЄдиний учасник запропонував ціну лише на 581 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-18-000356-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ \"Укргазвидобування\": Магістралі, трубопроводи, труби, обсадні труби, тюбінги та с…, 15,5 млн грн.\nЄдиний учасник запропонував ціну лише на 581 грн нижчу за очікувану вартість.\nЄДРПОУ: замовник 30019775, переможець 33668606\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-18-000356-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-08-19-008469-a",
@@ -97,12 +1769,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-20-013593-a",
    "created": "2026-11-08T23:41:49.160302+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Лот № 1: Система дослідження супутникових ліній зв’язку, Лот…, 34,6 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-20-013593-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -110,7 +1783,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-26-002960-a",
@@ -123,7 +1797,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-27-003243-a",
@@ -136,7 +1811,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-28-004039-a",
@@ -149,7 +1825,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-31-007063-a",
@@ -162,7 +1839,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-08-31-013008-a",
@@ -175,7 +1853,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-04-006329-a",
@@ -188,7 +1867,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-04-011877-a",
@@ -201,7 +1881,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-11-013456-a",
@@ -214,7 +1895,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-12-000561-a",
+   "created": "2026-11-09T02:32:44.036935+00:00",
+   "status": "in_review",
+   "text": "Управління будівництва та житлово - комунального…: Капітальний ремонт з відновлення житлового будинку за адресо…, 15,9 млн грн.\nЄдиний учасник запропонував ціну лише на 651 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-12-000561-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Управління будівництва та житлово - комунального…: Капітальний ремонт з відновлення житлового будинку за адресо…, 15,9 млн грн.\nЄдиний учасник запропонував ціну лише на 651 грн нижчу за очікувану вартість.\nЄДРПОУ: замовник 39682379, переможець 38765748\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-12-000561-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-14-013898-a",
@@ -227,12 +1923,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-17-014261-a",
    "created": "2026-11-08T23:41:06.643521+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Управління Служби безпеки України в…: Спеціалізований легковий автомобіль на базі а/м Hyundai Star…, 2,7 млн грн.\nЦіна 2 706 822 грн/штука — у 2,7 раза вища за медіану (1 005 000 грн) у 3 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-17-014261-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -240,7 +1937,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-18-007896-a",
@@ -253,12 +1951,27 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-21-013708-a",
+   "created": "2026-11-09T02:32:30.095172+00:00",
+   "status": "in_review",
+   "text": "КП Електричних Мереж Зовнішнього Освітлення \"Одес…: Розміщення енергогенеруючої установки сонячного випромінюван…, 16,3 млн грн.\nЄдиний учасник запропонував ціну лише на 193 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-21-013708-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "КП Електричних Мереж Зовнішнього Освітлення \"Одес…: Розміщення енергогенеруючої установки сонячного випромінюван…, 16,3 млн грн.\nЄдиний учасник запропонував ціну лише на 193 грн нижчу за очікувану вартість.\nЄДРПОУ: замовник 03350568, переможець 45323348\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-21-013708-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-21-014629-a",
    "created": "2026-11-08T20:46:23.663584+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Квадроцикл (9 лотів): Легкові автомобілі, 352,9 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 44,9 млн грн (+36%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-21-014629-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -266,7 +1979,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-22-007480-a",
+   "created": "2026-11-09T02:32:33.583805+00:00",
+   "status": "in_review",
+   "text": "Регіональна Філія \"Одеська Залізни…: Накладка неметалева для ізолюючих стикі…, 16,2 млн грн (+1 аналогічн. лот.).\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 2 560 грн (+0%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-22-007480-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Регіональна Філія \"Одеська Залізниця\" Акціонерног…: Накладка неметалева для ізолюючих стиків залізничних рейок Н…, 16,2 млн грн (+1 аналогічн. лот.).\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 2 560 грн (+0%).\nПереможець запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЦей переможець отримав 78% вартості конкурентних закупівель замовника (46 договорів за 30 днів).\nЄДРПОУ: замовник 40081200, переможець 42393962\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-22-007480-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-22-009137-a",
@@ -279,7 +2007,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-23-007158-a",
@@ -292,7 +2021,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-23-008288-a",
@@ -305,12 +2035,27 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-23-010805-a",
+   "created": "2026-11-09T02:32:37.066168+00:00",
+   "status": "in_review",
+   "text": "КНП Балаклійської міськради Харків…: Послуги з метрологічної повірки засобів вимірювальної технік…, 469 843 грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 319 943 грн (+213%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-23-010805-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "КНП Балаклійської міськради Харківської Області \"…: Послуги з метрологічної повірки засобів вимірювальної технік…, 469 843 грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 319 943 грн (+213%).\nПереможець запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 02003793, переможець 04725906\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-23-010805-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-23-015095-a",
    "created": "2026-11-08T23:40:37.784362+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: “Реконструкція (з виконанням протиаварійних заходів) частини…, 135,6 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 4,8 млн грн (+4%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-23-015095-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -318,7 +2063,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-23-015924-a",
@@ -331,7 +2077,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-23-016011-a",
@@ -344,7 +2091,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-24-004112-a",
@@ -357,7 +2105,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-24-012202-a",
@@ -370,7 +2119,36 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-24-013830-a",
+   "created": "2026-11-09T02:32:23.101393+00:00",
+   "status": "in_review",
+   "text": "АТ «Національна Атомна Енергогенеруюча Компанія «…: Компенсуючі вирівнюючі пристрої, 16,7 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-24-013830-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ «Національна Атомна Енергогенеруюча Компанія «…: Компенсуючі вирівнюючі пристрої, 16,7 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 24584661, переможець 43691673\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-24-013830-a #Prozorro"
+  },
+  {
+   "tender_id": "UA-2026-09-24-014654-a",
+   "created": "2026-11-09T02:33:11.919886+00:00",
+   "status": "in_review",
+   "text": "Національне агентство України з питань виявлення…: консультаційні послуги з питань систем та з технічних питань…, 876 667 грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 301 677 грн (+52%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-24-014654-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Національне агентство України з питань виявлення…: консультаційні послуги з питань систем та з технічних питань…, 876 667 грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 301 677 грн (+52%).\nПереможець запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЦей переможець отримав 64% вартості конкурентних закупівель замовника (7 договорів за 30 днів).\nЄДРПОУ: замовник 41037901, переможець 42540322\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-24-014654-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-25-003070-a",
@@ -383,7 +2161,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-25-003577-a",
@@ -396,7 +2175,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-25-006917-a",
+   "created": "2026-11-09T02:32:26.598671+00:00",
+   "status": "in_review",
+   "text": "ДП \"Національні Інформаційні Системи\": Послуги з технічної підтримки та модернізації програмного за…, 16,5 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-25-006917-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "ДП \"Національні Інформаційні Системи\": Послуги з технічної підтримки та модернізації програмного за…, 16,5 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 39787008, переможець 40026988\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-25-006917-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-28-004462-a",
@@ -409,7 +2203,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-09-28-006328-a",
@@ -422,7 +2217,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-09-29-004682-a",
+   "created": "2026-11-09T02:32:40.556385+00:00",
+   "status": "in_review",
+   "text": "Безлюдівська селищна рада: Капітальний ремонт ділянки дороги, від вул. Журавлина, буд.…, 15,9 млн грн.\nЄдиний учасник запропонував ціну лише на 239 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-29-004682-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Безлюдівська селищна рада: Капітальний ремонт ділянки дороги, від вул. Журавлина, буд.…, 15,9 млн грн.\nЄдиний учасник запропонував ціну лише на 239 грн нижчу за очікувану вартість.\nЄДРПОУ: замовник 04396555, переможець 45542579\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-29-004682-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-09-30-012213-a",
@@ -435,7 +2245,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-01-010608-a",
@@ -448,7 +2259,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-02-002297-a",
@@ -461,7 +2273,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-02-003822-a",
+   "created": "2026-11-09T02:32:12.611081+00:00",
+   "status": "in_review",
+   "text": "Філія \"Центр забезпечення виробництва\" АТ \"Укрзал…: Цзв-26т_337_во: Світлофорне обладнання (Регулювальне, запобі…, 17,1 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-02-003822-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Філія \"Центр забезпечення виробництва\" АТ \"Укрзал…: Цзв-26т_337_во: Світлофорне обладнання (Регулювальне, запобі…, 17,1 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 40081347, переможець 20257178\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-02-003822-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-02-009058-a",
@@ -474,12 +2301,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-02-011344-a",
    "created": "2026-11-08T23:42:00.406066+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Подарунки та нагороди (Плакетки, футляри), 674 100 грн.\nЦіна 3 092 грн/штука — у 14,9 раза вища за медіану (207 грн) у 4 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-02-011344-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -487,7 +2315,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-02-011395-a",
@@ -500,7 +2329,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-02-011400-a",
@@ -513,7 +2343,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-02-011487-a",
@@ -526,7 +2357,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-02-011995-a",
+   "created": "2026-11-09T02:32:54.525029+00:00",
+   "status": "in_review",
+   "text": "Комунальний заклад Львів…: Література для поповнення біб…, 653 223 грн.\nЦіна 555 грн/штука — у 1,9 раза вища за медіану (291 грн) у 3 інших замовників.\nУ конкурентній процедурі була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-02-011995-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Комунальний заклад Львівської обласної ради \"Льві…: Література для поповнення бібліотечного фонду, 653 223 грн.\nЦіна 555 грн/штука — у 1,9 раза вища за медіану (291 грн) у 3 інших замовників.\nУ конкурентній процедурі була лише одна пропозиція.\nЄДРПОУ: замовник 02221774\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-02-011995-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-02-012455-a",
@@ -539,7 +2385,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-05-008484-a",
@@ -552,7 +2399,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-05-009182-a",
@@ -565,7 +2413,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-05-010183-a",
@@ -578,7 +2427,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-05-010933-a",
@@ -591,7 +2441,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-05-014436-a",
@@ -604,7 +2455,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-06-001728-a",
@@ -617,12 +2469,27 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-06-004502-a",
+   "created": "2026-11-09T02:32:16.133084+00:00",
+   "status": "in_review",
+   "text": "Державна Наукова Установа \"Український Науково-до…: Рекультивант композиційний Trevitan полікомплекс, 1,7 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 341 250 грн (+25%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-06-004502-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Державна Наукова Установа \"Український Науково-до…: Рекультивант композиційний Trevitan полікомплекс, 1,7 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 341 250 грн (+25%).\nПереможець запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 04604309, переможець 35642595\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-06-004502-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-06-005699-a",
    "created": "2026-11-08T23:42:13.128919+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Мототранспортні вантажні засоби, 27,3 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-06-005699-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -630,7 +2497,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-06-009011-a",
@@ -643,12 +2511,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-06-013237-a",
    "created": "2026-11-08T23:42:47.200511+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Регіональний сервісний центр ГСЦ МВС у Дніпропетр…: Акумуляторні батареї, 427 900 грн.\nЦіна 38 900 грн/штука — у 9,8 раза вища за медіану (3 968 грн) у 3 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-06-013237-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -656,7 +2525,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-06-013320-a",
@@ -669,7 +2539,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-06-013559-a",
@@ -682,7 +2553,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-07-010431-a",
@@ -695,7 +2567,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-07-012843-a",
@@ -708,7 +2581,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-07-013589-a",
@@ -721,7 +2595,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-08-001558-a",
@@ -734,7 +2609,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-08-008043-a",
@@ -747,12 +2623,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-08-012474-a",
    "created": "2026-11-08T23:41:17.945090+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Орган державної влади Управління Державної служби…: Реконструкція адміністративно-технічної будівлі спеціального…, 74,6 млн грн.\nЄдиний учасник запропонував ціну лише на 10 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-08-012474-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -760,7 +2637,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-08-012842-a",
+   "created": "2026-11-09T02:31:58.623804+00:00",
+   "status": "in_review",
+   "text": "АТ \"Укртрансгаз\": Газове паливо (Природний газ), 500,7 млн грн (+2 аналогічн. лот.).\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 30019801, переможець 42399676\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-08-012842-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ \"Укртрансгаз\": Газове паливо (Природний газ), 500,7 млн грн (+2 аналогічн. лот.).\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЦей переможець отримав 85% вартості конкурентних закупівель замовника (48 договорів за 30 днів).\nЄДРПОУ: замовник 30019801, переможець 42399676\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-08-012842-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-08-012887-a",
@@ -773,7 +2665,36 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-08-012963-a",
+   "created": "2026-11-09T02:32:47.567524+00:00",
+   "status": "in_review",
+   "text": "АТ \"Укргазвидобування\": Послуги з ремонту і технічного обслуговування мототранспортн…, 15,7 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-08-012963-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ \"Укргазвидобування\": Послуги з ремонту і технічного обслуговування мототранспортн…, 15,7 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 30019775, переможець 45343390\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-08-012963-a #Prozorro"
+  },
+  {
+   "tender_id": "UA-2026-10-09-005414-a",
+   "created": "2026-11-09T02:33:08.458118+00:00",
+   "status": "in_review",
+   "text": "Приватне АТ \"Закарпаттяобленерго\": Будівельно-монтажні роботи для зовнішнього електропостачання…, 15,2 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-09-005414-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Приватне АТ \"Закарпаттяобленерго\": Будівельно-монтажні роботи для зовнішнього електропостачання…, 15,2 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 00131529, переможець 34041689\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-09-005414-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-09-009066-a",
@@ -786,7 +2707,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-09-009767-a",
@@ -799,7 +2721,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-09-011569-a",
+   "created": "2026-11-09T02:33:15.412910+00:00",
+   "status": "in_review",
+   "text": "Філія \"Подільський Лісовий ОФІС\" Державного Спеці…: Послуги з ремонту та технічного обслуговування бензопил та к…, 15,1 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-09-011569-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Філія \"Подільський Лісовий ОФІС\" Державного Спеці…: Послуги з ремонту та технічного обслуговування бензопил та к…, 15,1 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 45495765\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-09-011569-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-09-012575-a",
@@ -812,7 +2749,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-09-013015-a",
@@ -825,7 +2763,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-10-000365-a",
@@ -838,12 +2777,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-12-004188-a",
    "created": "2026-11-08T23:41:27.867458+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Управління Служби безпеки України в Чернівецькій…: Легковий автомобіль спеціалізованого призначення, 2,2 млн грн.\nЦіна 2 183 227 грн/штука — у 2,2 раза вища за медіану (1 000 000 грн) у 6 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-12-004188-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -851,7 +2791,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-12-005905-a",
@@ -864,7 +2805,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-12-007656-a",
@@ -877,7 +2819,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-12-008797-a",
@@ -890,12 +2833,27 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-12-008833-a",
+   "created": "2026-11-09T02:32:02.119414+00:00",
+   "status": "in_review",
+   "text": "АТ \"Укрпошта\": Системи безперебійного живлення (резервний тендер), 17,5 млн грн.\nЄдиний учасник запропонував ціну лише на 950 грн нижчу за очікувану вартість.\nЄДРПОУ: замовник 21560045, переможець 40733799\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-12-008833-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-12-011545-a",
    "created": "2026-11-08T22:00:10.462912+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Повсякденні набори сухих продуктів (раціон №1-3), 64,6 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 9,4 млн грн (+17%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-12-011545-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -903,12 +2861,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-12-012634-a",
    "created": "2026-11-08T23:42:58.431605+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Мобільна (інвентарна) збірно-розбірна будівля громадського п…, 18,0 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-12-012634-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -916,7 +2875,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-13-003201-a",
+   "created": "2026-11-09T02:32:05.614017+00:00",
+   "status": "in_review",
+   "text": "АТ Прикарпаттяобленерго: Роботи з будівництва розвантажувальної ТП, а саме: розвантаж…, 17,4 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-13-003201-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ Прикарпаттяобленерго: Роботи з будівництва розвантажувальної ТП, а саме: розвантаж…, 17,4 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЄДРПОУ: замовник 00131564, переможець 40688207\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-13-003201-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-13-007534-a",
@@ -929,7 +2903,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-010401-a",
@@ -942,7 +2917,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-010755-a",
@@ -955,12 +2931,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-010853-a",
    "created": "2026-11-08T23:41:15.137702+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Нове будівництво споруди № 2 у Вінницькій області, 75,0 млн грн.\nЄдиний учасник запропонував ціну лише на 4 936 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-13-010853-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -968,12 +2945,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-012092-a",
    "created": "2026-11-08T23:41:10.883427+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Департамент патрульної поліції: Персональні нагрудні відеореєстратори з супутнім обладнанням, 81,7 млн грн.\nЄдиний учасник запропонував ціну лише на 4 грн нижчу за очікувану вартість.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-13-012092-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -981,7 +2959,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-013990-a",
@@ -994,7 +2973,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-014359-a",
@@ -1007,7 +2987,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-13-014733-a",
@@ -1020,7 +3001,36 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-14-003259-a",
+   "created": "2026-11-09T02:40:42.070767+00:00",
+   "status": "in_review",
+   "text": "КП ММР \"Миколаївелектротранс\": Частини електророзподільної чи контрольної апаратури (переві…, 2,0 млн грн.\nУ конкурентній процедурі була лише одна пропозиція.\nЄДРПОУ: замовник 03328468, переможець 42410378\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-003259-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "explore",
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-14-003289-a",
+   "created": "2026-11-09T02:40:45.542810+00:00",
+   "status": "in_review",
+   "text": "АТ \"Укpнaфта\": Проведення технічного обстеження об’єкт…, 137 500 грн (+4 аналогічн. лот.).\n3 схожих допорогових закупівель за 30 дн. на 393 750 грн (поріг 200 000 грн): можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-003289-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "explore",
+   "features": null,
+   "text_tg": "АТ \"Укpнaфта\": Проведення технічного обстеження об’єкта +++ АТ «Укрнафта» з…, 137 500 грн (+4 аналогічн. лот.).\n3 схожих допорогових закупівель за 30 дн. на 393 750 грн (поріг 200 000 грн): можливий поділ закупівлі.\nУ конкурентній процедурі була лише одна пропозиція.\nЄДРПОУ: замовник 00135390\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-003289-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-14-004317-a",
@@ -1033,7 +3043,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-14-007467-a",
+   "created": "2026-11-09T02:32:51.038471+00:00",
+   "status": "in_review",
+   "text": "АТ \"Чернівціобленерго\": Нове будівництво зовнішніх мереж електропостачання будівницт…, 15,7 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-007467-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ \"Чернівціобленерго\": Нове будівництво зовнішніх мереж електропостачання будівницт…, 15,7 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЦей переможець отримав 83% вартості конкурентних закупівель замовника (7 договорів за 30 днів).\nЄДРПОУ: замовник 00130760, переможець 40168108\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-007467-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-14-007524-a",
@@ -1046,7 +3071,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-14-008664-a",
@@ -1059,7 +3085,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-14-009182-a",
+   "created": "2026-11-09T02:32:19.609494+00:00",
+   "status": "in_review",
+   "text": "АТ \"Чернівціобленерго\": Нове будівництво трансформаторної підстанції ЗТП-10/0,4 кВ №…, 16,8 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-009182-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "АТ \"Чернівціобленерго\": Нове будівництво трансформаторної підстанції ЗТП-10/0,4 кВ №…, 16,8 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nЦей переможець отримав 83% вартості конкурентних закупівель замовника (7 договорів за 30 днів).\nЄДРПОУ: замовник 00130760, переможець 40168108\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-009182-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-14-012137-a",
@@ -1072,12 +3113,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-14-013510-a",
    "created": "2026-11-08T23:41:08.047623+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Електророзподільні кабелі, 2,3 млн грн.\nЦіна 704 грн/метр — у 9,0 раза вища за медіану (78,61 грн) у 4 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-14-013510-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1085,12 +3127,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-15-000989-a",
    "created": "2026-11-08T23:41:12.315420+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Квадрокоптер DJI Matrice 4T (CP.EN.00000546.02), 30,2 млн грн (+2 аналогічн. лот.).\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 672 690 грн (+2%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-15-000989-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1098,7 +3141,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-15-001284-a",
@@ -1111,7 +3155,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-15-009846-a",
@@ -1124,12 +3169,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-16-012712-a",
    "created": "2026-11-08T23:42:08.900720+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Головне управління Національної поліції в Полтавс…: Капітальний ремонт приміщень ІТТ №1 ГУНП в Полтавській облас…, 28,1 млн грн.\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-16-012712-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1137,12 +3183,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-17-000286-a",
    "created": "2026-11-08T23:41:43.504512+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Портативний самогенеруючий автономний дизельний обігрівач по…, 1,0 млн грн.\nЦіна 28 333 грн/штука — у 4,5 раза вища за медіану (6 243 грн) у 3 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-17-000286-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1150,7 +3197,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-18-000186-a",
@@ -1163,12 +3211,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-19-003926-a",
    "created": "2026-11-08T23:40:44.896268+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Національна поліція України: Легкові автомобілі спеціалізованого призначення, 160,7 млн грн (+1 аналогічн. лот.).\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-19-003926-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1176,7 +3225,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-19-004836-a",
@@ -1189,7 +3239,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-19-009714-a",
@@ -1202,7 +3253,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-19-010703-a",
@@ -1215,12 +3267,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-19-014174-a",
    "created": "2026-11-08T23:41:30.749154+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Квадрокоптер DJI Matrice 4T (CP.EN.00000546.02), 19,4 млн грн (+1 аналогічн. лот.).\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 355 300 грн (+2%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-19-014174-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1228,12 +3281,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-19-014255-a",
    "created": "2026-11-08T23:42:33.111513+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Батарея для БПЛА Tulip Tech 6S 78Аг, 923 400 грн.\nЦіна 30 780 грн/штука — у 2,0 раза вища за медіану (15 200 грн) у 6 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-19-014255-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1241,12 +3295,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-20-000433-a",
    "created": "2026-11-08T23:42:40.177870+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Акумулятор 6S 66000 mAh для великих БПЛА (Вампір, Vampire аб…, 568 100 грн.\nЦіна 24 700 грн/штука — у 3,4 раза вища за медіану (7 300 грн) у 25 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-20-000433-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1254,7 +3309,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-20-005180-a",
@@ -1267,7 +3323,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-20-013185-a",
@@ -1280,12 +3337,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-20-013775-a",
    "created": "2026-11-08T23:41:40.713414+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Акумулятори для FPV дронів 66000 mAh, 1,1 млн грн.\nЦіна 27 825 грн/штука — у 3,9 раза вища за медіану (7 200 грн) у 9 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-20-013775-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1293,12 +3351,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-20-013925-a",
    "created": "2026-11-08T23:42:25.995040+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Фармацевтична продукція за ДК 021:2015 «Єдиний закупівельний…, 585 000 грн.\nЦіна 130 грн/штука — у 5,8 раза вища за медіану (22,55 грн) у 5 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-20-013925-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1306,7 +3365,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-21-001768-a",
+   "created": "2026-11-09T02:40:38.592524+00:00",
+   "status": "in_review",
+   "text": "Богданівський ліцей з гімназією та початковою шко…: Дизельне паливо, 174 504 грн.\nУ конкурентній процедурі була лише одна пропозиція.\nЦіна рішення — 80% очікуваної, тоді як зазвичай у цій категорії 98%.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-21-001768-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "explore",
+   "features": null,
+   "text_tg": "Богданівський ліцей з гімназією та початковою шко…: Дизельне паливо, 174 504 грн.\nУ конкурентній процедурі була лише одна пропозиція.\nЦіна рішення — 80% очікуваної, тоді як зазвичай у цій категорії 98%.\nЄДРПОУ: замовник 23087009, переможець 32938047\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-21-001768-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-21-001914-a",
@@ -1319,7 +3393,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-21-009763-a",
+   "created": "2026-11-09T02:32:09.130403+00:00",
+   "status": "in_review",
+   "text": "Державна Установа \"Національний Ін…: Медичні матеріали (Маски кисневі, маски ларингеальні, маски…, 818 420 грн.\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 345 516 грн (+73%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-21-009763-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "Державна Установа \"Національний Інститут Травмато…: Медичні матеріали (Маски кисневі, маски ларингеальні, маски…, 818 420 грн.\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 345 516 грн (+73%).\nЦей переможець отримав 88% вартості конкурентних закупівель замовника (6 договорів за 30 днів).\nЄДРПОУ: замовник 02012007, переможець 46111570\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-21-009763-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-21-011092-a",
@@ -1332,7 +3421,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-22-003844-a",
@@ -1345,12 +3435,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-22-005055-a",
    "created": "2026-11-08T23:42:17.442942+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Лікарські засоби, МНН: Колістин порошок для розчину для ін'є…, 1,2 млн грн.\nЦіна 232 грн/штука — у 1,9 раза вища за медіану (124 грн) у 4 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-22-005055-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1358,12 +3449,27 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-22-008994-a",
+   "created": "2026-11-09T02:33:04.962707+00:00",
+   "status": "in_review",
+   "text": "КП \" Водоканал \": Протипожежне, рятувальне та захисне обладнання (Вогнегасник…, 328 916 грн.\nЦіна 23 494 грн/штука — у 14,2 раза вища за медіану (1 650 грн) у 5 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-22-008994-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "КП \" Водоканал \": Протипожежне, рятувальне та захисне обладнання (Вогнегасник…, 328 916 грн.\nЦіна 23 494 грн/штука — у 14,2 раза вища за медіану (1 650 грн) у 5 інших замовників.\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 5 018 грн (+2%).\nТой самий дешевший учасник уже 3 раз(и) «поступався» цьому переможцю.\nЄДРПОУ: замовник 03327121, переможець 37373478\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-22-008994-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-23-004016-a",
    "created": "2026-11-08T23:42:41.572842+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Військовий замовник: Акумуляторні блоки Tulip Tech 4S 16 А*год (4S1P), 760 000 грн.\nЦіна 15 200 грн/штука — у 2,1 раза вища за медіану (7 200 грн) у 11 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-23-004016-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1371,7 +3477,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-23-004320-a",
@@ -1384,7 +3491,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-23-006037-a",
@@ -1397,7 +3505,22 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
+  },
+  {
+   "tender_id": "UA-2026-10-23-010128-a",
+   "created": "2026-11-09T02:32:58.007265+00:00",
+   "status": "in_review",
+   "text": "КП Чернігівводоканал: Бензин А-95 (Євро 5), талон, Дизельне паливо (Євро 5), картк…, 6,0 млн грн.\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 175 900 грн (+3%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-23-010128-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "tender",
+   "features": null,
+   "text_tg": "КП Чернігівводоканал: Бензин А-95 (Євро 5), талон, Дизельне паливо (Євро 5), картк…, 6,0 млн грн.\nУсі дешевші пропозиції відмовились від договору; переможець дорожчий на 175 900 грн (+3%).\nТой самий дешевший учасник уже 3 раз(и) «поступався» цьому переможцю.\nЄДРПОУ: замовник 03358222, переможець 43012009\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-23-010128-a #Prozorro"
   },
   {
    "tender_id": "UA-2026-10-23-013168-a",
@@ -1410,7 +3533,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-26-009132-a",
@@ -1423,7 +3547,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-26-010967-a",
@@ -1436,12 +3561,13 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-26-011343-a",
    "created": "2026-11-08T23:40:39.183907+00:00",
-   "status": "in_review",
+   "status": "suppressed",
    "text": "Державна Установа \"Центр Авіаційного Забезпечення…: Акумуляторна батарея 6S5P, 10,2 млн грн.\nЦіна 5 100 грн/штука — у 1,8 раза вища за медіану (2 789 грн) у 19 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-26-011343-a #Prozorro",
    "approved_by": null,
    "approved_at": null,
@@ -1449,7 +3575,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-27-012923-a",
@@ -1462,7 +3589,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-28-005834-a",
@@ -1475,7 +3603,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": null,
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-28-011777-a",
@@ -1488,7 +3617,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   },
   {
    "tender_id": "UA-2026-10-30-007019-a",
@@ -1501,7 +3631,8 @@
    "published_at": null,
    "tg_channel_msg_id": null,
    "kind": "tender",
-   "features": null
+   "features": null,
+   "text_tg": null
   }
  ]
 }
