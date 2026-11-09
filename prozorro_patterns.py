@@ -23,17 +23,32 @@ PCFG = {
     "dominance_min_total_uah": 2_000_000,
     "split_window_days": 30,
     "split_min_count": 3,             # поділ: щонайменше 3 допорогові закупівлі В ОДНОГО постачальника
+    "split_max_count": 10,            # десятки договорів за місяць - звичайна робота (напр. обленерго), а не поділ
     "buyer_single_max_expected": 0.5,  # «майже завжди одна пропозиція»: лише якщо зазвичай таких не більше половини
     "keep_awards_days": 400,
 }
 # пороги, як у моніторі (ПЕРЕВІРТЕ за чинними правилами)
 THRESHOLDS = {"goods": 200_000, "services": 200_000, "works": 1_500_000}
+# замовники в окремих сферах господарювання (kind=special): вищі пороги
+THRESHOLDS_SPECIAL = {"goods": 1_000_000, "services": 1_000_000, "works": 5_000_000}
 MIN_VALUE = 100_000
 
 AWARDS_SCHEMA = """CREATE TABLE IF NOT EXISTS awards (
   id TEXT PRIMARY KEY, tender_id TEXT, buyer_id TEXT, buyer TEXT, supplier_id TEXT, supplier TEXT,
   amount REAL, est REAL, category TEXT, cpv TEXT, method TEXT, mtype TEXT, n_bids INTEGER,
-  military INTEGER, published TEXT, title TEXT)"""
+  military INTEGER, published TEXT, title TEXT, buyer_kind TEXT)"""
+COLS = ("id, tender_id, buyer_id, buyer, supplier_id, supplier, amount, est, category, cpv, method, mtype, n_bids, "
+        "military, published, title, buyer_kind")
+
+
+def ensure_awards(con):
+    con.execute(AWARDS_SCHEMA)
+    if "buyer_kind" not in {r[1] for r in con.execute("PRAGMA table_info(awards)")}:
+        con.execute("ALTER TABLE awards ADD COLUMN buyer_kind TEXT")
+
+
+def thr_for(r):
+    return (THRESHOLDS_SPECIAL if r.get("buyer_kind") == "special" else THRESHOLDS).get(r["category"])
 
 
 def now():
@@ -46,12 +61,12 @@ def lg(x):
 
 def sync_awards(con):
     """Переносить завершені закупівлі з таблиці tenders у довгу пам'ять awards."""
-    con.execute(AWARDS_SCHEMA)
+    ensure_awards(con)
     if not con.execute("SELECT name FROM sqlite_master WHERE name='tenders'").fetchone():
         return
-    con.execute("""INSERT OR REPLACE INTO awards
+    con.execute(f"""INSERT OR REPLACE INTO awards ({COLS})
         SELECT id, tender_id, buyer_id, buyer, supplier_id, supplier, award_amt, est, category, cpv, method, mtype,
-               n_bids, military, COALESCE(published, modified), title
+               n_bids, military, COALESCE(published, modified), title, buyer_kind
         FROM tenders
         WHERE status IN ('complete', 'active.awarded') AND supplier_id IS NOT NULL AND award_amt > 0
           AND currency = 'UAH'""")
@@ -94,12 +109,12 @@ def _split(rows):
     out = []
     groups = defaultdict(list)
     for r in rows:
-        thr = THRESHOLDS.get(r["category"])
+        thr = thr_for(r)
         if thr and r["cpv"] and r["published"] and r["est"] and MIN_VALUE <= r["est"] < thr:
             groups[(r["buyer_id"], r["category"], r["cpv"][:5], r["supplier_id"])].append(r)
     win = timedelta(days=PCFG["split_window_days"])
     for (bid, cat, cpv5, sid), g in groups.items():
-        thr = THRESHOLDS[cat]
+        thr = thr_for(g[0])
         g.sort(key=lambda r: r["published"])
         best, lo = None, 0
         for hi in range(len(g)):
@@ -107,6 +122,9 @@ def _split(rows):
                 lo += 1
             w = g[lo:hi + 1]
             s = sum(r["est"] for r in w)
+            if len(w) > PCFG["split_max_count"]:     # десятки договорів за місяць: звичайна робота, групу пропускаємо
+                best = None
+                break
             if len(w) >= PCFG["split_min_count"] and s >= thr and (not best or len(w) > len(best)):
                 best = list(w)
         if best:
@@ -154,7 +172,7 @@ def _buyer_habits(con, rows):
 
 def find_patterns(con):
     """Список закономірностей (словники) за останні pattern_window_days. Військових і безпекових замовників не чіпаємо."""
-    con.execute(AWARDS_SCHEMA)
+    ensure_awards(con)
     days = PCFG["pattern_window_days"]
     since = (now() - timedelta(days=days)).isoformat()
     rows = [dict(r) for r in con.execute("SELECT * FROM awards WHERE published >= ?", (since,))]
