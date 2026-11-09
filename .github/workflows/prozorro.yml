@@ -23,7 +23,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     env:
       TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
       TG_ADMIN_IDS: ${{ secrets.TG_ADMIN_IDS }}
@@ -62,6 +62,11 @@ jobs:
           if [ -n "${{ github.event.inputs.since }}" ]; then ARGS="$ARGS --since ${{ github.event.inputs.since }}"; fi
           python prozorro_monitor.py --db state/prozorro.db run $ARGS
 
+      # Історія постачальників: прапорці «новачок без історії» / «новачок у категорії» (вмикаються після дозавантаження)
+      - name: Історія постачальників - прапорці
+        continue-on-error: true
+        run: python prozorro_history.py --db state/prozorro.db flags
+
       - name: Перевірка в Telegram і публікація схваленого
         run: python prozorro_publisher.py --db state/prozorro.db ci --path state/ledger.json
 
@@ -69,6 +74,12 @@ jobs:
       - name: Тіньова модель
         continue-on-error: true
         run: python prozorro_model.py --db state/prozorro.db --state state
+
+      # Фонове дозавантаження 24 місяців історії, частинами (кілька днів). Помилка тут не зупиняє бота.
+      - name: Історія постачальників - дозавантаження
+        continue-on-error: true
+        timeout-minutes: 22
+        run: python prozorro_history.py --db state/prozorro.db backfill --minutes 18
 
       - name: Тримати базу малою
         run: python prozorro_monitor.py --db state/prozorro.db prune --days 45 --keep-flagged-days 30
