@@ -120,7 +120,7 @@ def _split(rows):
 
 def _buyer_habits(con, rows):
     out = []
-    military = {r["buyer_id"] for r in rows if r["military"] == 1}
+    military = {r["buyer_id"] for r in rows if r["military"]}  # військові й безпекові
     totals = defaultdict(float)
     names = {}
     for r in rows:
@@ -145,12 +145,12 @@ def _buyer_habits(con, rows):
 
 
 def find_patterns(con):
-    """Список закономірностей (словники) за останні pattern_window_days. Військових замовників не чіпаємо."""
+    """Список закономірностей (словники) за останні pattern_window_days. Військових і безпекових замовників не чіпаємо."""
     con.execute(AWARDS_SCHEMA)
     days = PCFG["pattern_window_days"]
     since = (now() - timedelta(days=days)).isoformat()
     rows = [dict(r) for r in con.execute("SELECT * FROM awards WHERE published >= ?", (since,))]
-    civil = [r for r in rows if r["military"] != 1 and r["buyer_id"] and r["supplier_id"]]
+    civil = [r for r in rows if not r["military"] and r["buyer_id"] and r["supplier_id"]]
     out = _dominance(civil, days) + _split(civil)
     if con.execute("SELECT name FROM sqlite_master WHERE name='flags'").fetchone():
         out += _buyer_habits(con, rows)
