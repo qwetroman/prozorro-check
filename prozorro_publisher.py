@@ -811,7 +811,7 @@ def cmd_draft(con, _args):
         PP.sync_awards(con)
         have = {r[0] for r in con.execute("SELECT tender_id FROM posts")}
         found = PP.find_patterns(con)
-        if meta(con, "pattern_rules") != "3":    # одноразово: прибрати чернетки, що не проходять уточнених правил
+        if meta(con, "pattern_rules") != "4":    # одноразово: прибрати чернетки, що не проходять уточнених правил
             keep = {p["key"] for p in found}
             stale = [r[0] for r in con.execute("SELECT tender_id FROM posts WHERE kind='pattern' "
                                                "AND status IN ('draft', 'in_review')") if r[0] not in keep]
@@ -821,7 +821,7 @@ def cmd_draft(con, _args):
                 set_review_status(con, k, "🚫 Прибрано: не проходить уточнених правил для закономірностей")
                 if not DRY:
                     time.sleep(1)
-            meta(con, "pattern_rules", "3")
+            meta(con, "pattern_rules", "4")
             log(f"прибрано застарілих закономірностей: {len(stale)}")
         items += [("pattern", p) for p in found
                   if p["key"] not in have and p["pattern"] in CFG["pattern_types"]
