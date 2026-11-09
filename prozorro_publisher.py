@@ -130,7 +130,7 @@ def db():
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(posts)")}
-    for c in ("kind", "features"):            # kind: tender / pattern / explore; features: ознаки закономірності
+    for c in ("kind", "features", "text_tg"):  # kind: tender/pattern/explore; features: ознаки; text_tg: повний текст для каналу
         if c not in have:
             con.execute(f"ALTER TABLE posts ADD COLUMN {c} TEXT")
     return con
@@ -290,6 +290,40 @@ def signal_lines(r):
         lines.append(f"Конкуруючі учасники мають спільні контакти{' (' + ', '.join(what) + ')' if what else ''}.")
     if "AMCU_COMPLAINT_UPHELD" in c:
         lines.append("АМКУ задовольнив скаргу в цій закупівлі.")
+    # решта прапорців, від сильніших до слабших (у X слабші відкидаються, якщо не влазить у 280)
+    fl, num = r["flags"], lambda x: float(x.replace(",", ""))
+    if "CONTRACT_ABOVE_AWARD" in c and r.get("contract_amt") and r.get("award_amt"):
+        lines.append(f"Договір ({money(r['contract_amt'])}) дорожчий за суму, з якою учасник переміг ({money(r['award_amt'])}).")
+    m = re.search(r"має (\d+)% вартості.*\((\d+) договорів\)", fl.get("SUPPLIER_CONCENTRATION", ""))
+    if "SUPPLIER_CONCENTRATION" in c and m:
+        lines.append(f"Цей переможець отримав {m.group(1)}% вартості конкурентних закупівель замовника "
+                     f"({m.group(2)} договорів за 30 днів).")
+    m = re.search(r"^(\d+) допорогових тендерів .*? протягом (\d+) дн\., разом ([\d,]+) грн \(поріг ([\d,]+)\)",
+                  fl.get("POSSIBLE_SPLIT_PURCHASE", ""))
+    if "POSSIBLE_SPLIT_PURCHASE" in c and m:
+        lines.append(f"{m.group(1)} схожих допорогових закупівель за {m.group(2)} дн. на {money(num(m.group(3)))} "
+                     f"(поріг {money(num(m.group(4)))}): можливий поділ закупівлі.")
+    if "SINGLE_BIDDER" in c and "BID_AT_ESTIMATE_EXACT" not in c:
+        lines.append("У конкурентній процедурі була лише одна пропозиція.")
+    if "SHORT_BID_PERIOD" in c and r.get("period_days") is not None:
+        lines.append(f"На подання пропозицій дали лише {num_ua(r['period_days'], 1)} дн.")
+    if "COMPETITORS_ELIMINATED" in c and not c & {"CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED"}:
+        lines.append(f"Відхилено {r.get('n_unsuccessful')} з {r.get('n_bids')} учасників, переможець залишився сам.")
+    if "NEGOTIATION_NO_JUSTIFICATION" in c:
+        lines.append("Переговорна процедура без обґрунтування.")
+    m = re.search(r"поріг ([\d,]+) грн", fl.get("JUST_BELOW_THRESHOLD", ""))
+    if "JUST_BELOW_THRESHOLD" in c and m:
+        lines.append(f"Очікувана вартість трохи нижча за поріг {money(num(m.group(1)))}, від якого потрібна складніша процедура.")
+    if "AWARD_AT_ESTIMATE" in c and "BID_AT_ESTIMATE_EXACT" not in c and r.get("award_amt") and r.get("est"):
+        lines.append(f"Ціна переможця — {num_ua(r['award_amt'] / r['est'] * 100, 1)}% очікуваної вартості, "
+                     f"пропозицій лише {r.get('n_bids')}.")
+    if "DIRECT_AWARD_HIGH_VALUE" in c and r.get("est"):
+        lines.append(f"Неконкурентна процедура на {money(r['est'])}.")
+    m = re.search(r"Ціна/очікувана (\d+)% проти медіани (\d+)%", fl.get("RATIO_OUTLIER", ""))
+    if "RATIO_OUTLIER" in c and m and abs(int(m.group(1)) - int(m.group(2))) >= 15:
+        lines.append(f"Ціна рішення — {m.group(1)}% очікуваної, тоді як зазвичай у цій категорії {m.group(2)}%.")
+    if "VERY_LOW_AWARD" in c and r.get("award_amt") and r.get("est"):
+        lines.append(f"Ціна рішення лише {r['award_amt'] / r['est'] * 100:.0f}% очікуваної вартості.")
     return lines
 
 
@@ -316,7 +350,8 @@ def edrpou_line(r):
     return "ЄДРПОУ: " + ", ".join(parts) if parts else None
 
 
-def compose(r):
+def compose(r, full=False):
+    # full=True: повний текст для Telegram-каналу (без обмеження 280)
     if r.get("military") == 1:
         buyer = "Військовий замовник"
     elif is_person(r.get("buyer")):
@@ -324,24 +359,30 @@ def compose(r):
     else:
         buyer = short_name(r["buyer"], 50)
     more = f" (+{r['siblings']} аналогічн. лот.)" if r.get("siblings") else ""
-    head = f"{buyer}: {subject(r)}, {money(r.get('award_amt') or r.get('est'))}{more}."
+    subj = subject(r)
+
+    def head(bl, sl):                                     # bl, sl: максимальна довжина назви замовника і предмета
+        b = buyer if len(buyer) <= bl else buyer[:bl - 1].rstrip(" ,(") + "…"
+        t = subj if len(subj) <= sl else subj[:sl - 1].rstrip(" ,(") + "…"
+        return f"{b}: {t}, {money(r.get('award_amt') or r.get('est'))}{more}."
     tail = f"Сигнал ризику, не доказ порушення.\n{PORTAL}{r['tender_id']} {CFG['hashtags']}".rstrip()
     sigs = signal_lines(r)
     ids = edrpou_line(r)
-    for k in (range(len(sigs), 0, -1) if sigs else [0]):   # відкидаємо слабші сигнали, доки не вміститься в 280
-        for extra in ([ids] if ids else []) + [None]:
-            text = "\n".join([head] + sigs[:k] + ([extra] if extra else []) + [tail])
-            if weighted_len(text) <= 280:
-                return text
-    text = "\n".join([head] + sigs[:1] + [tail])
-    while weighted_len(text) > 280 and len(buyer) > 20:   # крайній захід: скорочуємо назву замовника
-        buyer = buyer[:-8].rstrip() + "…"
-        head = f"{buyer}: {subject(r)}, {money(r.get('award_amt') or r.get('est'))}{more}."
-        text = "\n".join([head] + sigs[:1] + [tail])
-    return text
+    if full:
+        return "\n".join([head(50, 61)] + sigs + ([ids] if ids else []) + [tail])
+    # X: більше сигналів важливіше за повну назву; слабші сигнали відкидаємо, доки не вміститься в 280
+    for k in (range(len(sigs), 0, -1) if sigs else [0]):
+        for bl, sl in ((50, 61), (35, 61), (35, 40), (25, 30)):
+            for extra in ([ids] if ids else []) + [None]:
+                text = "\n".join([head(bl, sl)] + sigs[:k] + ([extra] if extra else []) + [tail])
+                if weighted_len(text) <= 280:
+                    return text
+    text = "\n".join([head(20, 25)] + sigs[:1] + [tail])
+    # крайній випадок: у X без сигналу (повний текст однаково піде в Telegram-канал)
+    return text if weighted_len(text) <= 280 else "\n".join([head(35, 40)] + [tail])
 
 
-def compose_pattern(p):
+def compose_pattern(p, full=False):
     """Текст для закономірності (замовник/постачальник), до 280 символів."""
     def head(n):
         buyer = "Замовник (ФОП)" if is_person(p["buyer"]) else short_name(p["buyer"], n)
@@ -358,6 +399,8 @@ def compose_pattern(p):
     ids = edrpou_line({"buyer_id": p["buyer_id"], "supplier_id": p.get("supplier_id"), "military": 0})
     ex = f"Приклад: {PORTAL}{p['example']} " if p.get("example") else ""
     tail = f"Сигнал ризику, не доказ порушення.\n{ex}{CFG['hashtags']}".rstrip()
+    if full:
+        return "\n".join([head(45)] + lines + ([ids] if ids else []) + [tail])
     for n in (45, 30, 20):
         for extra in (lines + ([ids] if ids else []), lines, []):
             text = "\n".join([head(n)] + extra + [tail])
@@ -427,16 +470,21 @@ def tg_html(text):
     return "\n".join(out)
 
 
-def review_html(tid, text, ctx, status=None):
-    s = (f"<b>Чернетка для {'X' if CFG['post_to_x'] else 'Telegram-каналу'}</b> ({weighted_len(text)}/280)\n<blockquote>{tg_html(text)}</blockquote>\n"
+def review_html(tid, text, ctx, status=None, full=None):
+    if not CFG["post_to_x"] and full:        # тільки канал: показуємо повний текст
+        text, full = full, None
+    extra = [x for x in (full or "").split("\n") if x and x not in text.split("\n")]
+    more = ("<b>Лише в Telegram-каналі:</b>\n" + "\n".join(tg_html(x) for x in extra) + "\n") if extra else ""
+    title = f"Чернетка для X</b> ({weighted_len(text)}/280)" if CFG["post_to_x"] else "Чернетка для Telegram-каналу</b>"
+    s = (f"<b>{title}\n<blockquote>{tg_html(text)}</blockquote>\n{more}"
          f"<b>Для перевірки:</b>\n{html.escape(ctx)}" + ("" if tid.startswith("PAT-") else f"\n{PORTAL}{tid}"))
     if status:
         s += f"\n\n<b>{html.escape(status)}</b>"
     return s[:4090]
 
 
-def send_for_review(con, tid, text, ctx):
-    res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=review_html(tid, text, ctx), parse_mode="HTML",
+def send_for_review(con, tid, text, ctx, full=None):
+    res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=review_html(tid, text, ctx, full=full), parse_mode="HTML",
              disable_web_page_preview=True, reply_markup=buttons(tid))
     con.execute("UPDATE posts SET status='in_review', review_msg_id=? WHERE tender_id=?", (res["message_id"], tid))
     con.commit()
@@ -449,7 +497,8 @@ def set_review_status(con, tid, status, keep_buttons=False):
     try:
         kw = {"reply_markup": buttons(tid)} if keep_buttons else {"reply_markup": {"inline_keyboard": []}}
         tg("editMessageText", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=p["review_msg_id"],
-           text=review_html(tid, p["text"], p["context"] or "", status), parse_mode="HTML",
+           text=review_html(tid, p["text"], p["context"] or "", status,
+                            full=p["text_tg"] if "text_tg" in p.keys() else None), parse_mode="HTML",
            disable_web_page_preview=True, **kw)
     except Exception as e:  # повідомлення застаре для редагування тощо
         log(f"не вдалося змінити повідомлення для перевірки: {e}")
@@ -514,7 +563,8 @@ def handle_update(con, u):
                    text=f"Задовго: {weighted_len(text)}/280. Спробуйте ще раз (reply на попереднє прохання).")
                 return
             set_review_status(con, p["tender_id"], "✏️ Замінено новою версією нижче")
-            con.execute("UPDATE posts SET text=?, status='draft', note=NULL WHERE tender_id=?", (text, p["tender_id"]))
+            con.execute("UPDATE posts SET text=?, text_tg=NULL, status='draft', note=NULL WHERE tender_id=?",
+                        (text, p["tender_id"]))
             con.commit()
             send_for_review(con, p["tender_id"], text, p["context"] or "")
         return
@@ -656,7 +706,8 @@ def publish_channel(con):
     if not p:
         return
     try:
-        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=tg_html(p["text"]), parse_mode="HTML")["message_id"]
+        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=tg_html(p["text_tg"] or p["text"]),
+                 parse_mode="HTML")["message_id"]
     except Exception as e:
         log(f"помилка публікації в канал {p['tender_id']}: {e}")
         set_review_status(con, p["tender_id"], f"⚠️ Помилка публікації в канал: {e}")
@@ -741,18 +792,21 @@ def cmd_draft(con, _args):
     for kind, r in items:
         if kind == "pattern":
             key, text, ctx = r["key"], compose_pattern(r), pattern_context(r)
+            text_full = compose_pattern(r, full=True)
             feats = json.dumps(r["features"], ensure_ascii=False)
         else:
             key, text, ctx, feats = r["tender_id"], compose(r), context(r), None
+            text_full = compose(r, full=True)
             if kind == "explore":
                 ctx = "🧪 Пошуковий випадок: не пройшов звичайні фільтри, показую для навчання моделі.\n" + ctx
-        cur = con.execute("INSERT OR IGNORE INTO posts (tender_id, created, status, text, context, kind, features) "
-                          "VALUES (?,?,?,?,?,?,?)", (key, now().isoformat(), "draft", text, ctx, kind, feats))
+        text_tg = text_full if text_full != text else None
+        cur = con.execute("INSERT OR IGNORE INTO posts (tender_id, created, status, text, context, kind, features, text_tg) "
+                          "VALUES (?,?,?,?,?,?,?,?)", (key, now().isoformat(), "draft", text, ctx, kind, feats, text_tg))
         con.commit()
         if not cur.rowcount:
             continue
         try:
-            send_for_review(con, key, text, ctx)
+            send_for_review(con, key, text, ctx, full=text_tg)
         except Exception as e:                  # не губимо чернетку: спробуємо в наступному проході
             log(f"не вдалося надіслати чернетку {key}: {e}")
             con.execute("DELETE FROM posts WHERE tender_id=? AND status='draft'", (key,))
@@ -828,7 +882,7 @@ def cmd_ledger_export(con, args):
     """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
-        "kind, features FROM posts")]
+        "kind, features, text_tg FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest")}
     try:
         st["watermark"] = con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone()[0]
@@ -848,9 +902,9 @@ def cmd_ledger_import(con, args):
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
         con.execute("""INSERT OR IGNORE INTO posts (tender_id, created, status, text, approved_by, approved_at, x_id,
-                       published_at, tg_channel_msg_id, kind, features) VALUES (:tender_id,:created,:status,:text,
-                       :approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features)""",
-                    {"tg_channel_msg_id": None, "kind": None, "features": None, **p})
+                       published_at, tg_channel_msg_id, kind, features, text_tg) VALUES (:tender_id,:created,:status,
+                       :text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg)""",
+                    {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, **p})
     st = j.get("state", {})
     for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest"):
         if st.get(k) and not meta(con, k):
