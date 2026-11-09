@@ -1,6 +1,6 @@
 {
  "state": {
-  "tg_offset": "705662504",
+  "tg_offset": "705662509",
   "paused": null,
   "last_draft": "2026-11-09T02:40:49.023290+00:00",
   "last_channel_post": null,
@@ -1733,10 +1733,10 @@
   {
    "tender_id": "UA-2026-08-14-007919-a",
    "created": "2026-11-08T20:46:24.344448+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "АТ \"Укртрансгаз\": Теплообмінники, кондиціонери повітря, холодильне обладнання…, 251,0 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 16,9 млн грн (+13%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-14-007919-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-09T03:15:55.846098+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
@@ -2433,10 +2433,10 @@
   {
    "tender_id": "UA-2026-10-05-010933-a",
    "created": "2026-11-08T20:46:24.723579+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "АТ \"Укргазвидобування\": Магістралі, трубопроводи, труби, обсадні труби, тюбінги та с…, 575,9 млн грн (+2 аналогічн. лот.).\nЄдиний учасник запропонував ціну, що до гривні дорівнює очікуваній вартості.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-05-010933-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-09T03:15:56.613857+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
