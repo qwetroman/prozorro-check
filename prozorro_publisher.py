@@ -393,13 +393,13 @@ def tg(method, **params):
     if DRY:
         log(f"DRY telegram.{method} {json.dumps(params, ensure_ascii=False)[:600]}")
         return {"message_id": int(time.time()) % 100000, "result": []}
-    for attempt in range(3):
+    for attempt in range(6):
         r = requests.post(f"https://api.telegram.org/bot{ENV('TG_BOT_TOKEN')}/{method}", json=params, timeout=70)
         j = r.json()
         if j.get("ok"):
             return j["result"]
         wait = (j.get("parameters") or {}).get("retry_after")
-        if j.get("error_code") == 429 and wait and attempt < 2:   # забагато повідомлень: Telegram каже, скільки чекати
+        if j.get("error_code") == 429 and wait and attempt < 5:   # забагато повідомлень: Telegram каже, скільки чекати
             time.sleep(min(wait, 60) + 1)
             continue
         raise RuntimeError(f"telegram {method}: {j}")
@@ -748,7 +748,7 @@ def cmd_draft(con, _args):
             break
         made[kind] += 1
         if not DRY:
-            time.sleep(1)                       # Telegram: не частіше ~1 повідомлення на секунду в один чат
+            time.sleep(3)                       # Telegram: ~20 повідомлень на хвилину в один чат, інакше 429
     meta(con, "last_draft", now().isoformat())
     log(f"надіслано на перевірку чернеток: {sum(made.values())} "
         f"(тендерів {made['tender']}, закономірностей {made['pattern']}, пошукових {made['explore']})")
