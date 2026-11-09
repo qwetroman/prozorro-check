@@ -1,0 +1,58 @@
+name: prozorro-history
+
+# Дозавантаження 24 місяців історії постачальників в окрему базу (state/history.db).
+# Кожен запуск працює ~25 хв і перезапускає сам себе, доки історію не буде завершено (кілька днів).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 */3 * * *"        # запасний запуск, якщо ланцюжок колись перерветься
+
+permissions:
+  contents: read
+  actions: write                  # щоб запустити наступну частину
+
+concurrency:
+  group: prozorro-history
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Встановити залежності
+        run: pip install requests==2.32.3
+
+      - name: Відновити базу історії
+        uses: actions/cache/restore@v5
+        with:
+          path: state/history.db
+          key: prozorro-hist-${{ github.run_id }}
+          restore-keys: prozorro-hist-
+
+      - name: Дозавантаження
+        id: bf
+        run: |
+          mkdir -p state
+          python prozorro_history.py --hist state/history.db backfill --minutes 25
+          python prozorro_history.py --hist state/history.db status | tee status.txt
+          echo "done=$(grep -o 'done=[01]' status.txt | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Зберегти базу історії
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: state/history.db
+          key: prozorro-hist-${{ github.run_id }}
+
+      - name: Наступна частина
+        if: steps.bf.outputs.done == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run prozorro-history.yml --ref main
