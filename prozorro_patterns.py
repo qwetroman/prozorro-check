@@ -109,6 +109,8 @@ def _split(rows):
     out = []
     groups = defaultdict(list)
     for r in rows:
+        if r.get("buyer_kind") == "special":    # обленерго, Укрнафта, порти...: окремі підключення, а не поділ
+            continue
         thr = thr_for(r)
         if thr and r["cpv"] and r["published"] and r["est"] and MIN_VALUE <= r["est"] < thr:
             groups[(r["buyer_id"], r["category"], r["cpv"][:5], r["supplier_id"])].append(r)
