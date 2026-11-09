@@ -5,13 +5,14 @@
   SUPPLIER_NO_HISTORY      - постачальник без жодної перемоги за попередні 24 місяці
   SUPPLIER_NEW_IN_CATEGORY - постачальник, який раніше не вигравав закупівель цієї категорії (CPV, 4 цифри)
 
-Історія зберігається компактно: лише «постачальник + категорія + місяць» (без сум і деталей).
-Перші 24 місяці дозавантажуються у фоні (backfill, частинами в кожному проході), і поки це
-не завершено, прапорці не ставляться, щоб не було хибних тривог.
+Історія зберігається компактно в окремій базі (state/history.db): лише «постачальник + категорія + місяць».
+24 місяці до початку живого моніторингу дозавантажуються окремим workflow (prozorro-history), який
+перезапускає сам себе, доки не закінчить. Поки це не завершено, прапорці не ставляться.
+Свіжі перемоги (від початку моніторингу) беруться з таблиці awards основної бази.
 
-  python prozorro_history.py --db state/prozorro.db flags            # прапорці для нових переможців
-  python prozorro_history.py --db state/prozorro.db backfill --minutes 18
-  python prozorro_history.py --db state/prozorro.db status
+  python prozorro_history.py --hist state/history.db backfill --minutes 25 --until 2026-10-29T00:00:00+00:00
+  python prozorro_history.py --db state/prozorro.db --hist state/history.db flags
+  python prozorro_history.py --hist state/history.db status     # виводить також done=1, коли завершено
 """
 from __future__ import annotations
 
@@ -81,31 +82,19 @@ def add_rows(con, recs):
     return len(rows)
 
 
-def sync_live(con):
-    """Переможці, яких бот уже бачив у звичайному режимі, теж ідуть в історію."""
-    if not con.execute("SELECT name FROM sqlite_master WHERE name='tenders'").fetchone():
-        return
-    add_rows(con, [dict(r) for r in con.execute(
-        "SELECT status, supplier_id, cpv, published, modified FROM tenders WHERE supplier_id IS NOT NULL")])
-
-
 # ------------------------------------------------------------------ фонове дозавантаження
-def backfill(con, minutes):
-    sync_live(con)
+def backfill(con, minutes, until):
+    # until: з цієї дати все покриває живий моніторинг (таблиця awards основної бази)
     if meta(con, "hist_complete") == "1":
         log("історію вже дозавантажено")
         return
     start = meta(con, "hist_from")
     if not start:
-        start = months_back(now(), HCFG["history_months"]).isoformat()
+        start = months_back(M.ts(until), HCFG["history_months"]).isoformat()
         meta(con, "hist_from", start)
-    until = meta(con, "hist_until")
-    if not until:   # звичайний режим уже покриває все, що змінювалося після цієї дати
-        first = None
-        if con.execute("SELECT name FROM sqlite_master WHERE name='tenders'").fetchone():
-            first = con.execute("SELECT MIN(modified) FROM tenders").fetchone()[0]
-        until = first or now().isoformat()
+    if not meta(con, "hist_until"):
         meta(con, "hist_until", until)
+    until = meta(con, "hist_until")
     cursor = M.ts(meta(con, "hist_cursor") or start)
     until_d = M.ts(until)
     deadline = time.time() + minutes * 60
@@ -159,10 +148,17 @@ def backfill(con, minutes):
 
 
 # ------------------------------------------------------------------ прапорці
-def flags(con):
-    sync_live(con)
-    if meta(con, "hist_complete") != "1":
-        log(f"історія ще неповна (позиція {meta(con, 'hist_cursor') or '-'}), прапорці не ставлю")
+def flags(con, hist_path):
+    import prozorro_patterns as PP
+    PP.sync_awards(con)                       # свіжі перемоги з живого моніторингу
+    if not os.path.exists(hist_path):
+        log("бази історії ще немає, прапорці не ставлю")
+        return
+    con.execute("ATTACH DATABASE ? AS h", (hist_path,))
+    h = con.execute("SELECT v FROM h.meta WHERE k='hist_complete'").fetchone()
+    if not h or h[0] != "1":
+        cur = con.execute("SELECT v FROM h.meta WHERE k='hist_cursor'").fetchone()
+        log(f"історія ще неповна (позиція {cur[0] if cur else '-'}), прапорці не ставлю")
         return
     since = (now() - timedelta(days=HCFG["lookback_days"])).isoformat()
     rows = [dict(r) for r in con.execute(
@@ -175,13 +171,17 @@ def flags(con):
         cpv4 = (r["cpv"] or "")[:4]
         if not month:
             continue
-        any_before = con.execute("SELECT 1 FROM supplier_hist WHERE supplier_id=? AND month<? LIMIT 1",
-                                 (r["supplier_id"], month)).fetchone()
+        any_before = con.execute(
+            "SELECT 1 FROM h.supplier_hist WHERE supplier_id=? AND month<? UNION ALL "
+            "SELECT 1 FROM awards WHERE supplier_id=? AND substr(published, 1, 7)<? LIMIT 1",
+            (r["supplier_id"], month, r["supplier_id"], month)).fetchone()
         if not any_before:
             code, w, detail = "SUPPLIER_NO_HISTORY", 3, f"Переможець не мав перемог у Prozorro за {HCFG['history_months']} міс. до цього"
         else:
-            cat_before = con.execute("SELECT 1 FROM supplier_hist WHERE supplier_id=? AND cpv4=? AND month<? LIMIT 1",
-                                     (r["supplier_id"], cpv4, month)).fetchone()
+            cat_before = con.execute(
+                "SELECT 1 FROM h.supplier_hist WHERE supplier_id=? AND cpv4=? AND month<? UNION ALL "
+                "SELECT 1 FROM awards WHERE supplier_id=? AND substr(cpv, 1, 4)=? AND substr(published, 1, 7)<? LIMIT 1",
+                (r["supplier_id"], cpv4, month, r["supplier_id"], cpv4, month)).fetchone()
             if cat_before or not cpv4:
                 continue
             code, w, detail = "SUPPLIER_NEW_IN_CATEGORY", 3, f"Переможець раніше не вигравав закупівель категорії CPV {cpv4}*"
@@ -193,26 +193,31 @@ def flags(con):
 
 def status(con):
     n = con.execute("SELECT COUNT(*) FROM supplier_hist").fetchone()[0]
+    done = meta(con, "hist_complete") == "1"
     print(f"записів: {n}; з {meta(con, 'hist_from')}; позиція {meta(con, 'hist_cursor')}; "
-          f"до {meta(con, 'hist_until')}; завершено: {meta(con, 'hist_complete') == '1'}")
+          f"до {meta(con, 'hist_until')}; завершено: {done}")
+    print(f"done={1 if done else 0}")
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--db", default="state/prozorro.db")
+    ap.add_argument("--db", default="state/prozorro.db", help="основна база бота")
+    ap.add_argument("--hist", default="state/history.db", help="окрема база історії")
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("backfill")
-    b.add_argument("--minutes", type=float, default=18)
+    b.add_argument("--minutes", type=float, default=25)
+    b.add_argument("--until", default="2026-10-29T00:00:00+00:00", help="початок живого моніторингу")
     sub.add_parser("flags")
     sub.add_parser("status")
     a = ap.parse_args()
-    con = db(a.db)
     if a.cmd == "backfill":
-        backfill(con, a.minutes)
+        backfill(db(a.hist), a.minutes, a.until)
     elif a.cmd == "flags":
-        flags(con)
+        con = sqlite3.connect(a.db)
+        con.row_factory = sqlite3.Row
+        flags(con, a.hist)
     else:
-        status(con)
+        status(db(a.hist))
 
 
 if __name__ == "__main__":
