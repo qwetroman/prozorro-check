@@ -344,8 +344,18 @@ def weighted_len(text):
                or 0x2032 <= ord(ch) <= 0x2037 else 2 for ch in t)
 
 
-def is_person(name):
-    return bool(re.search(r"фізична особа|\bФОП\b", name or "", re.I))
+def is_person(name, ident=None):
+    # ФОП: за назвою або за 10-значним ІПН (у юросіб 8-значний ЄДРПОУ); ФОП у постах не називаємо
+    return bool(re.fullmatch(r"\d{10}", str(ident or ""))
+                or re.search(r"фізична особа|\bФОП\b", name or "", re.I))
+
+
+def n_zakupivel(n):
+    if n % 10 == 1 and n % 100 != 11:
+        return f"{n} закупівлю"
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return f"{n} закупівлі"
+    return f"{n} закупівель"
 
 
 def edrpou_line(r):
@@ -364,7 +374,7 @@ def compose(r, full=False):
     # full=True: повний текст для Telegram-каналу (без обмеження 280)
     if r.get("military") == 1:
         buyer = "Військовий замовник"
-    elif is_person(r.get("buyer")):
+    elif is_person(r.get("buyer"), r.get("buyer_id")):
         buyer = "Замовник (ФОП)"
     else:
         buyer = short_name(r["buyer"], 50)
@@ -395,15 +405,17 @@ def compose(r, full=False):
 def compose_pattern(p, full=False):
     """Текст для закономірності (замовник/постачальник), до 280 символів."""
     def head(n):
-        buyer = "Замовник (ФОП)" if is_person(p["buyer"]) else short_name(p["buyer"], n)
+        buyer = "Замовник (ФОП)" if is_person(p["buyer"], p.get("buyer_id")) else short_name(p["buyer"], n)
         if p["pattern"] == "dominance":
-            sup = "переможець-ФОП" if is_person(p["supplier"]) else short_name(p["supplier"], n - 5)
+            sup = "переможець-ФОП" if is_person(p["supplier"], p.get("supplier_id")) else short_name(p["supplier"], n - 5)
             return (f"{buyer}: {sup} отримав {p['n']} з {p['n_buyer']} конкурентних закупівель за {p['days']} дн., "
                     f"{p['share']:.0%} їхньої вартості ({money(p['total'])}).")
         if p["pattern"] == "split":
             subj = subject({"title": p.get("title"), "military": 0})
-            return (f"{buyer}: {p['n']} закупівель «{subj}» за {p['days']} дн. на {money(p['total'])}. "
-                    f"Кожна нижча за поріг {money(p['threshold'])}, разом більше. Можливий поділ закупівлі.")
+            subj = subj if len(subj) <= n else subj[:n - 1].rstrip(" ,(") + "…"
+            sup = "переможець-ФОП" if is_person(p.get("supplier"), p.get("supplier_id")) else short_name(p.get("supplier"), n - 5)
+            return (f"{buyer}: {sup} отримав {n_zakupivel(p['n'])} «{subj}» за {p['days']} дн. на {money(p['total'])}, "
+                    f"кожна нижче порогу {money(p['threshold'])}. Можливий поділ закупівлі.")
         return f"{buyer}: за останні 30 днів {p['detail'].rstrip('.')}."
     lines = [f"У {p['one_bid']} з {p['n']} була лише одна пропозиція."] if p.get("one_bid") else []
     ids = edrpou_line({"buyer_id": p["buyer_id"], "supplier_id": p.get("supplier_id"), "military": 0})
@@ -787,7 +799,20 @@ def cmd_draft(con, _args):
         import prozorro_patterns as PP
         PP.sync_awards(con)
         have = {r[0] for r in con.execute("SELECT tender_id FROM posts")}
-        items += [("pattern", p) for p in PP.find_patterns(con)
+        found = PP.find_patterns(con)
+        if meta(con, "pattern_rules") != "2":    # одноразово: прибрати чернетки, що не проходять уточнених правил
+            keep = {p["key"] for p in found}
+            stale = [r[0] for r in con.execute("SELECT tender_id FROM posts WHERE kind='pattern' "
+                                               "AND status IN ('draft', 'in_review')") if r[0] not in keep]
+            for k in stale:
+                con.execute("UPDATE posts SET status='suppressed' WHERE tender_id=?", (k,))
+                con.commit()
+                set_review_status(con, k, "🚫 Прибрано: не проходить уточнених правил для закономірностей")
+                if not DRY:
+                    time.sleep(1)
+            meta(con, "pattern_rules", "2")
+            log(f"прибрано застарілих закономірностей: {len(stale)}")
+        items += [("pattern", p) for p in found
                   if p["key"] not in have and p["pattern"] in CFG["pattern_types"]
                   and p["money"] >= CFG["pattern_min_money_uah"]]
     except Exception as e:
