@@ -147,7 +147,8 @@ def meta(con, k, v=None):
 
 # ------------------------------------------------------------------ вибір кандидатів
 STRONG = {"PRICE_ABOVE_PEERS", "CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED", "REPEAT_WITHDRAWAL_PAIR",
-          "SHARED_BIDDER_CONTACTS", "AMCU_COMPLAINT_UPHELD", "BID_AT_ESTIMATE_EXACT"}
+          "SHARED_BIDDER_CONTACTS", "AMCU_COMPLAINT_UPHELD", "BID_AT_ESTIMATE_EXACT",
+          "SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"}   # останні два ставить prozorro_history.py
 
 
 def price_info(detail):
@@ -185,7 +186,9 @@ def candidates(con, limit=None, explore=False):
                     pi["excess"] if pi else 0,
                     0.05 * (r["est"] or 0) if strong & {"AMCU_COMPLAINT_UPHELD", "SHARED_BIDDER_CONTACTS",
                                                         "REPEAT_WITHDRAWAL_PAIR"} else 0,
-                    0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0)
+                    0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0,
+                    # переможець без історії (взагалі або в цій категорії): під ризиком увесь договір
+                    (r.get("award_amt") or 0) if strong & {"SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"} else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
             money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
         if r.get("military") == 2 and (not CFG["include_security"] or explore):
@@ -275,6 +278,10 @@ def signal_lines(r):
         how = "відмовились від договору" if "CHEAPER_BIDS_WITHDREW" in c else "були відхилені"
         lines.append(f"Усі дешевші пропозиції {how}; переможець дорожчий на {money(r['elim_gap'])} "
                      f"(+{r['elim_gap_pct'] * 100:.0f}%).")
+    if "SUPPLIER_NO_HISTORY" in c:
+        lines.append("Переможець не мав жодної перемоги в Prozorro за попередні 24 місяці.")
+    if "SUPPLIER_NEW_IN_CATEGORY" in c:
+        lines.append(f"Переможець раніше не вигравав закупівель цієї категорії (CPV {(r.get('cpv') or '')[:4]}…) за 24 місяці.")
     if "BID_AT_ESTIMATE_EXACT" in c and r.get("award_amt") and r.get("est"):
         diff = r["est"] - r["award_amt"]
         who = "Єдиний учасник" if "SINGLE_BIDDER" in c else "Переможець"
