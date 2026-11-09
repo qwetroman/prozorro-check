@@ -1,0 +1,71 @@
+name: prozorro-telegram
+
+# Швидкий прохід лише для Telegram: натискання кнопок, приховування, публікація схваленого.
+# Без завантаження тендерів, тому займає до хвилини. Можна запускати вручну будь-коли.
+on:
+  schedule:
+    - cron: "*/10 * * * *"        # кожні 10 хв (GitHub може пропускати; надійніше - зовнішній запуск)
+  workflow_dispatch:
+
+permissions:
+  contents: write                 # щоб комітити state/ledger.json
+
+concurrency:
+  group: prozorro-bot             # спільна база з основним workflow, тож не одночасно
+  cancel-in-progress: false
+
+jobs:
+  telegram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      TG_ADMIN_IDS: ${{ secrets.TG_ADMIN_IDS }}
+      TG_REVIEW_CHAT_ID: ${{ secrets.TG_REVIEW_CHAT_ID }}
+      TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+      X_API_KEY: ${{ secrets.X_API_KEY }}
+      X_API_SECRET: ${{ secrets.X_API_SECRET }}
+      X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Встановити залежності
+        run: pip install requests==2.32.3
+
+      - name: Відновити базу даних
+        uses: actions/cache/restore@v5
+        with:
+          path: state/prozorro.db
+          key: prozorro-db-${{ github.run_id }}
+          restore-keys: prozorro-db-
+
+      - name: Telegram - натискання і публікація
+        run: python prozorro_publisher.py --db state/prozorro.db telegram --path state/ledger.json
+
+      - name: Зберегти базу даних
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: state/prozorro.db
+          key: prozorro-db-${{ github.run_id }}
+
+      - name: Закомітити журнал
+        run: |
+          git config user.name "prozorro-bot"
+          git config user.email "prozorro-bot@users.noreply.github.com"
+          git add state/ledger.json
+          git diff --cached --quiet || (git commit -m "оновлення журналу" && (git push || (git pull --rebase origin main && git push)))
+
+      - name: Сповістити про помилку
+        if: failure() || cancelled()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl -sS -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TG_REVIEW_CHAT_ID}" \
+            --data-urlencode "text=⚠️ Прохід prozorro-telegram не вдався: ${RUN_URL}" > /dev/null || true
