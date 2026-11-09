@@ -496,6 +496,8 @@ def aggregate_flags(con, days: int):
     groups = defaultdict(list)
     for r in rows:
         thr = threshold(r)
+        if r.get("buyer_kind") == "special":    # окремі сфери (обленерго тощо): поділ не перевіряємо
+            continue
         if (thr and r["currency"] == "UAH" and r["est"] and r["buyer_id"] and r["cpv"] and r["published"]
                 and CFG["min_value_uah"] <= r["est"] < thr):
             groups[(r["buyer_id"], r["category"], r["cpv"][:5], thr)].append(r)
