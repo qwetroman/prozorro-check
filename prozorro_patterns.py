@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import math
+import re
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 
@@ -21,7 +22,8 @@ PCFG = {
     "dominance_share": 0.6,           # частка вартості конкурентних закупівель замовника
     "dominance_min_total_uah": 2_000_000,
     "split_window_days": 30,
-    "split_min_count": 3,
+    "split_min_count": 3,             # поділ: щонайменше 3 допорогові закупівлі В ОДНОГО постачальника
+    "buyer_single_max_expected": 0.5,  # «майже завжди одна пропозиція»: лише якщо зазвичай таких не більше половини
     "keep_awards_days": 400,
 }
 # пороги, як у моніторі (ПЕРЕВІРТЕ за чинними правилами)
@@ -87,14 +89,16 @@ def _dominance(rows, days):
 
 
 def _split(rows):
+    # класичний поділ: той самий замовник, той самий предмет, той самий постачальник, кожна закупівля
+    # нижча за поріг, а разом за 30 днів - вище. Багато різних підрядників (напр. приєднання до мереж) не рахуємо.
     out = []
     groups = defaultdict(list)
     for r in rows:
         thr = THRESHOLDS.get(r["category"])
         if thr and r["cpv"] and r["published"] and r["est"] and MIN_VALUE <= r["est"] < thr:
-            groups[(r["buyer_id"], r["category"], r["cpv"][:5])].append(r)
+            groups[(r["buyer_id"], r["category"], r["cpv"][:5], r["supplier_id"])].append(r)
     win = timedelta(days=PCFG["split_window_days"])
-    for (bid, cat, cpv5), g in groups.items():
+    for (bid, cat, cpv5, sid), g in groups.items():
         thr = THRESHOLDS[cat]
         g.sort(key=lambda r: r["published"])
         best, lo = None, 0
@@ -110,8 +114,8 @@ def _split(rows):
             d = max(1, (datetime.fromisoformat(best[-1]["published"]) - datetime.fromisoformat(best[0]["published"])).days)
             ex = max(best, key=lambda r: r["est"])
             out.append(dict(
-                key=f"PAT-SPLIT-{bid}-{cpv5}-{best[-1]['published'][:7]}", pattern="split", buyer=best[0]["buyer"],
-                buyer_id=bid, supplier=None, supplier_id=None, n=len(best), total=s, threshold=thr, days=d,
+                key=f"PAT-SPLIT-{bid}-{cpv5}-{sid}-{best[-1]['published'][:7]}", pattern="split", buyer=best[0]["buyer"],
+                buyer_id=bid, supplier=best[0]["supplier"], supplier_id=sid, n=len(best), total=s, threshold=thr, days=d,
                 title=ex["title"], example=ex["tender_id"], money=s,
                 features={"kind": "pattern", "pattern": "split", "n": len(best), "log_total": lg(s),
                           "over_threshold": round(s / thr, 3), "category": cat}))
@@ -137,6 +141,10 @@ def _buyer_habits(con, rows):
         detail = f["detail"] or ""
         detail = detail[len(name) + 2:] if detail.startswith(name + ": ") else detail
         short = "single" if f["code"] == "BUYER_HIGH_SINGLE_BID_RATE" else "direct"
+        if short == "single":   # 10 з 10 мало що значить, якщо для таких процедур це й так норма
+            m = re.search(r"(\d+)/(\d+) конкурентних тендерів.*?очікувано близько (\d+)", detail)
+            if not m or int(m.group(3)) > PCFG["buyer_single_max_expected"] * int(m.group(2)):
+                continue
         out.append(dict(
             key=f"PAT-BUY-{short}-{bid}-{quarter}", pattern=f"buyer_{short}", buyer=name, buyer_id=bid,
             supplier=None, supplier_id=None, detail=detail, total=totals[bid], example=None, money=totals[bid],
