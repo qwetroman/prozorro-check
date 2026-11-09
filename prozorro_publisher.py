@@ -532,7 +532,8 @@ def answer_cb(q, text):
     try:
         tg("answerCallbackQuery", callback_query_id=q["id"], text=text)
     except Exception as e:
-        log(f"не вдалося відповісти на натискання (застаре): {e}")
+        if "too old" not in str(e) and "query ID is invalid" not in str(e):   # застарілі - норма, не засмічуємо журнал
+            log(f"не вдалося відповісти на натискання: {e}")
 
 
 def handle_update(con, u):
