@@ -19,5 +19,6 @@
   "registry_url": "https://opendatabot.ua/c/",
   "post_to_x": true,
   "channel_minutes_between_posts": 60,
-  "digest_hour_kyiv": 18
+  "digest_hour_kyiv": 18,
+  "delete_resolved_after_hours": 24
 }
