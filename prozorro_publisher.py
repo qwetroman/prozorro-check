@@ -71,6 +71,7 @@ CFG = {
     "post_to_x": True,                  # False = тільки Telegram-канал (потрібен TG_CHANNEL_ID)
     "channel_minutes_between_posts": 60,  # Telegram-канал: не частіше ніж раз на стільки хвилин
     "digest_hour_kyiv": 18,             # тижневий підсумок: неділя, з цієї години
+    "delete_resolved_after_hours": 24,  # оброблені чернетки зникають із чату через стільки годин (0 = не видаляти)
 }
 if os.path.exists(os.path.join(HERE, "publisher.json")):
     with open(os.path.join(HERE, "publisher.json"), encoding="utf-8") as fh:
@@ -131,7 +132,7 @@ def db():
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(posts)")}
-    for c in ("kind", "features", "text_tg"):  # kind: tender/pattern/explore; features: ознаки; text_tg: повний текст для каналу
+    for c in ("kind", "features", "text_tg", "resolved_at"):  # kind: tender/pattern/explore; features: ознаки; text_tg: повний текст для каналу
         if c not in have:
             con.execute(f"ALTER TABLE posts ADD COLUMN {c} TEXT")
     return con
@@ -980,6 +981,43 @@ def schedule_html(con):
     return "\n".join(lines)[:4090]
 
 
+RESOLVED = ("published", "rejected", "suppressed")
+
+
+def cleanup_resolved(con):
+    """Видаляє з чату перевірки чернетки, оброблені понад добу тому (опубліковані, відхилені, приховані).
+    Telegram дозволяє ботові видаляти повідомлення лише протягом 48 год після надсилання,
+    тому чернетку, якій уже ~46 год, видаляємо одразу, щойно вона оброблена."""
+    hours = CFG.get("delete_resolved_after_hours") or 0
+    if not hours:
+        return
+    q = ",".join("?" * len(RESOLVED))
+    con.execute(f"UPDATE posts SET resolved_at=? WHERE status IN ({q}) AND review_msg_id IS NOT NULL "
+                "AND resolved_at IS NULL", (now().isoformat(), *RESOLVED))
+    con.commit()
+    cut, old = (now() - timedelta(hours=hours)).isoformat(), (now() - timedelta(hours=46)).isoformat()
+    rows = con.execute(f"SELECT tender_id, review_msg_id FROM posts WHERE status IN ({q}) AND review_msg_id IS NOT NULL "
+                       "AND (resolved_at <= ? OR created <= ?)", (*RESOLVED, cut, old)).fetchall()
+    gone = 0
+    for i in range(0, len(rows), 100):
+        part = rows[i:i + 100]
+        try:
+            tg("deleteMessages", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_ids=[r["review_msg_id"] for r in part])
+            gone += len(part)
+        except Exception as e:      # напр. частина старша за 48 год: пробуємо по одному
+            log(f"видалення пакетом не вдалося ({e}), видаляю по одному")
+            for r in part:
+                try:
+                    tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=r["review_msg_id"])
+                    gone += 1
+                except Exception as e2:
+                    log(f"не вдалося видалити чернетку {r['tender_id']}: {e2}")
+        con.executemany("UPDATE posts SET review_msg_id=NULL WHERE tender_id=?", [(r["tender_id"],) for r in part])
+        con.commit()
+    if rows:
+        log(f"видалено оброблених чернеток із чату: {gone} з {len(rows)}")
+
+
 def update_schedule(con):
     # одне закріплене повідомлення в чаті перевірки, яке оновлюється щоразу (без сповіщень)
     text = schedule_html(con)
@@ -1016,6 +1054,10 @@ def cmd_telegram(con, args):
         update_schedule(con)
     except Exception as e:
         log(f"помилка розкладу: {e}")
+    try:
+        cleanup_resolved(con)
+    except Exception as e:
+        log(f"помилка прибирання чату: {e}")
     cmd_ledger_export(con, args)
 
 
@@ -1036,6 +1078,10 @@ def cmd_ci(con, args):
         update_schedule(con)
     except Exception as e:
         log(f"помилка розкладу: {e}")
+    try:
+        cleanup_resolved(con)
+    except Exception as e:
+        log(f"помилка прибирання чату: {e}")
     cmd_ledger_export(con, args)
 
 
