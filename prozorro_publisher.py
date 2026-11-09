@@ -66,6 +66,7 @@ CFG = {
     "include_military": True,           # якщо False, військові випадки ніколи не потрапляють у чернетки
     "draft_every_min": 60,
     "hashtags": "#Prozorro",
+    "registry_url": "https://opendatabot.ua/c/",  # куди ведуть коди ЄДРПОУ в Telegram
     "post_to_x": True,                  # False = тільки Telegram-канал (потрібен TG_CHANNEL_ID)
     "channel_minutes_between_posts": 60,  # Telegram-канал: не частіше ніж раз на стільки хвилин
     "digest_hour_kyiv": 18,             # тижневий підсумок: неділя, з цієї години
@@ -415,8 +416,19 @@ def buttons(tid):
                                  {"text": "❌ Відхилити", "callback_data": f"no:{tid}"}]]}
 
 
+def tg_html(text):
+    # текст допису для Telegram (HTML): коди ЄДРПОУ стають посиланнями на реєстр
+    out = []
+    for line in html.escape(text).split("\n"):
+        if line.startswith("ЄДРПОУ:"):
+            line = re.sub(r"(замовник|переможець) (\d{8})\b",
+                          lambda m: f'{m.group(1)} <a href="{CFG["registry_url"]}{m.group(2)}">{m.group(2)}</a>', line)
+        out.append(line)
+    return "\n".join(out)
+
+
 def review_html(tid, text, ctx, status=None):
-    s = (f"<b>Чернетка для {'X' if CFG['post_to_x'] else 'Telegram-каналу'}</b> ({weighted_len(text)}/280)\n<pre>{html.escape(text)}</pre>\n"
+    s = (f"<b>Чернетка для {'X' if CFG['post_to_x'] else 'Telegram-каналу'}</b> ({weighted_len(text)}/280)\n<blockquote>{tg_html(text)}</blockquote>\n"
          f"<b>Для перевірки:</b>\n{html.escape(ctx)}" + ("" if tid.startswith("PAT-") else f"\n{PORTAL}{tid}"))
     if status:
         s += f"\n\n<b>{html.escape(status)}</b>"
@@ -644,7 +656,7 @@ def publish_channel(con):
     if not p:
         return
     try:
-        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=p["text"])["message_id"]
+        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=tg_html(p["text"]), parse_mode="HTML")["message_id"]
     except Exception as e:
         log(f"помилка публікації в канал {p['tender_id']}: {e}")
         set_review_status(con, p["tender_id"], f"⚠️ Помилка публікації в канал: {e}")
