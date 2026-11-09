@@ -900,6 +900,8 @@ def suppress_military(con):
 def telegram_check(con):
     # діагностика: чи немає вебхука (тоді getUpdates нічого не отримає) і скільки натискань чекає
     try:
+        me = tg("getMe")
+        log(f"Telegram: бот @{me.get('username')} (id {me.get('id')}); чат для чернеток: {ENV('TG_REVIEW_CHAT_ID')}")
         info = tg("getWebhookInfo")
         hook = info.get("url") or ""
         log(f"Telegram: вебхук {'УВІМКНЕНО (' + hook + ') - натискання йдуть туди, а не боту' if hook else 'немає'}; "
