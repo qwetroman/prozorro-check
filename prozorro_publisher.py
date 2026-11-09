@@ -63,7 +63,8 @@ CFG = {
     "min_minutes_between_posts": 90,
     "quiet_hours_kyiv": [23, 8],        # не публікувати з 23:00 до 08:00 за київським часом
     "military_delay_days": 14,          # військові випадки чекають стільки днів після оголошення на Prozorro
-    "include_military": True,           # якщо False, військові випадки ніколи не потрапляють у чернетки
+    "include_military": False,          # військові замовники / військові CPV: поки повністю вимкнено
+    "include_security": False,          # безпекові й правоохоронні замовники (поліція, СБУ, kind=defense): теж вимкнено
     "draft_every_min": 60,
     "hashtags": "#Prozorro",
     "registry_url": "https://opendatabot.ua/c/",  # куди ведуть коди ЄДРПОУ в Telegram
@@ -187,6 +188,8 @@ def candidates(con, limit=None, explore=False):
                     0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
             money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
+        if r.get("military") == 2 and (not CFG["include_security"] or explore):
+            continue
         if r.get("military") == 1:
             if not CFG["include_military"] or explore:
                 continue
@@ -842,10 +845,31 @@ def cmd_serve(con, _args):
             time.sleep(30)
 
 
+def suppress_military(con):
+    # прибирає з черги вже надіслані чернетки/схвалені пости, якщо військові/безпекові зараз вимкнені
+    off = [m for m, on in ((1, CFG["include_military"]), (2, CFG["include_security"])) if not on]
+    if not off or not con.execute("SELECT name FROM sqlite_master WHERE name='tenders'").fetchone():
+        return
+    q = ",".join("?" * len(off))
+    rows = con.execute(f"""SELECT p.tender_id, p.status FROM posts p JOIN tenders t ON t.tender_id = p.tender_id
+                           WHERE t.military IN ({q}) AND (p.status IN ('draft', 'in_review', 'approved', 'awaiting_edit')
+                           OR (p.status = 'published' AND p.tg_channel_msg_id IS NULL))""", off).fetchall()
+    for r in rows:
+        if r["status"] == "published":     # X-посилання вже надіслано, але в канал не публікуємо
+            con.execute("UPDATE posts SET tg_channel_msg_id=-1 WHERE tender_id=?", (r["tender_id"],))
+        else:
+            con.execute("UPDATE posts SET status='suppressed' WHERE tender_id=?", (r["tender_id"],))
+        con.commit()
+        set_review_status(con, r["tender_id"], "🚫 Приховано: військові/безпекові закупівлі зараз вимкнені")
+    if rows:
+        log(f"приховано військових/безпекових: {len(rows)}")
+
+
 def cmd_ci(con, args):
     """Один прохід CI за розкладом: відновити журнал, обробити натискання/правки, створити чернетки й опублікувати, якщо настав час, зберегти журнал."""
     cmd_ledger_import(con, args)
     poll_telegram(con)
+    suppress_military(con)
     last = meta(con, "last_draft")
     if not last or datetime.fromisoformat(last) < now() - timedelta(minutes=CFG["draft_every_min"]):
         cmd_draft(con, None)
