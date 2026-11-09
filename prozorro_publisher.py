@@ -595,10 +595,18 @@ def handle_update(con, u):
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
            text="Публікацію призупинено" if text == "/pause" else "Публікацію відновлено")
     elif text == "/queue":
-        rows = con.execute("SELECT tender_id, status FROM posts WHERE status IN ('in_review','approved','awaiting_edit') "
-                           "ORDER BY created").fetchall()
-        tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
-           text="\n".join(f"{r['tender_id']} — {r['status']}" for r in rows) or "Черга порожня")
+        # підсумок замість повного списку (у Telegram ліміт 4096 символів)
+        cnt = {r[0]: r[1] for r in con.execute("SELECT status, COUNT(*) FROM posts GROUP BY status")}
+        appr = [r[0] for r in con.execute("SELECT tender_id FROM posts WHERE status='approved' ORDER BY approved_at")]
+        chan = con.execute("SELECT COUNT(*) FROM posts WHERE status='published' AND tg_channel_msg_id IS NULL").fetchone()[0]
+        lines = [f"На перевірці: {cnt.get('in_review', 0)}", f"Схвалено, чекають публікації: {len(appr)}",
+                 f"Чекають на Telegram-канал: {chan}", f"Опубліковано: {cnt.get('published', 0)}",
+                 f"Відхилено: {cnt.get('rejected', 0)}; приховано: {cnt.get('suppressed', 0)}"]
+        if quiet_now():
+            lines.append("Зараз тихі години: публікація після їх завершення.")
+        if appr:
+            lines += ["", "Схвалені:"] + appr[:20] + ([f"... і ще {len(appr) - 20}"] if len(appr) > 20 else [])
+        tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text="\n".join(lines))
     elif text in ("/start", "/help"):
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
            text="Кнопки під чернеткою: опублікувати / редагувати / відхилити.\n/queue — черга, /pause, /resume")
