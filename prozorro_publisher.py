@@ -606,6 +606,7 @@ def handle_update(con, u):
             lines.append("Зараз тихі години: публікація після їх завершення.")
         if appr:
             lines += ["", "Схвалені:"] + appr[:20] + ([f"... і ще {len(appr) - 20}"] if len(appr) > 20 else [])
+        lines += ["", "📅 Коли що вийде - у закріпленому повідомленні «Розклад публікацій»."]
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text="\n".join(lines))
     elif text in ("/start", "/help"):
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
@@ -927,6 +928,80 @@ def poll_and_log(con):
         log(f"Telegram getUpdates: помилка {e}")
 
 
+def next_ok(t):
+    # найближчий момент поза тихими годинами (за Києвом)
+    a, b = CFG["quiet_hours_kyiv"]
+    k = t.astimezone(KYIV)
+    if not ((k.hour >= a or k.hour < b) if a > b else (a <= k.hour < b)):
+        return t
+    end = k.replace(hour=b, minute=0, second=0, microsecond=0)
+    if end <= k:
+        end += timedelta(days=1)
+    return end.astimezone(timezone.utc)
+
+
+def schedule_html(con):
+    """Текст закріпленого повідомлення «Розклад»: що й коли буде опубліковано (орієнтовно)."""
+    def when(t):
+        k, today = t.astimezone(KYIV), now().astimezone(KYIV).date()
+        return k.strftime("%H:%M") if k.date() == today else k.strftime("%d.%m %H:%M")
+
+    def ref(tid, text):
+        head = html.escape(((text or "").splitlines() or [""])[0][:45])
+        link = html.escape(tid) if tid.startswith("PAT-") else f'<a href="{PORTAL}{tid}">{html.escape(tid)}</a>'
+        return f"{link} · {head}"
+    paused = meta(con, "paused") == "1"
+    t0 = next_ok(now())
+    appr = con.execute("SELECT tender_id, text FROM posts WHERE status='approved' ORDER BY approved_at").fetchall()
+    a, b = CFG["quiet_hours_kyiv"]
+    lines = [f"📅 <b>Розклад публікацій</b> (оновлено {now().astimezone(KYIV).strftime('%d.%m %H:%M')} за Києвом)",
+             f"Тихі години {a:02d}:00–{b:02d}:00. Час орієнтовний: бот публікує під час найближчого проходу."]
+    if paused:
+        lines.append("⏸ Публікацію призупинено (/resume, щоб відновити).")
+    if CFG["post_to_x"]:
+        lines += ["", f"<b>X (посилання вам):</b> {len(appr)} шт." + (f" ≈ {when(t0)}" if appr else "")]
+    q = []
+    if ENV("TG_CHANNEL_ID"):
+        q = con.execute("SELECT tender_id, COALESCE(text_tg, text) FROM posts WHERE status='published' "
+                        "AND tg_channel_msg_id IS NULL ORDER BY published_at").fetchall() + list(appr)
+        last = meta(con, "last_channel_post")
+        t = t0
+        if last:
+            t = max(t, datetime.fromisoformat(last) + timedelta(minutes=CFG["channel_minutes_between_posts"] - 5))
+        lines += ["", f"<b>Telegram-канал</b> (по одному, раз на ~{CFG['channel_minutes_between_posts']} хв): {len(q)} шт."]
+        for i, (tid, text) in enumerate(q[:25]):
+            t = next_ok(t)
+            lines.append(f"≈ {when(t)} · {ref(tid, text)}")
+            t += timedelta(minutes=CFG["channel_minutes_between_posts"])
+        if len(q) > 25:
+            lines.append(f"... і ще {len(q) - 25}")
+    if not appr and not q:
+        lines += ["", "Черга порожня."]
+    return "\n".join(lines)[:4090]
+
+
+def update_schedule(con):
+    # одне закріплене повідомлення в чаті перевірки, яке оновлюється щоразу (без сповіщень)
+    text = schedule_html(con)
+    mid = meta(con, "schedule_msg_id")
+    if mid:
+        try:
+            tg("editMessageText", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=int(mid), text=text,
+               parse_mode="HTML", disable_web_page_preview=True)
+            return
+        except Exception as e:
+            if "not modified" in str(e):
+                return
+            log(f"розклад: не вдалося оновити ({e}), надсилаю новий")
+    res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=text, parse_mode="HTML",
+             disable_web_page_preview=True, disable_notification=True)
+    meta(con, "schedule_msg_id", res["message_id"])
+    try:
+        tg("pinChatMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=res["message_id"], disable_notification=True)
+    except Exception as e:
+        log(f"розклад: не вдалося закріпити ({e})")
+
+
 def cmd_telegram(con, args):
     """Швидкий прохід лише для Telegram: натискання, приховування, публікація, журнал (без завантаження тендерів)."""
     cmd_ledger_import(con, args)
@@ -937,6 +1012,10 @@ def cmd_telegram(con, args):
         weekly_digest(con)
     except Exception as e:
         log(f"помилка тижневого підсумку: {e}")
+    try:
+        update_schedule(con)
+    except Exception as e:
+        log(f"помилка розкладу: {e}")
     cmd_ledger_export(con, args)
 
 
@@ -953,6 +1032,10 @@ def cmd_ci(con, args):
         weekly_digest(con)
     except Exception as e:
         log(f"помилка тижневого підсумку: {e}")
+    try:
+        update_schedule(con)
+    except Exception as e:
+        log(f"помилка розкладу: {e}")
     cmd_ledger_export(con, args)
 
 
@@ -982,7 +1065,8 @@ def cmd_ledger_export(con, args):
     posts = [dict(r) for r in con.execute(
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
         "kind, features, text_tg FROM posts")]
-    st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest")}
+    st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest",
+                                     "schedule_msg_id")}
     try:
         st["watermark"] = con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone()[0]
     except Exception:
@@ -1005,7 +1089,7 @@ def cmd_ledger_import(con, args):
                        :text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg)""",
                     {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, **p})
     st = j.get("state", {})
-    for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest"):
+    for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest", "schedule_msg_id"):
         if st.get(k) and not meta(con, k):
             meta(con, k, st[k])
     if st.get("watermark"):
