@@ -1,6 +1,6 @@
 {
  "state": {
-  "tg_offset": "705662509",
+  "tg_offset": "705662511",
   "paused": null,
   "last_draft": "2026-11-09T02:40:49.023290+00:00",
   "last_channel_post": null,
@@ -1943,10 +1943,10 @@
   {
    "tender_id": "UA-2026-09-18-007896-a",
    "created": "2026-11-08T20:46:25.067822+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "Полтавське обласне комунальне виробниче пі…: Генератори резервного живлення з газопоршневими двигунами: г…, 90,8 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 10,5 млн грн (+13%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-18-007896-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-09T03:25:56.731973+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
@@ -2545,10 +2545,10 @@
   {
    "tender_id": "UA-2026-10-06-013559-a",
    "created": "2026-11-08T19:08:18.128958+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "ЛМКП \"Львівтеплоенерго\": Насоси та компресори, 5,8 млн грн.\nЦіна 99 262 грн/штука — у 3,2 раза вища за медіану (31 080 грн) у 3 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-06-013559-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-09T03:25:55.830104+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
