@@ -897,10 +897,43 @@ def suppress_military(con):
         log(f"приховано військових/безпекових: {len(rows)}")
 
 
+def telegram_check(con):
+    # діагностика: чи немає вебхука (тоді getUpdates нічого не отримає) і скільки натискань чекає
+    try:
+        info = tg("getWebhookInfo")
+        hook = info.get("url") or ""
+        log(f"Telegram: вебхук {'УВІМКНЕНО (' + hook + ') - натискання йдуть туди, а не боту' if hook else 'немає'}; "
+            f"в черзі оновлень: {info.get('pending_update_count')}; позиція бота: {meta(con, 'tg_offset')}")
+    except Exception as e:
+        log(f"Telegram getWebhookInfo: {e}")
+
+
+def poll_and_log(con):
+    telegram_check(con)
+    try:
+        n = poll_telegram(con)
+        log(f"Telegram: отримано натискань/повідомлень: {n}")
+    except Exception as e:
+        log(f"Telegram getUpdates: помилка {e}")
+
+
+def cmd_telegram(con, args):
+    """Швидкий прохід лише для Telegram: натискання, приховування, публікація, журнал (без завантаження тендерів)."""
+    cmd_ledger_import(con, args)
+    poll_and_log(con)
+    suppress_military(con)
+    publish_due(con)
+    try:
+        weekly_digest(con)
+    except Exception as e:
+        log(f"помилка тижневого підсумку: {e}")
+    cmd_ledger_export(con, args)
+
+
 def cmd_ci(con, args):
     """Один прохід CI за розкладом: відновити журнал, обробити натискання/правки, створити чернетки й опублікувати, якщо настав час, зберегти журнал."""
     cmd_ledger_import(con, args)
-    poll_telegram(con)
+    poll_and_log(con)
     suppress_military(con)
     last = meta(con, "last_draft")
     if not last or datetime.fromisoformat(last) < now() - timedelta(minutes=CFG["draft_every_min"]):
@@ -984,7 +1017,8 @@ def main():
     pv = sub.add_parser("preview")
     pv.add_argument("--n", type=int, default=10)
     pv.set_defaults(fn=cmd_preview)
-    for name, fn in (("ledger-export", cmd_ledger_export), ("ledger-import", cmd_ledger_import), ("ci", cmd_ci)):
+    for name, fn in (("ledger-export", cmd_ledger_export), ("ledger-import", cmd_ledger_import), ("ci", cmd_ci),
+                     ("telegram", cmd_telegram)):
         lg = sub.add_parser(name)
         lg.add_argument("--path", default="state/ledger.json")
         lg.set_defaults(fn=fn)
@@ -996,7 +1030,7 @@ def main():
     DRY = args.dry_run
     if args.db:
         CFG["db_path"] = args.db
-    if not DRY and args.cmd in ("draft", "poll", "serve", "ci"):
+    if not DRY and args.cmd in ("draft", "poll", "serve", "ci", "telegram"):
         missing = [k for k in ("TG_BOT_TOKEN", "TG_ADMIN_IDS", "TG_REVIEW_CHAT_ID") if not ENV(k)]
         if missing:
             sys.exit(f"бракує налаштувань: {', '.join(missing)} (додайте їх у .env або використайте --dry-run)")
