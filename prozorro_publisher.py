@@ -162,12 +162,16 @@ def price_info(detail):
                 ratio=float(m.group(5)), excess=f(m.group(6)))
 
 
-def candidates(con, limit=None, explore=False):
+def candidates(con, limit=None, explore=False, only=None):
     # explore=True: навпаки, випадки з прапорцями, які НЕ пройшли звичайні фільтри
+    # only=<tender_id>: поточний стан одного вже обраного тендера (щоб оновити текст перед публікацією)
     since = (now() - timedelta(days=CFG["lookback_days"])).isoformat()
-    rows = con.execute(f"""
-        SELECT t.*, SUM(f.weight) AS score, GROUP_CONCAT(f.code, '|') AS codes, GROUP_CONCAT(f.detail, '||') AS details
-        FROM flags f JOIN tenders t ON t.id = f.tender_id
+    sel = """SELECT t.*, SUM(f.weight) AS score, GROUP_CONCAT(f.code, '|') AS codes, GROUP_CONCAT(f.detail, '||') AS details
+        FROM flags f JOIN tenders t ON t.id = f.tender_id"""
+    if only:
+        rows = con.execute(sel + " WHERE t.tender_id = ? GROUP BY t.id", (only,)).fetchall()
+    else:
+        rows = con.execute(sel + """
         WHERE f.first_seen >= ? AND t.status NOT IN ('cancelled', 'unsuccessful')
           AND t.tender_id NOT IN (SELECT tender_id FROM posts)
         GROUP BY t.id HAVING score >= ?""", (since, 2 if explore else 3)).fetchall()
@@ -192,6 +196,10 @@ def candidates(con, limit=None, explore=False):
                     (r.get("award_amt") or 0) if strong & {"SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"} else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
             money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
+        if only:
+            r.update(codes=codes, flags=flags, price=pi, money=money)
+            out.append(r)
+            continue
         if r.get("military") == 2 and (not CFG["include_security"] or explore):
             continue
         if r.get("military") == 1:
@@ -204,6 +212,8 @@ def candidates(con, limit=None, explore=False):
         ok = (not weak_only and money >= CFG["min_money_uah"]
               and not (r["score"] < CFG["min_score"] and money < CFG["big_money_uah"]))
         (out if ok else rest).append(r)
+    if only:
+        return sorted(out, key=lambda r: -r["money"])[:1]
     pool = rest if explore else out
     pool.sort(key=lambda r: (-r["money"], -r["score"]))
     seen, uniq = {}, []
@@ -638,7 +648,7 @@ def handle_update(con, u):
                    text=f"Задовго: {weighted_len(text)}/280. Спробуйте ще раз (reply на попереднє прохання).")
                 return
             set_review_status(con, p["tender_id"], "✏️ Замінено новою версією нижче")
-            con.execute("UPDATE posts SET text=?, text_tg=NULL, status='draft', note=NULL WHERE tender_id=?",
+            con.execute("UPDATE posts SET text=?, text_tg=NULL, status='draft', note='edited' WHERE tender_id=?",
                         (text, p["tender_id"]))
             con.commit()
             send_for_review(con, p["tender_id"], text, p["context"] or "")
@@ -777,6 +787,44 @@ def publish_due(con):
     publish_channel(con)
 
 
+def channel_text(con, p):
+    """Текст для каналу з поточних даних тендера: прапорці могли змінитися після створення чернетки
+    (напр. дешевший учасник відмовився). Відредагований вами текст не чіпаємо."""
+    stored = p["text_tg"] or p["text"]
+    if p["note"] == "edited" or (p["kind"] or "tender") not in ("tender", "explore"):
+        return stored
+    try:
+        rs = candidates(con, only=p["tender_id"])
+    except Exception as e:
+        log(f"не вдалося оновити текст {p['tender_id']}: {e}")
+        return stored
+    return compose(rs[0], full=True) if rs and rs[0]["codes"] else stored
+
+
+def refresh_channel_posts(con):
+    """Одноразово: оновити вже опубліковані в каналі дописи повною версією (з посиланнями ЄДРПОУ тощо)."""
+    if not ENV("TG_CHANNEL_ID") or meta(con, "channel_refresh") == "1":
+        return
+    n = 0
+    for p in con.execute("SELECT * FROM posts WHERE tg_channel_msg_id > 0").fetchall():
+        text = channel_text(con, p)
+        if text == (p["text_tg"] or p["text"]):    # нічого нового (або тендера вже немає в базі)
+            continue
+        try:
+            tg("editMessageText", chat_id=ENV("TG_CHANNEL_ID"), message_id=p["tg_channel_msg_id"],
+               text=tg_html(text), parse_mode="HTML")
+            con.execute("UPDATE posts SET text_tg=? WHERE tender_id=?", (text, p["tender_id"]))
+            con.commit()
+            n += 1
+        except Exception as e:
+            if "not modified" not in str(e):
+                log(f"канал: не вдалося оновити {p['tender_id']}: {e}")
+        if not DRY:
+            time.sleep(1)
+    meta(con, "channel_refresh", "1")
+    log(f"канал: оновлено старих дописів повною версією: {n}")
+
+
 def publish_channel(con):
     # Telegram-канал: по одному допису за прохід, не частіше ніж раз на channel_minutes_between_posts
     if not ENV("TG_CHANNEL_ID") or meta(con, "paused") == "1" or quiet_now():
@@ -790,8 +838,9 @@ def publish_channel(con):
     if not p:
         return
     try:
-        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=tg_html(p["text_tg"] or p["text"]),
-                 parse_mode="HTML")["message_id"]
+        text = channel_text(con, p)
+        mid = tg("sendMessage", chat_id=ENV("TG_CHANNEL_ID"), text=tg_html(text), parse_mode="HTML")["message_id"]
+        con.execute("UPDATE posts SET text_tg=? WHERE tender_id=?", (text, p["tender_id"]))
     except Exception as e:
         log(f"помилка публікації в канал {p['tender_id']}: {e}")
         set_review_status(con, p["tender_id"], f"⚠️ Помилка публікації в канал: {e}")
@@ -1110,6 +1159,10 @@ def cmd_telegram(con, args):
         cleanup_resolved(con)
     except Exception as e:
         log(f"помилка прибирання чату: {e}")
+    try:
+        refresh_channel_posts(con)
+    except Exception as e:
+        log(f"помилка оновлення старих дописів каналу: {e}")
     cmd_ledger_export(con, args)
 
 
@@ -1134,6 +1187,10 @@ def cmd_ci(con, args):
         cleanup_resolved(con)
     except Exception as e:
         log(f"помилка прибирання чату: {e}")
+    try:
+        refresh_channel_posts(con)
+    except Exception as e:
+        log(f"помилка оновлення старих дописів каналу: {e}")
     cmd_ledger_export(con, args)
 
 
@@ -1162,9 +1219,9 @@ def cmd_ledger_export(con, args):
     """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
-        "kind, features, text_tg FROM posts")]
+        "kind, features, text_tg, CASE WHEN note='edited' THEN note END AS note FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest",
-                                     "schedule_msg_id")}
+                                     "schedule_msg_id", "channel_refresh")}
     try:
         st["watermark"] = con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone()[0]
     except Exception:
@@ -1183,11 +1240,12 @@ def cmd_ledger_import(con, args):
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
         con.execute("""INSERT OR IGNORE INTO posts (tender_id, created, status, text, approved_by, approved_at, x_id,
-                       published_at, tg_channel_msg_id, kind, features, text_tg) VALUES (:tender_id,:created,:status,
-                       :text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg)""",
-                    {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, **p})
+                       published_at, tg_channel_msg_id, kind, features, text_tg, note) VALUES (:tender_id,:created,:status,
+                       :text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg,:note)""",
+                    {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, "note": None, **p})
     st = j.get("state", {})
-    for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest", "schedule_msg_id"):
+    for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest", "schedule_msg_id",
+              "channel_refresh"):
         if st.get(k) and not meta(con, k):
             meta(con, k, st[k])
     if st.get("watermark"):
