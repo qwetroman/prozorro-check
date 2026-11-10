@@ -1,6 +1,6 @@
 {
  "state": {
-  "tg_offset": "705662527",
+  "tg_offset": "705662550",
   "paused": null,
   "last_draft": "2026-11-10T00:42:09.414936+00:00",
   "last_channel_post": "2026-11-09T19:20:34.499835+00:00",
@@ -726,10 +726,10 @@
   {
    "tender_id": "PAT-DOM-02070921-40658777",
    "created": "2026-11-10T00:41:51.741039+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "Національний Технічний Університет України \"…: ТОВ \"Євробуд ГРУП\" отримав 6 з 46 конкурентних закупівель за 180 дн., 87% їхньої вартості (29,2 млн грн).\nУ 5 з 6 була лише одна пропозиція.\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-25-003070-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-10T01:55:14.364288+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
