@@ -3,7 +3,8 @@
 
 Червоний прапорець, коли великий договір отримує:
   SUPPLIER_NO_HISTORY      - постачальник без жодної перемоги за попередні 24 місяці
-  SUPPLIER_NEW_IN_CATEGORY - постачальник, який раніше не вигравав закупівель цієї групи CPV (3 цифри, напр. 452*)
+  SUPPLIER_NEW_IN_DIVISION - постачальник, який раніше не вигравав закупівель цього розділу CPV (2 цифри, напр. 45*) - сильний
+  SUPPLIER_NEW_IN_CATEGORY - розділ знайомий, але група CPV нова (3 цифри, напр. 452*) - лише допоміжний
 
 Історія зберігається компактно в окремій базі (state/history.db): лише «постачальник + категорія + місяць».
 24 місяці до початку живого моніторингу дозавантажуються окремим workflow (prozorro-history), який
@@ -33,7 +34,8 @@ HCFG = {
     "history_months": 24,
     "min_award_uah": 1_000_000,       # для менших договорів прапорці не ставимо
     "lookback_days": 14,              # які нещодавні перемоги перевіряти
-    "category_digits": 3,             # рівень CPV для «новачка»: 2 - розділ, 3 - група, 4 - клас
+    "division_digits": 2,             # «новачок у розділі» (напр. 45* будівництво): сильний сигнал, вага 3
+    "category_digits": 3,             # «новачок у групі» (напр. 452*): допоміжний сигнал, вага 1
     "workers": 12,
 }
 DONE = ("complete", "active.awarded")
@@ -161,10 +163,18 @@ def flags(con, hist_path):
         cur = con.execute("SELECT v FROM h.meta WHERE k='hist_cursor'").fetchone()
         log(f"історія ще неповна (позиція {cur[0] if cur else '-'}), прапорці не ставлю")
         return
-    nd = HCFG["category_digits"]
+    nd, ndiv = HCFG["category_digits"], HCFG["division_digits"]
+    rule = f"div{ndiv}+grp{nd}"
     con.execute("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)")
     prev = con.execute("SELECT v FROM meta WHERE k='hist_category_digits'").fetchone()
-    days = HCFG["lookback_days"] if prev and prev[0] == str(nd) else 60   # правило змінилося: переглянути все
+    days = HCFG["lookback_days"] if prev and prev[0] == rule else 60   # правило змінилося: переглянути все
+
+    def seen(r, n, month):     # чи вигравав постачальник раніше щось із тим самим префіксом CPV довжини n
+        p = (r["cpv"] or "")[:n]
+        return con.execute(
+            "SELECT 1 FROM h.supplier_hist WHERE supplier_id=? AND substr(cpv4, 1, ?)=? AND month<? UNION ALL "
+            "SELECT 1 FROM awards WHERE supplier_id=? AND substr(cpv, 1, ?)=? AND substr(published, 1, 7)<? LIMIT 1",
+            (r["supplier_id"], n, p, month, r["supplier_id"], n, p, month)).fetchone()
     since = (now() - timedelta(days=days)).isoformat()
     rows = [dict(r) for r in con.execute(
         """SELECT id, supplier_id, cpv, award_amt, published, modified, military FROM tenders
@@ -173,7 +183,7 @@ def flags(con, hist_path):
     stamp, new, hit = now().isoformat(), 0, set()
     for r in rows:
         month = (r["published"] or r["modified"] or "")[:7]
-        cpvn = (r["cpv"] or "")[:nd]
+        cpv = r["cpv"] or ""
         if not month:
             continue
         any_before = con.execute(
@@ -182,26 +192,24 @@ def flags(con, hist_path):
             (r["supplier_id"], month, r["supplier_id"], month)).fetchone()
         if not any_before:
             code, w, detail = "SUPPLIER_NO_HISTORY", 3, f"Переможець не мав перемог у Prozorro за {HCFG['history_months']} міс. до цього"
+        elif len(cpv) >= ndiv and not seen(r, ndiv, month):
+            code, w, detail = "SUPPLIER_NEW_IN_DIVISION", 3, f"Переможець раніше не вигравав закупівель розділу CPV {cpv[:ndiv]}*"
+        elif len(cpv) >= nd and not seen(r, nd, month):
+            code, w, detail = "SUPPLIER_NEW_IN_CATEGORY", 1, f"Переможець раніше не вигравав закупівель групи CPV {cpv[:nd]}*"
         else:
-            cat_before = con.execute(
-                "SELECT 1 FROM h.supplier_hist WHERE supplier_id=? AND substr(cpv4, 1, ?)=? AND month<? UNION ALL "
-                "SELECT 1 FROM awards WHERE supplier_id=? AND substr(cpv, 1, ?)=? AND substr(published, 1, 7)<? LIMIT 1",
-                (r["supplier_id"], nd, cpvn, month, r["supplier_id"], nd, cpvn, month)).fetchone()
-            if cat_before or len(cpvn) < nd:
-                continue
-            code, w, detail = "SUPPLIER_NEW_IN_CATEGORY", 3, f"Переможець раніше не вигравав закупівель групи CPV {cpvn}*"
+            continue
         hit.add((r["id"], code))
         cur = con.execute("INSERT OR IGNORE INTO flags VALUES (?,?,?,?,?)", (r["id"], code, w, detail, stamp))
         if not cur.rowcount:
-            con.execute("UPDATE flags SET detail=? WHERE tender_id=? AND code=?", (detail, r["id"], code))
+            con.execute("UPDATE flags SET weight=?, detail=? WHERE tender_id=? AND code=?", (w, detail, r["id"], code))
         new += cur.rowcount
     # прапорці, що вже не справджуються (напр. після зміни рівня CPV), прибираємо
     gone = 0
     for r in rows:
-        for code in ("SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"):
+        for code in ("SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_DIVISION", "SUPPLIER_NEW_IN_CATEGORY"):
             if (r["id"], code) not in hit:
                 gone += con.execute("DELETE FROM flags WHERE tender_id=? AND code=?", (r["id"], code)).rowcount
-    con.execute("INSERT OR REPLACE INTO meta VALUES ('hist_category_digits', ?)", (str(nd),))
+    con.execute("INSERT OR REPLACE INTO meta VALUES ('hist_category_digits', ?)", (rule,))
     con.commit()
     log(f"перевірено перемог: {len(rows)}, нових прапорців: {new}, прибрано застарілих: {gone}")
 
