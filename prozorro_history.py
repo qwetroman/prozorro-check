@@ -3,7 +3,7 @@
 
 Червоний прапорець, коли великий договір отримує:
   SUPPLIER_NO_HISTORY      - постачальник без жодної перемоги за попередні 24 місяці
-  SUPPLIER_NEW_IN_CATEGORY - постачальник, який раніше не вигравав закупівель цієї категорії (CPV, 4 цифри)
+  SUPPLIER_NEW_IN_CATEGORY - постачальник, який раніше не вигравав закупівель цієї групи CPV (3 цифри, напр. 452*)
 
 Історія зберігається компактно в окремій базі (state/history.db): лише «постачальник + категорія + місяць».
 24 місяці до початку живого моніторингу дозавантажуються окремим workflow (prozorro-history), який
@@ -33,6 +33,7 @@ HCFG = {
     "history_months": 24,
     "min_award_uah": 1_000_000,       # для менших договорів прапорці не ставимо
     "lookback_days": 14,              # які нещодавні перемоги перевіряти
+    "category_digits": 3,             # рівень CPV для «новачка»: 2 - розділ, 3 - група, 4 - клас
     "workers": 12,
 }
 DONE = ("complete", "active.awarded")
@@ -160,15 +161,19 @@ def flags(con, hist_path):
         cur = con.execute("SELECT v FROM h.meta WHERE k='hist_cursor'").fetchone()
         log(f"історія ще неповна (позиція {cur[0] if cur else '-'}), прапорці не ставлю")
         return
-    since = (now() - timedelta(days=HCFG["lookback_days"])).isoformat()
+    nd = HCFG["category_digits"]
+    con.execute("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)")
+    prev = con.execute("SELECT v FROM meta WHERE k='hist_category_digits'").fetchone()
+    days = HCFG["lookback_days"] if prev and prev[0] == str(nd) else 60   # правило змінилося: переглянути все
+    since = (now() - timedelta(days=days)).isoformat()
     rows = [dict(r) for r in con.execute(
         """SELECT id, supplier_id, cpv, award_amt, published, modified, military FROM tenders
            WHERE status IN ('complete', 'active.awarded') AND supplier_id IS NOT NULL AND award_amt >= ?
              AND currency = 'UAH' AND COALESCE(modified, published) >= ?""", (HCFG["min_award_uah"], since))]
-    stamp, new = now().isoformat(), 0
+    stamp, new, hit = now().isoformat(), 0, set()
     for r in rows:
         month = (r["published"] or r["modified"] or "")[:7]
-        cpv4 = (r["cpv"] or "")[:4]
+        cpvn = (r["cpv"] or "")[:nd]
         if not month:
             continue
         any_before = con.execute(
@@ -179,16 +184,26 @@ def flags(con, hist_path):
             code, w, detail = "SUPPLIER_NO_HISTORY", 3, f"Переможець не мав перемог у Prozorro за {HCFG['history_months']} міс. до цього"
         else:
             cat_before = con.execute(
-                "SELECT 1 FROM h.supplier_hist WHERE supplier_id=? AND cpv4=? AND month<? UNION ALL "
-                "SELECT 1 FROM awards WHERE supplier_id=? AND substr(cpv, 1, 4)=? AND substr(published, 1, 7)<? LIMIT 1",
-                (r["supplier_id"], cpv4, month, r["supplier_id"], cpv4, month)).fetchone()
-            if cat_before or not cpv4:
+                "SELECT 1 FROM h.supplier_hist WHERE supplier_id=? AND substr(cpv4, 1, ?)=? AND month<? UNION ALL "
+                "SELECT 1 FROM awards WHERE supplier_id=? AND substr(cpv, 1, ?)=? AND substr(published, 1, 7)<? LIMIT 1",
+                (r["supplier_id"], nd, cpvn, month, r["supplier_id"], nd, cpvn, month)).fetchone()
+            if cat_before or len(cpvn) < nd:
                 continue
-            code, w, detail = "SUPPLIER_NEW_IN_CATEGORY", 3, f"Переможець раніше не вигравав закупівель категорії CPV {cpv4}*"
+            code, w, detail = "SUPPLIER_NEW_IN_CATEGORY", 3, f"Переможець раніше не вигравав закупівель групи CPV {cpvn}*"
+        hit.add((r["id"], code))
         cur = con.execute("INSERT OR IGNORE INTO flags VALUES (?,?,?,?,?)", (r["id"], code, w, detail, stamp))
+        if not cur.rowcount:
+            con.execute("UPDATE flags SET detail=? WHERE tender_id=? AND code=?", (detail, r["id"], code))
         new += cur.rowcount
+    # прапорці, що вже не справджуються (напр. після зміни рівня CPV), прибираємо
+    gone = 0
+    for r in rows:
+        for code in ("SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"):
+            if (r["id"], code) not in hit:
+                gone += con.execute("DELETE FROM flags WHERE tender_id=? AND code=?", (r["id"], code)).rowcount
+    con.execute("INSERT OR REPLACE INTO meta VALUES ('hist_category_digits', ?)", (str(nd),))
     con.commit()
-    log(f"перевірено перемог: {len(rows)}, нових прапорців: {new}")
+    log(f"перевірено перемог: {len(rows)}, нових прапорців: {new}, прибрано застарілих: {gone}")
 
 
 def status(con):
