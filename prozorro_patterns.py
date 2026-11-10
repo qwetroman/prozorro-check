@@ -36,15 +36,20 @@ MIN_VALUE = 100_000
 AWARDS_SCHEMA = """CREATE TABLE IF NOT EXISTS awards (
   id TEXT PRIMARY KEY, tender_id TEXT, buyer_id TEXT, buyer TEXT, supplier_id TEXT, supplier TEXT,
   amount REAL, est REAL, category TEXT, cpv TEXT, method TEXT, mtype TEXT, n_bids INTEGER,
-  military INTEGER, published TEXT, title TEXT, buyer_kind TEXT)"""
+  military INTEGER, published TEXT, title TEXT, buyer_kind TEXT, n_cpl INTEGER, n_upheld INTEGER)"""
 COLS = ("id, tender_id, buyer_id, buyer, supplier_id, supplier, amount, est, category, cpv, method, mtype, n_bids, "
-        "military, published, title, buyer_kind")
+        "military, published, title, buyer_kind, n_cpl, n_upheld")
+# скарги/вимоги саме на рішення на користь переможця (поле on: "рішення:<статус>:<назва учасника>")
+_CPL = ("(SELECT COUNT(*) FROM json_each(COALESCE(tenders.complaints, '[]')) WHERE json_extract(value, '$.on') "
+        "LIKE '%:' || tenders.supplier AND json_extract(value, '$.status') NOT IN ('draft', 'cancelled', 'mistaken'){})")
 
 
 def ensure_awards(con):
     con.execute(AWARDS_SCHEMA)
-    if "buyer_kind" not in {r[1] for r in con.execute("PRAGMA table_info(awards)")}:
-        con.execute("ALTER TABLE awards ADD COLUMN buyer_kind TEXT")
+    have = {r[1] for r in con.execute("PRAGMA table_info(awards)")}
+    for c, t in (("buyer_kind", "TEXT"), ("n_cpl", "INTEGER"), ("n_upheld", "INTEGER")):
+        if c not in have:
+            con.execute(f"ALTER TABLE awards ADD COLUMN {c} {t}")
 
 
 def thr_for(r):
@@ -66,7 +71,9 @@ def sync_awards(con):
         return
     con.execute(f"""INSERT OR REPLACE INTO awards ({COLS})
         SELECT id, tender_id, buyer_id, buyer, supplier_id, supplier, award_amt, est, category, cpv, method, mtype,
-               n_bids, military, COALESCE(published, modified), title, buyer_kind
+               n_bids, military, COALESCE(published, modified), title, buyer_kind, {_CPL.format("")},
+               {_CPL.format(" AND json_extract(value, '$.type') = 'complaint' "
+                            "AND json_extract(value, '$.status') IN ('satisfied', 'resolved')")}
         FROM tenders
         WHERE status IN ('complete', 'active.awarded') AND supplier_id IS NOT NULL AND award_amt > 0
           AND currency = 'UAH'""")
