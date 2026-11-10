@@ -301,6 +301,16 @@ def signal_lines(r):
         lines.append(f"Конкуруючі учасники мають спільні контакти{' (' + ', '.join(what) + ')' if what else ''}.")
     if "AMCU_COMPLAINT_UPHELD" in c:
         lines.append("АМКУ задовольнив скаргу в цій закупівлі.")
+    m = re.search(r"скаржилися в (\d+) закупівлях \(АМКУ задовольнив: (\d+)\)", r["flags"].get("SUPPLIER_COMPLAINT_HISTORY", ""))
+    if "SUPPLIER_COMPLAINT_HISTORY" in c and m:
+        lines.append(f"На попередні перемоги цього постачальника скаржилися ще в {m.group(1)} "
+                     f"{'закупівлі' if int(m.group(1)) % 10 == 1 and int(m.group(1)) % 100 != 11 else 'закупівлях'}"
+                     + (f", у {m.group(2)} АМКУ скаргу задовольнив." if int(m.group(2)) else "."))
+    if "BUYER_FIXED_AFTER_CLAIM" in c:
+        lines.append("Замовник визнав вимогу учасника і змінив своє рішення чи умови.")
+    m = re.search(r"від (\d+) різних учасників", r["flags"].get("MULTIPLE_COMPLAINANTS", ""))
+    if "MULTIPLE_COMPLAINANTS" in c and m:
+        lines.append(f"Скаржилися {m.group(1)} різні учасники.")
     # решта прапорців, від сильніших до слабших (у X слабші відкидаються, якщо не влазить у 280)
     fl, num = r["flags"], lambda x: float(x.replace(",", ""))
     if "CONTRACT_ABOVE_AWARD" in c and r.get("contract_amt") and r.get("award_amt"):
@@ -330,11 +340,14 @@ def signal_lines(r):
                      f"пропозицій лише {r.get('n_bids')}.")
     if "DIRECT_AWARD_HIGH_VALUE" in c and r.get("est"):
         lines.append(f"Неконкурентна процедура на {money(r['est'])}.")
+    cur = r["award_amt"] / r["est"] * 100 if r.get("award_amt") and r.get("est") else None
     m = re.search(r"Ціна/очікувана (\d+)% проти медіани (\d+)%", fl.get("RATIO_OUTLIER", ""))
-    if "RATIO_OUTLIER" in c and m and abs(int(m.group(1)) - int(m.group(2))) >= 15:
+    # перевіряємо з поточною сумою: прапорець міг лишитися від попереднього переможця
+    if ("RATIO_OUTLIER" in c and m and abs(int(m.group(1)) - int(m.group(2))) >= 15
+            and cur is not None and abs(cur - int(m.group(1))) <= 2):
         lines.append(f"Ціна рішення — {m.group(1)}% очікуваної, тоді як зазвичай у цій категорії {m.group(2)}%.")
-    if "VERY_LOW_AWARD" in c and r.get("award_amt") and r.get("est"):
-        lines.append(f"Ціна рішення лише {r['award_amt'] / r['est'] * 100:.0f}% очікуваної вартості.")
+    if "VERY_LOW_AWARD" in c and cur is not None and cur <= 50:
+        lines.append(f"Ціна рішення лише {cur:.0f}% очікуваної вартості.")
     return lines
 
 
@@ -433,7 +446,8 @@ def compose_pattern(p, full=False):
 
 
 def pattern_context(p):
-    lines = ["🔗 Закономірність (замовник/постачальник), а не окремий тендер.",
+    tag = TAGS.get(p.get("pattern"))
+    lines = ([f"🏷 #{tag}"] if tag else []) + ["🔗 Закономірність (замовник/постачальник), а не окремий тендер.",
              f"Замовник: {p['buyer']} ({p['buyer_id']})"]
     if p.get("supplier"):
         lines.append(f"Постачальник: {p['supplier']} ({p['supplier_id']})")
@@ -443,9 +457,46 @@ def pattern_context(p):
     return "\n".join(lines)
 
 
+# хештег головного прапорця - лише в чаті перевірки, щоб шукати/фільтрувати випадки за типом
+TAGS = {
+    "PRICE_ABOVE_PEERS": "завищена_ціна", "CHEAPER_BIDS_WITHDREW": "дешевші_відмовились",
+    "CHEAPER_BIDS_REJECTED": "дешевших_відхилено", "REPEAT_WITHDRAWAL_PAIR": "повторне_поступання",
+    "SHARED_BIDDER_CONTACTS": "спільні_контакти", "AMCU_COMPLAINT_UPHELD": "скарга_АМКУ",
+    "SUPPLIER_NO_HISTORY": "постачальник_без_історії", "SUPPLIER_NEW_IN_CATEGORY": "новачок_у_категорії",
+    "BID_AT_ESTIMATE_EXACT": "ціна_як_очікувана", "CONTRACT_ABOVE_AWARD": "договір_більший_за_рішення",
+    "COMPETITORS_ELIMINATED": "усунення_конкурентів", "SUPPLIER_CONCENTRATION": "домінування",
+    "POSSIBLE_SPLIT_PURCHASE": "поділ_закупівлі", "DIRECT_AWARD_HIGH_VALUE": "без_конкуренції",
+    "NEGOTIATION_NO_JUSTIFICATION": "переговори_без_підстав", "SINGLE_BIDDER": "один_учасник",
+    "AWARD_AT_ESTIMATE": "майже_очікувана_ціна", "SHORT_BID_PERIOD": "короткий_строк",
+    "JUST_BELOW_THRESHOLD": "трохи_нижче_порогу", "RATIO_OUTLIER": "нетипове_співвідношення",
+    "VERY_LOW_AWARD": "дуже_низька_ціна", "SUPPLIER_COMPLAINT_HISTORY": "скарги_на_постачальника",
+    "BUYER_FIXED_AFTER_CLAIM": "замовник_визнав_вимогу", "MULTIPLE_COMPLAINANTS": "кілька_скаржників",
+    "dominance": "домінування", "split": "поділ_закупівлі", "buyer_single": "постійно_одна_пропозиція",
+    "buyer_direct": "постійно_без_конкуренції",
+}
+TAG_ORDER = list(TAGS)   # якщо сума під ризиком не визначає головного, - за цим порядком (від сильніших)
+
+
+def main_tag(r):
+    """Головний прапорець випадку: той, що дає найбільшу суму під ризиком; інакше найсильніший за TAG_ORDER."""
+    codes, est = r.get("codes") or set(), r.get("est") or 0
+    pi = r.get("price") or {}
+    contrib = {"CHEAPER_BIDS_WITHDREW": r.get("elim_gap") or 0, "CHEAPER_BIDS_REJECTED": r.get("elim_gap") or 0,
+               "PRICE_ABOVE_PEERS": pi.get("excess") or 0, "AMCU_COMPLAINT_UPHELD": 0.05 * est,
+               "SHARED_BIDDER_CONTACTS": 0.05 * est, "REPEAT_WITHDRAWAL_PAIR": 0.05 * est,
+               "BID_AT_ESTIMATE_EXACT": 0.02 * est, "SUPPLIER_NO_HISTORY": r.get("award_amt") or 0,
+               "SUPPLIER_NEW_IN_CATEGORY": r.get("award_amt") or 0}
+    known = [c for c in codes if c in TAGS]
+    if not known:
+        return None
+    best = max(known, key=lambda c: (contrib.get(c, 0), -TAG_ORDER.index(c)))
+    return "#" + TAGS[best]
+
+
 def context(r):
     """Додаткові факти лише для того, хто перевіряє (ніколи не публікуються)."""
-    lines = [f"Сума/оцінка: {money(r.get('award_amt'))} / {money(r.get('est'))}; учасників: {r.get('n_bids') or '—'}; "
+    tag = main_tag(r)
+    lines = ([f"🏷 {tag}"] if tag else []) + [f"Сума/оцінка: {money(r.get('award_amt'))} / {money(r.get('est'))}; учасників: {r.get('n_bids') or '—'}; "
              f"процедура: {r.get('mtype')}; статус: {r.get('status')}",
              f"Замовник: {r.get('buyer')} ({r.get('buyer_id')})",
              f"Переможець: {r.get('supplier') or '—'} ({r.get('supplier_id') or '—'})",
@@ -659,7 +710,7 @@ def x_intent_url(text):
 def send_manual_post(tid, text):
     """Безкоштовний режим (без ключів X API): надіслати посилання, що відкриває X із готовим текстом допису."""
     url = x_intent_url(text)
-    body = (f"<b>Готово до публікації в X</b> ({tid})\nНатисніть кнопку, перевірте текст і натисніть «Опублікувати» (Post).\n"
+    body = (f"<b>Готово до публікації в X</b> ({tid}) #ready_to_x\nНатисніть кнопку, перевірте текст і натисніть «Опублікувати» (Post).\n"
             f"<pre>{html.escape(text)}</pre>")
     try:
         tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=body, parse_mode="HTML",
