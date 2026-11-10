@@ -291,8 +291,9 @@ def signal_lines(r):
                      f"(+{r['elim_gap_pct'] * 100:.0f}%).")
     if "SUPPLIER_NO_HISTORY" in c:
         lines.append("Переможець не мав жодної перемоги в Prozorro за попередні 24 місяці.")
-    if "SUPPLIER_NEW_IN_CATEGORY" in c:
-        lines.append(f"Переможець раніше не вигравав закупівель цієї категорії (CPV {(r.get('cpv') or '')[:4]}…) за 24 місяці.")
+    m = re.search(r"CPV (\d+)\*", r["flags"].get("SUPPLIER_NEW_IN_CATEGORY", ""))
+    if "SUPPLIER_NEW_IN_CATEGORY" in c and m:
+        lines.append(f"Переможець раніше не вигравав закупівель цієї групи (CPV {m.group(1)}…) за 24 місяці.")
     if "BID_AT_ESTIMATE_EXACT" in c and r.get("award_amt") and r.get("est"):
         diff = r["est"] - r["award_amt"]
         who = "Єдиний учасник" if "SINGLE_BIDDER" in c else "Переможець"
@@ -588,6 +589,20 @@ def set_review_status(con, tid, status, keep_buttons=False):
         log(f"не вдалося змінити повідомлення для перевірки: {e}")
 
 
+def remove_review(con, tid, why):
+    """Прибрана чернетка зникає з чату одразу. Якщо Telegram не дає видалити (старша за 48 год) - лише позначаємо."""
+    p = con.execute("SELECT review_msg_id FROM posts WHERE tender_id=?", (tid,)).fetchone()
+    if p and p["review_msg_id"]:
+        try:
+            tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=p["review_msg_id"])
+            con.execute("UPDATE posts SET review_msg_id=NULL, resolved_at=? WHERE tender_id=?", (now().isoformat(), tid))
+            con.commit()
+            return
+        except Exception as e:
+            log(f"не вдалося видалити чернетку {tid}: {e}")
+    set_review_status(con, tid, why)
+
+
 def answer_cb(q, text):
     # Telegram приймає відповідь на натискання лише кілька хвилин, а бот читає його в наступному проході
     try:
@@ -771,6 +786,14 @@ def publish_one(con):
         else:
             status = f"📤 Опубліковано {link or ''}"
         set_review_status(con, p["tender_id"], status)
+        if xid == "manual" and p["review_msg_id"]:   # лишаємо в чаті тільки повідомлення #ready_to_x
+            try:
+                tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=p["review_msg_id"])
+                con.execute("UPDATE posts SET review_msg_id=NULL, resolved_at=? WHERE tender_id=?",
+                            (now().isoformat(), p["tender_id"]))
+                con.commit()
+            except Exception as e:                   # старше 48 год: лишиться з позначкою «Надіслано»
+                log(f"не вдалося видалити схвалену чернетку {p['tender_id']}: {e}")
         log(f"опубліковано {p['tender_id']} -> X {xid}")
         return True
     except Exception as e:
@@ -904,7 +927,33 @@ def weekly_digest(con):
 
 
 # ------------------------------------------------------------------ команди
+def withdraw_stale(con):
+    """Прибирає з чату чернетки тендерів, у яких більше немає жодного сильного сигналу
+    (тендер змінився або правило уточнили, напр. «новачок» тепер рахується за групою CPV)."""
+    rows = con.execute("SELECT tender_id FROM posts WHERE status IN ('draft', 'in_review') "
+                       "AND COALESCE(kind, 'tender') = 'tender'").fetchall()
+    n = 0
+    for (tid,) in rows:
+        if not con.execute("SELECT 1 FROM tenders WHERE tender_id=?", (tid,)).fetchone():
+            continue                                  # тендера вже немає в базі - нічого не знаємо, не чіпаємо
+        rs = candidates(con, only=tid)
+        if rs and rs[0]["codes"] & STRONG:
+            continue
+        con.execute("UPDATE posts SET status='suppressed' WHERE tender_id=?", (tid,))
+        con.commit()
+        remove_review(con, tid, "🚫 Прибрано: сильних сигналів ризику більше немає (дані або правило змінилися)")
+        n += 1
+        if not DRY:
+            time.sleep(1)
+    if n:
+        log(f"прибрано чернеток без сильних сигналів: {n}")
+
+
 def cmd_draft(con, _args):
+    try:
+        withdraw_stale(con)
+    except Exception as e:
+        log(f"помилка прибирання застарілих чернеток: {e}")
     items = [("tender", r) for r in candidates(con)]
     try:
         import prozorro_patterns as PP
@@ -918,7 +967,7 @@ def cmd_draft(con, _args):
             for k in stale:
                 con.execute("UPDATE posts SET status='suppressed' WHERE tender_id=?", (k,))
                 con.commit()
-                set_review_status(con, k, "🚫 Прибрано: не проходить уточнених правил для закономірностей")
+                remove_review(con, k, "🚫 Прибрано: не проходить уточнених правил для закономірностей")
                 if not DRY:
                     time.sleep(1)
             meta(con, "pattern_rules", "4")
@@ -1003,7 +1052,10 @@ def suppress_military(con):
         else:
             con.execute("UPDATE posts SET status='suppressed' WHERE tender_id=?", (r["tender_id"],))
         con.commit()
-        set_review_status(con, r["tender_id"], "🚫 Приховано: військові/безпекові закупівлі зараз вимкнені")
+        if r["status"] == "published":
+            set_review_status(con, r["tender_id"], "🚫 Не публікується в каналі: військові/безпекові закупівлі зараз вимкнені")
+        else:
+            remove_review(con, r["tender_id"], "🚫 Приховано: військові/безпекові закупівлі зараз вимкнені")
     if rows:
         log(f"приховано військових/безпекових: {len(rows)}")
 
