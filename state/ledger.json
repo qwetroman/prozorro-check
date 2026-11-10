@@ -3,7 +3,7 @@
   "tg_offset": "705662552",
   "paused": null,
   "last_draft": "2026-11-10T08:36:26.543113+00:00",
-  "last_channel_post": "2026-11-10T08:21:31.086856+00:00",
+  "last_channel_post": "2026-11-10T09:20:47.284111+00:00",
   "last_digest": null,
   "schedule_msg_id": "264",
   "watermark": "2026-11-10T11:06:16.842186+02:00"
@@ -4568,7 +4568,7 @@
    "approved_at": "2026-11-09T03:39:33.657941+00:00",
    "x_id": "manual",
    "published_at": "2026-11-09T06:16:50.641158+00:00",
-   "tg_channel_msg_id": null,
+   "tg_channel_msg_id": 9,
    "kind": "tender",
    "features": null,
    "text_tg": null
