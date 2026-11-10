@@ -3,10 +3,10 @@
   "tg_offset": "705662552",
   "paused": null,
   "last_draft": "2026-11-10T07:21:36.660370+00:00",
-  "last_channel_post": "2026-11-10T07:17:18.459144+00:00",
+  "last_channel_post": "2026-11-10T08:21:31.086856+00:00",
   "last_digest": null,
   "schedule_msg_id": "264",
-  "watermark": "2026-11-10T10:06:14.180809+02:00"
+  "watermark": "2026-11-10T10:21:00.174937+02:00"
  },
  "posts": [
   {
@@ -2762,7 +2762,7 @@
    "approved_at": "2026-11-09T03:25:56.731973+00:00",
    "x_id": "manual",
    "published_at": "2026-11-09T06:16:49.798133+00:00",
-   "tg_channel_msg_id": null,
+   "tg_channel_msg_id": 8,
    "kind": null,
    "features": null,
    "text_tg": null
