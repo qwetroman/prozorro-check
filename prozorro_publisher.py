@@ -149,7 +149,8 @@ def meta(con, k, v=None):
 # ------------------------------------------------------------------ вибір кандидатів
 STRONG = {"PRICE_ABOVE_PEERS", "CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED", "REPEAT_WITHDRAWAL_PAIR",
           "SHARED_BIDDER_CONTACTS", "AMCU_COMPLAINT_UPHELD", "BID_AT_ESTIMATE_EXACT",
-          "SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"}   # останні два ставить prozorro_history.py
+          "SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_DIVISION"}   # останні два ставить prozorro_history.py
+# SUPPLIER_NEW_IN_CATEGORY (нова лише група CPV) - допоміжний: сам по собі чернетку не створює
 
 
 def price_info(detail):
@@ -193,7 +194,7 @@ def candidates(con, limit=None, explore=False, only=None):
                                                         "REPEAT_WITHDRAWAL_PAIR"} else 0,
                     0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0,
                     # переможець без історії (взагалі або в цій категорії): під ризиком увесь договір
-                    (r.get("award_amt") or 0) if strong & {"SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_CATEGORY"} else 0)
+                    (r.get("award_amt") or 0) if strong & {"SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_DIVISION"} else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
             money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
         if only:
@@ -291,6 +292,9 @@ def signal_lines(r):
                      f"(+{r['elim_gap_pct'] * 100:.0f}%).")
     if "SUPPLIER_NO_HISTORY" in c:
         lines.append("Переможець не мав жодної перемоги в Prozorro за попередні 24 місяці.")
+    m = re.search(r"CPV (\d+)\*", r["flags"].get("SUPPLIER_NEW_IN_DIVISION", ""))
+    if "SUPPLIER_NEW_IN_DIVISION" in c and m:
+        lines.append(f"Переможець раніше взагалі не працював у цій сфері (розділ CPV {m.group(1)}…) за 24 місяці.")
     m = re.search(r"CPV (\d+)\*", r["flags"].get("SUPPLIER_NEW_IN_CATEGORY", ""))
     if "SUPPLIER_NEW_IN_CATEGORY" in c and m:
         lines.append(f"Переможець раніше не вигравав закупівель цієї групи (CPV {m.group(1)}…) за 24 місяці.")
@@ -473,7 +477,8 @@ TAGS = {
     "PRICE_ABOVE_PEERS": "завищена_ціна", "CHEAPER_BIDS_WITHDREW": "дешевші_відмовились",
     "CHEAPER_BIDS_REJECTED": "дешевших_відхилено", "REPEAT_WITHDRAWAL_PAIR": "повторне_поступання",
     "SHARED_BIDDER_CONTACTS": "спільні_контакти", "AMCU_COMPLAINT_UPHELD": "скарга_АМКУ",
-    "SUPPLIER_NO_HISTORY": "постачальник_без_історії", "SUPPLIER_NEW_IN_CATEGORY": "новачок_у_категорії",
+    "SUPPLIER_NO_HISTORY": "постачальник_без_історії", "SUPPLIER_NEW_IN_CATEGORY": "новачок_у_групі",
+    "SUPPLIER_NEW_IN_DIVISION": "новачок_у_сфері",
     "BID_AT_ESTIMATE_EXACT": "ціна_як_очікувана", "CONTRACT_ABOVE_AWARD": "договір_більший_за_рішення",
     "COMPETITORS_ELIMINATED": "усунення_конкурентів", "SUPPLIER_CONCENTRATION": "домінування",
     "POSSIBLE_SPLIT_PURCHASE": "поділ_закупівлі", "DIRECT_AWARD_HIGH_VALUE": "без_конкуренції",
@@ -496,7 +501,7 @@ def main_tag(r):
                "PRICE_ABOVE_PEERS": pi.get("excess") or 0, "AMCU_COMPLAINT_UPHELD": 0.05 * est,
                "SHARED_BIDDER_CONTACTS": 0.05 * est, "REPEAT_WITHDRAWAL_PAIR": 0.05 * est,
                "BID_AT_ESTIMATE_EXACT": 0.02 * est, "SUPPLIER_NO_HISTORY": r.get("award_amt") or 0,
-               "SUPPLIER_NEW_IN_CATEGORY": r.get("award_amt") or 0}
+               "SUPPLIER_NEW_IN_DIVISION": r.get("award_amt") or 0}
     known = [c for c in codes if c in TAGS]
     if not known:
         return None
