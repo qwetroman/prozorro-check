@@ -1,6 +1,6 @@
 {
  "state": {
-  "tg_offset": "705662568",
+  "tg_offset": "705662572",
   "paused": null,
   "last_draft": "2026-11-10T15:36:26.974639+00:00",
   "last_channel_post": "2026-11-10T15:20:50.692593+00:00",
@@ -2698,12 +2698,12 @@
   {
    "tender_id": "UA-2026-08-07-010011-a",
    "created": "2026-11-10T15:36:09.927245+00:00",
-   "status": "in_review",
+   "status": "published",
    "text": "АТ «Національна Атомна Е…: Трубні дошки: лот 1 - Констру…, 52,1 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 149 287 грн (+1%).\nАМКУ задовольнив скаргу в цій закупівлі.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-08-07-010011-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
-   "x_id": null,
-   "published_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-10T15:40:53.277717+00:00",
+   "x_id": "manual",
+   "published_at": "2026-11-10T15:40:57.177573+00:00",
    "tg_channel_msg_id": null,
    "kind": "tender",
    "features": null,
