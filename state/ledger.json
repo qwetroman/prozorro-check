@@ -1,12 +1,12 @@
 {
  "state": {
-  "tg_offset": "705662550",
+  "tg_offset": "705662552",
   "paused": null,
-  "last_draft": "2026-11-10T00:42:09.414936+00:00",
+  "last_draft": "2026-11-10T02:01:56.970500+00:00",
   "last_channel_post": "2026-11-09T19:20:34.499835+00:00",
   "last_digest": null,
   "schedule_msg_id": "264",
-  "watermark": "2026-11-10T03:36:03.721225+02:00"
+  "watermark": "2026-11-10T04:00:00.202663+02:00"
  },
  "posts": [
   {
@@ -4128,10 +4128,10 @@
   {
    "tender_id": "UA-2026-10-16-008367-a",
    "created": "2026-11-10T00:41:30.681042+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "Служба відновлення та розвитку інфраструктури в І…: (Легкові автомобілі) – Легковий автомобіль, 1,8 млн грн.\nЦіна 1 832 500 грн/штука — у 1,9 раза вища за медіану (966 667 грн) у 5 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-16-008367-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-10T02:01:52.951498+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
@@ -4814,10 +4814,10 @@
   {
    "tender_id": "UA-2026-11-03-010596-a",
    "created": "2026-11-10T00:41:37.679995+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "КНП \"Одеська Обласна Клінічна Ліка…: Фармацевтична продукція (Фентаніл, розчин для ін'єкцій, 0,05…, 1,0 млн грн.\nЦіна 86,00 грн/штука — у 2,6 раза вища за медіану (32,50 грн) у 10 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-11-03-010596-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-10T02:01:51.979121+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
