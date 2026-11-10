@@ -57,6 +57,8 @@ CFG = {
     "split_window_days": 30,
     "split_min_count": 3,
     "split_max_count": 10,             # десятки договорів за місяць - це вже звичайна робота, а не поділ
+    "supplier_complaints_min": 3,      # історія скарг: щонайменше 3 інші закупівлі зі скаргами на перемогу постачальника
+    "supplier_upheld_min": 2,          # ... або 2, де АМКУ скаргу задовольнив
     "concentration_min_contracts": 5,
     "concentration_share": 0.60,       # один постачальник отримує >= 60% вартості конкурентних перемог замовника
     "ratio_min_group": 30,
@@ -282,7 +284,9 @@ def complaints_of(t):
     for a in [t] + (t.get("awards") or []):
         on = "тендер" if a is t else f"рішення:{a.get('status')}:{_party((a.get('suppliers') or [{}])[0])[1]}"
         for c in a.get("complaints") or []:
-            out.append(dict(type=c.get("type"), status=c.get("status"), on=on, date=c.get("dateDecision") or c.get("date")))
+            out.append(dict(type=c.get("type"), status=c.get("status"), on=on, date=c.get("dateDecision") or c.get("date"),
+                            author=((c.get("author") or {}).get("identifier") or {}).get("id"),
+                            res=c.get("resolutionType")))
     return out
 
 
@@ -410,6 +414,29 @@ def meta_set(con, k, v):
     con.commit()
 
 
+# прапорці, які залежать лише від стану самого тендера: якщо тендер змінився (напр. дешевший учасник відмовився
+# і переможцем став інший), застарілі треба прибрати, інакше в дописі опиниться суперечлива інформація
+PER_TENDER = ("AMCU_COMPLAINT_UPHELD", "AWARD_AT_ESTIMATE", "BID_AT_ESTIMATE_EXACT", "CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED",
+              "COMPETITORS_ELIMINATED", "CONTRACT_ABOVE_AWARD", "DIRECT_AWARD_HIGH_VALUE", "JUST_BELOW_THRESHOLD",
+              "NEGOTIATION_NO_JUSTIFICATION", "SHARED_BIDDER_CONTACTS", "SHORT_BID_PERIOD", "SINGLE_BIDDER",
+              "VERY_LOW_AWARD", "BUYER_FIXED_AFTER_CLAIM", "MULTIPLE_COMPLAINANTS", "RATIO_OUTLIER")   # RATIO_OUTLIER - груповий, але залежить від суми цього тендера
+
+
+def refresh_flags(con, recs):
+    """Перераховує прапорці оновлених тендерів і прибирає ті, що вже не справджуються."""
+    out, q = [], ",".join("?" * len(PER_TENDER))
+    for r in recs:
+        fl = tender_flags(r)
+        keep = {code for _, code, _, _ in fl}
+        stale = [c for c in PER_TENDER if c not in keep and c != "RATIO_OUTLIER"] + ["RATIO_OUTLIER"]
+        con.execute(f"DELETE FROM flags WHERE tender_id=? AND code IN ({','.join('?' * len(stale))})", (r["id"], *stale))
+        for _, code, _, detail in fl:   # оновлюємо текст (суми могли змінитися), але зберігаємо first_seen
+            con.execute("UPDATE flags SET detail=? WHERE tender_id=? AND code=?", (detail, r["id"], code))
+        out += fl
+    con.commit()
+    return out
+
+
 def save_flags(con, flags, stamp):
     """Зберігає прапорці; повертає лише нові (щоб сповіщення не повторювалися)."""
     new = []
@@ -471,9 +498,17 @@ def tender_flags(r: dict):
         add("SHARED_BIDDER_CONTACTS", 3, "; ".join(
             f"збіг ({h['field']}): " + " & ".join(n or i for i, n in h["bidders"]) for h in sc)[:400])
     if r.get("complaints"):
-        sat = [c for c in json.loads(r["complaints"]) if c["type"] == "complaint" and c["status"] == "satisfied"]
+        cl = json.loads(r["complaints"])
+        # resolved = АМКУ задовольнив скаргу, і замовник виконав рішення
+        sat = [c for c in cl if c["type"] == "complaint" and c["status"] in ("satisfied", "resolved")]
         if sat:
             add("AMCU_COMPLAINT_UPHELD", 2, f"АМКУ задовольнив скарг: {len(sat)} ({sat[0]['on']})")
+        fixed = [c for c in cl if c["type"] == "claim" and c.get("res") == "resolved"]
+        if fixed:
+            add("BUYER_FIXED_AFTER_CLAIM", 1, f"Замовник визнав вимоги учасників і змінив рішення/умови: {len(fixed)}")
+        who = {c.get("author") for c in cl if c.get("author") and c["status"] not in ("draft", "cancelled", "mistaken")}
+        if len(who) >= 2:
+            add("MULTIPLE_COMPLAINANTS", 1, f"Скарги/вимоги від {len(who)} різних учасників")
 
     if not competitive and big:
         add("DIRECT_AWARD_HIGH_VALUE", 1, f"Неконкурентна процедура на {est:,.0f} грн")
@@ -631,6 +666,23 @@ def aggregate_flags(con, days: int):
             b["n"] += 1
             b["single"] += r["n_bids"] == 1
             b["expected"] = b.get("expected", 0) + rate.get(r["mtype"], pop_rate)
+    # 5) історія скарг постачальника: на рішення на його користь раніше скаржилися (дані - таблиця awards, ~400 днів)
+    if con.execute("SELECT name FROM sqlite_master WHERE name='awards'").fetchone():
+        cols = {x[1] for x in con.execute("PRAGMA table_info(awards)")}
+        if {"n_cpl", "n_upheld"} <= cols:
+            hist = defaultdict(list)
+            for a in con.execute("SELECT supplier_id, tender_id, n_cpl, n_upheld FROM awards WHERE n_cpl > 0"):
+                hist[a[0]].append((a[1], a[2], a[3]))
+            for r in rows:
+                if r["status"] not in DONE or not r["supplier_id"] or r["supplier_id"] not in hist:
+                    continue
+                other = [h for h in hist[r["supplier_id"]] if h[0] != r["tender_id"]]
+                up = sum(1 for h in other if h[2])
+                if up >= CFG["supplier_upheld_min"] or len(other) >= CFG["supplier_complaints_min"]:
+                    add(r["id"], "SUPPLIER_COMPLAINT_HISTORY", 2,
+                        f"На перемоги цього постачальника раніше скаржилися в {len(other)} закупівлях "
+                        f"(АМКУ задовольнив: {up})")
+
     for bid, b in stats.items():
         m = CFG["buyer_min_tenders"]
         exp = b.get("expected", 0)
@@ -737,7 +789,7 @@ def cmd_run(args):
                 break
             recs = [r for r in ex.map(work, batch) if r]
             upsert(con, recs)
-            new += save_flags(con, [f for r in recs for f in tender_flags(r)], stamp)
+            new += save_flags(con, refresh_flags(con, recs), stamp)
             meta_set(con, "watermark", batch[-1]["dateModified"])  # прогрес зберігається після кожної партії
             total += len(recs)
             log(f"збережено тендерів: {total} (до {batch[-1]['dateModified']})")
