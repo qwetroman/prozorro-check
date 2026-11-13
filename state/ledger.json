@@ -1,6 +1,6 @@
 {
  "state": {
-  "tg_offset": "705662686",
+  "tg_offset": "705662688",
   "paused": null,
   "last_draft": "2026-11-13T15:41:06.607184+00:00",
   "last_channel_post": "2026-11-13T15:50:59.948762+00:00",
@@ -14428,12 +14428,12 @@
   {
    "tender_id": "UA-2026-11-13-011678-a",
    "created": "2026-11-13T14:09:27.383235+00:00",
-   "status": "in_review",
+   "status": "published",
    "text": "АТ Полтаваобленерго: ДК 021-2015 -Інженерні та буд…, 5,9 млн грн (+2 аналогічн. лот.).\nПереможець раніше взагалі не працював у цій сфері (розділ CPV 45…) за 24 місяці.\nНеконкурентна процедура на 5,9 млн грн.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-11-13-011678-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
-   "x_id": null,
-   "published_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-13T16:11:57.097783+00:00",
+   "x_id": "manual",
+   "published_at": "2026-11-13T16:12:02.060949+00:00",
    "tg_channel_msg_id": null,
    "kind": "tender",
    "features": null,
