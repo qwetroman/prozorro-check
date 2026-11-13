@@ -1,5 +1,5 @@
 {
- "trained_at": "2026-11-13T11:39:35.503868+00:00",
+ "trained_at": "2026-11-13T12:07:15.435630+00:00",
  "n": 60,
  "n_approved": 39,
  "n_rejected": 21,
@@ -109,8 +109,8 @@
   "flag:REPEAT_WITHDRAWAL_PAIR&est>1m": 0.0251,
   "flag:VERY_LOW_AWARD&est>1m": 0.0251,
   "method:open": -0.0233,
-  "flag:POSSIBLE_SPLIT_PURCHASE&est>1m": 0.0174,
   "flag:POSSIBLE_SPLIT_PURCHASE": 0.0174,
+  "flag:POSSIBLE_SPLIT_PURCHASE&est>1m": 0.0174,
   "cpv2:18": 0.0142,
   "log_award": 0.0134,
   "cpv2:43": 0.0105,
