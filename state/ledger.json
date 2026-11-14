@@ -76,8 +76,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.1045}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 220,
-   "review_sent_at": null
+   "review_msg_id": 1142,
+   "review_sent_at": "2026-11-14T23:01:22.009360+00:00"
   },
   {
    "tender_id": "PAT-BUY-single-01996792-2026Q4",
@@ -161,8 +161,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.3805}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 205,
-   "review_sent_at": null
+   "review_msg_id": 1139,
+   "review_sent_at": "2026-11-14T23:01:20.234190+00:00"
   },
   {
    "tender_id": "PAT-BUY-single-02220763-2026Q4",
@@ -824,8 +824,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.2282}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 213,
-   "review_sent_at": null
+   "review_msg_id": 1141,
+   "review_sent_at": "2026-11-14T23:01:21.417780+00:00"
   },
   {
    "tender_id": "PAT-BUY-single-43927048-2026Q4",
@@ -892,8 +892,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.6933}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 193,
-   "review_sent_at": null
+   "review_msg_id": 1138,
+   "review_sent_at": "2026-11-14T23:01:19.444141+00:00"
   },
   {
    "tender_id": "PAT-BUY-single-44124263-2026Q4",
@@ -943,8 +943,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.712}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 245,
-   "review_sent_at": null
+   "review_msg_id": 1146,
+   "review_sent_at": "2026-11-14T23:01:24.442767+00:00"
   },
   {
    "tender_id": "PAT-BUY-single-45656012-2026Q4",
@@ -960,8 +960,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 14.7484}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 241,
-   "review_sent_at": null
+   "review_msg_id": 1145,
+   "review_sent_at": "2026-11-14T23:01:23.842987+00:00"
   },
   {
    "tender_id": "PAT-DOM-02070921-40658777",
@@ -994,8 +994,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 7, \"n_buyer\": 9, \"share\": 0.988, \"log_total\": 14.6604, \"one_bid_share\": 0.857, \"category\": \"goods\"}",
    "text_tg": "Заклад професійної (професійно-технічної) ос…: ТОВ \"Фроніус Україна\" отримав 7 з 9 конкурентних закупівель за 180 дн., 99% їхньої вартості (2,3 млн грн).\nУ 6 з 7 була лише одна пропозиція.\nЄДРПОУ: замовник 02544610, переможець 33565713\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-08-31-007063-a #Prozorro",
    "note": null,
-   "review_msg_id": 249,
-   "review_sent_at": null
+   "review_msg_id": 1147,
+   "review_sent_at": "2026-11-14T23:01:25.083346+00:00"
   },
   {
    "tender_id": "PAT-DOM-02549204-13683489",
@@ -1028,8 +1028,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 8, \"n_buyer\": 8, \"share\": 1.0, \"log_total\": 14.8318, \"one_bid_share\": 1.0, \"category\": \"services\"}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 237,
-   "review_sent_at": null
+   "review_msg_id": 1144,
+   "review_sent_at": "2026-11-14T23:01:23.223042+00:00"
   },
   {
    "tender_id": "PAT-DOM-04369699-42844920",
@@ -1130,8 +1130,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 5, \"n_buyer\": 8, \"share\": 0.809, \"log_total\": 16.0861, \"one_bid_share\": 0.0, \"category\": \"goods\"}",
    "text_tg": null,
    "note": null,
-   "review_msg_id": 181,
-   "review_sent_at": null
+   "review_msg_id": 1137,
+   "review_sent_at": "2026-11-14T23:01:18.829579+00:00"
   },
   {
    "tender_id": "PAT-DOM-37501648-41235604",
@@ -1181,8 +1181,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 5, \"n_buyer\": 5, \"share\": 1.0, \"log_total\": 15.3511, \"one_bid_share\": 1.0, \"category\": \"services\"}",
    "text_tg": "Державна Установа \"Львівський Обласний Центр…: ПП Олбуд отримав 5 з 5 конкурентних закупівель за 180 дн., 100% їхньої вартості (4,6 млн грн).\nУ 5 з 5 була лише одна пропозиція.\nЄДРПОУ: замовник 38501853, переможець 32408385\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-09-012758-a #Prozorro",
    "note": null,
-   "review_msg_id": 207,
-   "review_sent_at": null
+   "review_msg_id": 1140,
+   "review_sent_at": "2026-11-14T23:01:20.824302+00:00"
   },
   {
    "tender_id": "PAT-DOM-39604270-41239593",
@@ -1198,8 +1198,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 6, \"n_buyer\": 8, \"share\": 0.744, \"log_total\": 15.0191, \"one_bid_share\": 1.0, \"category\": \"services\"}",
    "text_tg": "КП «Керуюча компанія з обслуговування житлов…: ТОВ \"Промстройгрупп\" отримав 6 з 8 конкурентних закупівель за 180 дн., 74% їхньої вартості (3,3 млн грн).\nУ 6 з 6 була лише одна пропозиція.\nЄДРПОУ: замовник 39604270, переможець 41239593\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-07-004055-a #Prozorro",
    "note": null,
-   "review_msg_id": 229,
-   "review_sent_at": null
+   "review_msg_id": 1143,
+   "review_sent_at": "2026-11-14T23:01:22.609179+00:00"
   },
   {
    "tender_id": "PAT-DOM-39609111-41235604",
@@ -1215,8 +1215,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 6, \"n_buyer\": 8, \"share\": 0.824, \"log_total\": 16.3318, \"one_bid_share\": 1.0, \"category\": \"works\"}",
    "text_tg": "КП \"Керуюча Компанія З Обслуговування Житлов…: ТОВ \"Будівельна Компанія \"МЕГА Стайл\"\" отримав 6 з 8 конкурентних закупівель за 180 дн., 82% їхньої вартості (12,4 млн грн).\nУ 6 з 6 була лише одна пропозиція.\nЄДРПОУ: замовник 39609111, переможець 41235604\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-09-08-006513-a #Prozorro",
    "note": null,
-   "review_msg_id": 174,
-   "review_sent_at": null
+   "review_msg_id": 1135,
+   "review_sent_at": "2026-11-14T23:01:15.001827+00:00"
   },
   {
    "tender_id": "PAT-DOM-40535043-42774816",
@@ -1266,8 +1266,8 @@
    "features": "{\"kind\": \"pattern\", \"pattern\": \"dominance\", \"n\": 8, \"n_buyer\": 18, \"share\": 0.742, \"log_total\": 16.1243, \"one_bid_share\": 1.0, \"category\": \"services\"}",
    "text_tg": "Департамент З Питань Самоорганізації Населен…: ТОВ \"Будівельна Компанія „Голден Сервіс… отримав 8 з 18 конкурентних закупівель за 180 дн., 74% їхньої вартості (10,1 млн грн).\nУ 8 з 8 була лише одна пропозиція.\nЄДРПОУ: замовник 44124263, переможець 45509065\nСигнал ризику, не доказ порушення.\nПриклад: https://prozorro.gov.ua/tender/UA-2026-10-21-005517-a #Prozorro",
    "note": null,
-   "review_msg_id": 179,
-   "review_sent_at": null
+   "review_msg_id": 1136,
+   "review_sent_at": "2026-11-14T23:01:18.177189+00:00"
   },
   {
    "tender_id": "PAT-SPLIT-00130694-45310-2026-11",
@@ -10837,8 +10837,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 260,
-   "review_sent_at": null
+   "review_msg_id": 1149,
+   "review_sent_at": "2026-11-14T23:01:26.268148+00:00"
   },
   {
    "tender_id": "UA-2026-10-14-003289-a",
@@ -12911,8 +12911,8 @@
    "features": null,
    "text_tg": "Богданівський ліцей з гімназією та початковою шко…: Дизельне паливо, 174 504 грн.\nУ конкурентній процедурі була лише одна пропозиція.\nЦіна рішення — 80% очікуваної, тоді як зазвичай у цій категорії 98%.\nЄДРПОУ: замовник 23087009, переможець 32938047\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-21-001768-a #Prozorro",
    "note": null,
-   "review_msg_id": 259,
-   "review_sent_at": null
+   "review_msg_id": 1148,
+   "review_sent_at": "2026-11-14T23:01:25.682194+00:00"
   },
   {
    "tender_id": "UA-2026-10-21-001769-a",
