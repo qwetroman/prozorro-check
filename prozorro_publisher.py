@@ -637,10 +637,11 @@ def handle_update(con, u):
             answer_cb(q, text="Схвалено — стане в чергу")
             set_review_status(con, tid, "✅ Схвалено, у черзі на публікацію")
         elif action == "no":
-            con.execute("UPDATE posts SET status='rejected', approved_by=? WHERE tender_id=?", (uid, tid))
+            con.execute("UPDATE posts SET status='rejected', approved_by=?, approved_at=? WHERE tender_id=?",
+                        (uid, now().isoformat(), tid))
             con.commit()
             answer_cb(q, text="Відхилено")
-            set_review_status(con, tid, "❌ Відхилено")
+            remove_review(con, tid, "❌ Відхилено")       # відхилена чернетка зникає з чату одразу
         elif action == "ed":
             res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
                      text=f"Надішліть новий текст для {tid} відповіддю (reply) на це повідомлення. "
