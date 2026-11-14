@@ -20,5 +20,7 @@
   "post_to_x": true,
   "channel_minutes_between_posts": 60,
   "digest_hour_kyiv": 18,
-  "delete_resolved_after_hours": 24
+  "delete_resolved_after_hours": 24,
+  "resend_after_hours": 40,
+  "resend_max_per_run": 15
 }
