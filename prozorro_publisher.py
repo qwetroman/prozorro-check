@@ -1195,6 +1195,15 @@ def update_schedule(con):
     # одне закріплене повідомлення в чаті перевірки, яке оновлюється щоразу (без сповіщень)
     text = schedule_html(con)
     mid = meta(con, "schedule_msg_id")
+    if mid and meta(con, "pins_reset") != "1":
+        # одноразово: прибрати всі старі закріплені повідомлення, що накопичилися раніше, і закріпити лише поточний розклад
+        try:
+            tg("unpinAllChatMessages", chat_id=ENV("TG_REVIEW_CHAT_ID"))
+            tg("pinChatMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=int(mid), disable_notification=True)
+            meta(con, "pins_reset", "1")
+            log("розклад: старі закріплені відкріплено, закріплено лише поточний")
+        except Exception as e:
+            log(f"розклад: не вдалося очистити закріплені ({e})")
     if mid:
         try:
             tg("editMessageText", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=int(mid), text=text,
@@ -1204,6 +1213,10 @@ def update_schedule(con):
             if "not modified" in str(e):
                 return
             log(f"розклад: не вдалося оновити ({e}), надсилаю новий")
+            try:                    # старе повідомлення відкріплюємо, щоб закріплені не накопичувалися
+                tg("unpinChatMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=int(mid))
+            except Exception as e2:
+                log(f"розклад: не вдалося відкріпити старе ({e2})")
     res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=text, parse_mode="HTML",
              disable_web_page_preview=True, disable_notification=True)
     meta(con, "schedule_msg_id", res["message_id"])
@@ -1293,7 +1306,7 @@ def cmd_ledger_export(con, args):
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
         "kind, features, text_tg, CASE WHEN note='edited' THEN note END AS note, review_msg_id FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest",
-                                     "schedule_msg_id", "channel_refresh")}
+                                     "schedule_msg_id", "channel_refresh", "pins_reset")}
     try:
         st["watermark"] = con.execute("SELECT v FROM meta WHERE k='watermark'").fetchone()[0]
     except Exception:
@@ -1319,7 +1332,7 @@ def cmd_ledger_import(con, args):
                      "review_msg_id": None, **p})
     st = j.get("state", {})
     for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest", "schedule_msg_id",
-              "channel_refresh"):
+              "channel_refresh", "pins_reset"):
         if st.get(k) and not meta(con, k):
             meta(con, k, st[k])
     if st.get("watermark"):
