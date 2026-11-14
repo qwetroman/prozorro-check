@@ -2,13 +2,13 @@
  "state": {
   "tg_offset": "705662714",
   "paused": null,
-  "last_draft": "2026-11-14T21:08:52.734623+00:00",
+  "last_draft": "2026-11-14T22:38:53.794945+00:00",
   "last_channel_post": "2026-11-14T18:40:46.546923+00:00",
   "last_digest": null,
   "schedule_msg_id": "1029",
   "channel_refresh": "1",
   "pins_reset": "1",
-  "watermark": "2026-11-15T00:05:09.949428+02:00"
+  "watermark": "2026-11-15T00:35:27.241499+02:00"
  },
  "posts": [
   {
@@ -299,6 +299,23 @@
    "note": null,
    "review_msg_id": null,
    "review_sent_at": null
+  },
+  {
+   "tender_id": "PAT-BUY-single-13711949-2026Q4",
+   "created": "2026-11-14T22:38:47.008319+00:00",
+   "status": "in_review",
+   "text": "КП Броварської міськради Броварського Району…: за останні 30 днів 8/10 конкурентних тендерів мали одну пропозицію (очікувано близько 5 для такого набору процедур).\nЄДРПОУ: замовник 13711949\nСигнал ризику, не доказ порушення.\n#Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "pattern",
+   "features": "{\"kind\": \"pattern\", \"pattern\": \"buyer_single\", \"log_total\": 15.9646}",
+   "text_tg": null,
+   "note": null,
+   "review_msg_id": 1073,
+   "review_sent_at": "2026-11-14T22:38:47.418271+00:00"
   },
   {
    "tender_id": "PAT-BUY-single-24241808-2026Q4",
@@ -3629,8 +3646,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 89,
-   "review_sent_at": null
+   "review_msg_id": 1084,
+   "review_sent_at": "2026-11-14T22:39:01.786229+00:00"
   },
   {
    "tender_id": "UA-2026-08-12-011440-a",
@@ -5873,8 +5890,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 80,
-   "review_sent_at": null
+   "review_msg_id": 1078,
+   "review_sent_at": "2026-11-14T22:38:57.214292+00:00"
   },
   {
    "tender_id": "UA-2026-09-28-005320-a",
@@ -7267,8 +7284,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 92,
-   "review_sent_at": null
+   "review_msg_id": 1087,
+   "review_sent_at": "2026-11-14T22:39:03.949899+00:00"
   },
   {
    "tender_id": "UA-2026-10-02-011495-a",
@@ -7369,8 +7386,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 87,
-   "review_sent_at": null
+   "review_msg_id": 1083,
+   "review_sent_at": "2026-11-14T22:39:01.052944+00:00"
   },
   {
    "tender_id": "UA-2026-10-05-001179-a",
@@ -7743,8 +7760,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 83,
-   "review_sent_at": null
+   "review_msg_id": 1080,
+   "review_sent_at": "2026-11-14T22:38:58.690415+00:00"
   },
   {
    "tender_id": "UA-2026-10-06-001129-a",
@@ -8015,8 +8032,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 91,
-   "review_sent_at": null
+   "review_msg_id": 1086,
+   "review_sent_at": "2026-11-14T22:39:03.222900+00:00"
   },
   {
    "tender_id": "UA-2026-10-06-009547-a",
@@ -9443,8 +9460,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 81,
-   "review_sent_at": null
+   "review_msg_id": 1079,
+   "review_sent_at": "2026-11-14T22:38:57.935621+00:00"
   },
   {
    "tender_id": "UA-2026-10-09-009101-a",
@@ -9647,8 +9664,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 77,
-   "review_sent_at": null
+   "review_msg_id": 1075,
+   "review_sent_at": "2026-11-14T22:38:54.985344+00:00"
   },
   {
    "tender_id": "UA-2026-10-09-013040-a",
@@ -10004,8 +10021,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 86,
-   "review_sent_at": null
+   "review_msg_id": 1082,
+   "review_sent_at": "2026-11-14T22:39:00.300548+00:00"
   },
   {
    "tender_id": "UA-2026-10-12-007747-a",
@@ -10684,8 +10701,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 84,
-   "review_sent_at": null
+   "review_msg_id": 1081,
+   "review_sent_at": "2026-11-14T22:38:59.415764+00:00"
   },
   {
    "tender_id": "UA-2026-10-13-014361-a",
@@ -12095,8 +12112,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 95,
-   "review_sent_at": null
+   "review_msg_id": 1089,
+   "review_sent_at": "2026-11-14T22:39:05.395602+00:00"
   },
   {
    "tender_id": "UA-2026-10-19-005324-a",
@@ -12741,8 +12758,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 78,
-   "review_sent_at": null
+   "review_msg_id": 1076,
+   "review_sent_at": "2026-11-14T22:38:55.709350+00:00"
   },
   {
    "tender_id": "UA-2026-10-20-013199-a",
@@ -13064,8 +13081,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 90,
-   "review_sent_at": null
+   "review_msg_id": 1085,
+   "review_sent_at": "2026-11-14T22:39:02.491720+00:00"
   },
   {
    "tender_id": "UA-2026-10-21-011412-a",
@@ -13693,8 +13710,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 93,
-   "review_sent_at": null
+   "review_msg_id": 1088,
+   "review_sent_at": "2026-11-14T22:39:04.677152+00:00"
   },
   {
    "tender_id": "UA-2026-10-23-004850-a",
@@ -15189,8 +15206,8 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 79,
-   "review_sent_at": null
+   "review_msg_id": 1077,
+   "review_sent_at": "2026-11-14T22:38:56.468324+00:00"
   },
   {
    "tender_id": "UA-2026-10-30-007692-a",
@@ -15463,6 +15480,23 @@
    "note": null,
    "review_msg_id": 415,
    "review_sent_at": null
+  },
+  {
+   "tender_id": "UA-2026-11-03-002493-a",
+   "created": "2026-11-14T22:38:50.420440+00:00",
+   "status": "in_review",
+   "text": "Управління освіти і наук…: Капітальний ремонт санвузлів…, 843 968 грн (+1 аналогічн. лот.).\n3 схожих допорогових закупівель за 30 дн. на 2,4 млн грн (поріг 1,5 млн грн): можливий поділ закупівлі.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-11-03-002493-a #Prozorro",
+   "approved_by": null,
+   "approved_at": null,
+   "x_id": null,
+   "published_at": null,
+   "tg_channel_msg_id": null,
+   "kind": "explore",
+   "features": null,
+   "text_tg": "Управління освіти і науки Бориспільської міськради: Капітальний ремонт санвузлів Бориспільського ліцею \"Основа, 843 968 грн (+1 аналогічн. лот.).\n3 схожих допорогових закупівель за 30 дн. на 2,4 млн грн (поріг 1,5 млн грн): можливий поділ закупівлі.\nЄДРПОУ: замовник 05408355, переможець 40827326\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-11-03-002493-a #Prozorro",
+   "note": null,
+   "review_msg_id": 1074,
+   "review_sent_at": "2026-11-14T22:38:50.791016+00:00"
   },
   {
    "tender_id": "UA-2026-11-03-003684-a",
