@@ -132,7 +132,7 @@ def db():
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
     have = {r[1] for r in con.execute("PRAGMA table_info(posts)")}
-    for c in ("kind", "features", "text_tg", "resolved_at"):  # kind: tender/pattern/explore; features: ознаки; text_tg: повний текст для каналу
+    for c in ("kind", "features", "text_tg", "resolved_at", "review_sent_at"):  # kind: tender/pattern/explore; features: ознаки; text_tg: повний текст для каналу
         if c not in have:
             con.execute(f"ALTER TABLE posts ADD COLUMN {c} TEXT")
     return con
@@ -573,10 +573,11 @@ def review_html(tid, text, ctx, status=None, full=None):
     return s[:4090]
 
 
-def send_for_review(con, tid, text, ctx, full=None):
+def send_for_review(con, tid, text, ctx, full=None, silent=False):
     res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), text=review_html(tid, text, ctx, full=full), parse_mode="HTML",
-             disable_web_page_preview=True, reply_markup=buttons(tid))
-    con.execute("UPDATE posts SET status='in_review', review_msg_id=? WHERE tender_id=?", (res["message_id"], tid))
+             disable_web_page_preview=True, reply_markup=buttons(tid), disable_notification=silent)
+    con.execute("UPDATE posts SET status='in_review', review_msg_id=?, review_sent_at=? WHERE tender_id=?",
+                (res["message_id"], now().isoformat(), tid))
     con.commit()
 
 
@@ -1191,6 +1192,32 @@ def cleanup_resolved(con):
         log(f"видалено оброблених чернеток із чату: {gone} з {len(rows)}")
 
 
+def resend_stale(con):
+    """Чернетки без відповіді надсилаються в чат заново, доки Telegram ще дозволяє видалити старе повідомлення (48 год).
+    Старе видаляємо (якщо вже не вдається, воно просто лишається), нове приходить без сповіщення.
+    За прохід не більше resend_max_per_run, щоб не заливати чат; найстаріші першими."""
+    hours = CFG.get("resend_after_hours") or 0
+    if not hours:
+        return
+    cut = (now() - timedelta(hours=hours)).isoformat()
+    rows = con.execute("SELECT tender_id, text, context, text_tg, review_msg_id FROM posts "
+                       "WHERE status='in_review' AND review_msg_id IS NOT NULL "
+                       "AND COALESCE(review_sent_at, created) <= ? ORDER BY COALESCE(review_sent_at, created) "
+                       "LIMIT ?", (cut, CFG.get("resend_max_per_run") or 15)).fetchall()
+    for r in rows:
+        try:
+            tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=r["review_msg_id"])
+        except Exception:
+            pass                    # старіше за 48 год або вже видалено: лишається в чаті, його можна прибрати вручну
+        try:
+            send_for_review(con, r["tender_id"], r["text"], r["context"] or "", full=r["text_tg"], silent=True)
+        except Exception as e:
+            log(f"не вдалося надіслати чернетку {r['tender_id']} заново: {e}")
+            break
+    if rows:
+        log(f"чернеток надіслано заново: {len(rows)}")
+
+
 def update_schedule(con):
     # одне закріплене повідомлення в чаті перевірки, яке оновлюється щоразу (без сповіщень)
     text = schedule_html(con)
@@ -1245,6 +1272,10 @@ def cmd_telegram(con, args):
     except Exception as e:
         log(f"помилка прибирання чату: {e}")
     try:
+        resend_stale(con)
+    except Exception as e:
+        log(f"помилка повторного надсилання чернеток: {e}")
+    try:
         refresh_channel_posts(con)
     except Exception as e:
         log(f"помилка оновлення старих дописів каналу: {e}")
@@ -1272,6 +1303,10 @@ def cmd_ci(con, args):
         cleanup_resolved(con)
     except Exception as e:
         log(f"помилка прибирання чату: {e}")
+    try:
+        resend_stale(con)
+    except Exception as e:
+        log(f"помилка повторного надсилання чернеток: {e}")
     try:
         refresh_channel_posts(con)
     except Exception as e:
@@ -1304,7 +1339,7 @@ def cmd_ledger_export(con, args):
     """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
-        "kind, features, text_tg, CASE WHEN note='edited' THEN note END AS note, review_msg_id FROM posts")]
+        "kind, features, text_tg, CASE WHEN note='edited' THEN note END AS note, review_msg_id, review_sent_at FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest",
                                      "schedule_msg_id", "channel_refresh", "pins_reset")}
     try:
@@ -1325,11 +1360,11 @@ def cmd_ledger_import(con, args):
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
         con.execute("""INSERT OR IGNORE INTO posts (tender_id, created, status, text, approved_by, approved_at, x_id,
-                       published_at, tg_channel_msg_id, kind, features, text_tg, note, review_msg_id) VALUES (:tender_id,:created,
+                       published_at, tg_channel_msg_id, kind, features, text_tg, note, review_msg_id, review_sent_at) VALUES (:tender_id,:created,
                        :status,:text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg,
-                       :note,:review_msg_id)""",
+                       :note,:review_msg_id,:review_sent_at)""",
                     {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, "note": None,
-                     "review_msg_id": None, **p})
+                     "review_msg_id": None, "review_sent_at": None, **p})
     st = j.get("state", {})
     for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest", "schedule_msg_id",
               "channel_refresh", "pins_reset"):
