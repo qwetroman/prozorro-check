@@ -1,12 +1,13 @@
 {
  "state": {
-  "tg_offset": "705662706",
+  "tg_offset": "705662712",
   "paused": null,
   "last_draft": "2026-11-14T21:08:52.734623+00:00",
   "last_channel_post": "2026-11-14T18:40:46.546923+00:00",
   "last_digest": null,
   "schedule_msg_id": "1029",
   "channel_refresh": "1",
+  "pins_reset": "1",
   "watermark": "2026-11-15T00:05:09.949428+02:00"
  },
  "posts": [
@@ -6173,10 +6174,10 @@
   {
    "tender_id": "UA-2026-09-30-012213-a",
    "created": "2026-11-08T23:40:43.450851+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "Департамент Цивільного Захисту Дніпропетровської…: Сітка металева захисна, 10,7 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 3,5 млн грн (+49%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-09-30-012213-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-14T22:15:39.898913+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
@@ -6813,10 +6814,10 @@
   {
    "tender_id": "UA-2026-10-02-011400-a",
    "created": "2026-11-08T23:40:46.309439+00:00",
-   "status": "in_review",
+   "status": "rejected",
    "text": "Управління забезпечення Оперативно-рятувал…: Автоцистерни пожежні важкого класу всюдихідні з цистерною не…, 154,7 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 772 340 грн (+1%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-02-011400-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-14T22:15:40.594942+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
@@ -6824,7 +6825,7 @@
    "features": null,
    "text_tg": null,
    "note": null,
-   "review_msg_id": 24
+   "review_msg_id": null
   },
   {
    "tender_id": "UA-2026-10-02-011487-a",
@@ -8221,10 +8222,10 @@
   {
    "tender_id": "UA-2026-10-07-013589-a",
    "created": "2026-11-08T23:40:50.567755+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "Служба Відновлення ТА Розвитку Інфраструктури У Л…: Легковий автомобіль (Легкові автомобілі), 3,5 млн грн.\nЦіна 3 548 875 грн/штука — у 3,8 раза вища за медіану (940 832 грн) у 3 інших замовників.\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-07-013589-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-14T22:15:41.800126+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
@@ -9357,10 +9358,10 @@
   {
    "tender_id": "UA-2026-10-12-005905-a",
    "created": "2026-11-08T23:40:42.005469+00:00",
-   "status": "in_review",
+   "status": "approved",
    "text": "Любимівська Гімназія З Дошкільним Підрозділом Люб…: Капітальний ремонт і реставрація (Капітальний ремонт фасаду…, 20,0 млн грн.\nУсі дешевші пропозиції були відхилені; переможець дорожчий на 4,1 млн грн (+26%).\nСигнал ризику, не доказ порушення.\nhttps://prozorro.gov.ua/tender/UA-2026-10-12-005905-a #Prozorro",
-   "approved_by": null,
-   "approved_at": null,
+   "approved_by": "444946839",
+   "approved_at": "2026-11-14T22:15:37.262769+00:00",
    "x_id": null,
    "published_at": null,
    "tg_channel_msg_id": null,
