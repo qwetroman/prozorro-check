@@ -597,6 +597,8 @@ def set_review_status(con, tid, status, keep_buttons=False):
 def remove_review(con, tid, why):
     """Прибрана чернетка зникає з чату одразу. Якщо Telegram не дає видалити (старша за 48 год) - лише позначаємо."""
     p = con.execute("SELECT review_msg_id FROM posts WHERE tender_id=?", (tid,)).fetchone()
+    if not (p and p["review_msg_id"]):
+        log(f"чернетка {tid}: невідомо, яке повідомлення в чаті - не можу ні видалити, ні позначити")
     if p and p["review_msg_id"]:
         try:
             tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=p["review_msg_id"])
@@ -626,9 +628,20 @@ def handle_update(con, u):
             log(f"проігноровано натискання від не-адміністратора {uid}")
             return
         action, tid = q.get("data", ":").split(":", 1)
+        mid = (q.get("message") or {}).get("message_id")    # саме те повідомлення, на якому натиснули
         p = con.execute("SELECT * FROM posts WHERE tender_id=?", (tid,)).fetchone()
+        log(f"натискання {action} на {tid} (повідомлення {mid}, статус {p['status'] if p else 'немає в базі'})")
+        if p and mid and p["review_msg_id"] != mid and p["status"] in ("in_review", "awaiting_edit"):
+            con.execute("UPDATE posts SET review_msg_id=? WHERE tender_id=?", (mid, tid))   # працюємо з цим повідомленням
+            con.commit()
+            p = con.execute("SELECT * FROM posts WHERE tender_id=?", (tid,)).fetchone()
         if not p or p["status"] not in ("in_review", "awaiting_edit"):
             answer_cb(q, text="Вже оброблено")
+            if mid and (not p or p["status"] in ("rejected", "suppressed", "published")):
+                try:                                     # застаріла чернетка: прибираємо її з чату
+                    tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=mid)
+                except Exception as e:
+                    log(f"не вдалося видалити застарілу чернетку {tid}: {e}")
             return
         if action == "ok":
             con.execute("UPDATE posts SET status='approved', approved_by=?, approved_at=? WHERE tender_id=?",
@@ -642,6 +655,7 @@ def handle_update(con, u):
             con.commit()
             answer_cb(q, text="Відхилено")
             remove_review(con, tid, "❌ Відхилено")       # відхилена чернетка зникає з чату одразу
+            log(f"відхилено {tid}")
         elif action == "ed":
             res = tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
                      text=f"Надішліть новий текст для {tid} відповіддю (reply) на це повідомлення. "
@@ -1277,7 +1291,7 @@ def cmd_ledger_export(con, args):
     """Малий постійний стан для CI: рішення щодо дописів + зсув Telegram + позначка монітора (комітиться в git)."""
     posts = [dict(r) for r in con.execute(
         "SELECT tender_id, created, status, text, approved_by, approved_at, x_id, published_at, tg_channel_msg_id, "
-        "kind, features, text_tg, CASE WHEN note='edited' THEN note END AS note FROM posts")]
+        "kind, features, text_tg, CASE WHEN note='edited' THEN note END AS note, review_msg_id FROM posts")]
     st = {k: meta(con, k) for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest",
                                      "schedule_msg_id", "channel_refresh")}
     try:
@@ -1298,9 +1312,11 @@ def cmd_ledger_import(con, args):
     j = json.load(open(args.path, encoding="utf-8"))
     for p in j.get("posts", []):
         con.execute("""INSERT OR IGNORE INTO posts (tender_id, created, status, text, approved_by, approved_at, x_id,
-                       published_at, tg_channel_msg_id, kind, features, text_tg, note) VALUES (:tender_id,:created,:status,
-                       :text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg,:note)""",
-                    {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, "note": None, **p})
+                       published_at, tg_channel_msg_id, kind, features, text_tg, note, review_msg_id) VALUES (:tender_id,:created,
+                       :status,:text,:approved_by,:approved_at,:x_id,:published_at,:tg_channel_msg_id,:kind,:features,:text_tg,
+                       :note,:review_msg_id)""",
+                    {"tg_channel_msg_id": None, "kind": None, "features": None, "text_tg": None, "note": None,
+                     "review_msg_id": None, **p})
     st = j.get("state", {})
     for k in ("tg_offset", "paused", "last_draft", "last_channel_post", "last_digest", "schedule_msg_id",
               "channel_refresh"):
