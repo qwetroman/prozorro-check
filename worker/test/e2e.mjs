@@ -154,6 +154,21 @@ await message("/queue");
 cs = await calls();
 ok(/У чаті на перевірці/.test(of(cs, "sendMessage")[0].params.text), "/queue відповідає станом черги");
 
+// 11а. користувач сам видалив чернетки з чату: /queue помічає це й надсилає їх знову
+P = await posts();
+const shownNow = Object.values(P).filter((p) => p.status === "in_review" && p.review_msg_id);
+await fetch(`${TG}/__user_delete`, { method: "POST", body: JSON.stringify(shownNow.map((p) => p.review_msg_id)) });
+await reset();
+await message("/queue");
+cs = await calls();
+P = await posts();
+const resent = of(cs, "sendMessage").filter((c) => c.params.reply_markup?.inline_keyboard).length;
+ok(resent === shownNow.length && shownNow.every((p) => P[p.id].review_msg_id && P[p.id].review_msg_id !== p.review_msg_id),
+  `видалені вручну чернетки (${shownNow.length}) надіслано знову`);
+await reset();
+await message("/queue");
+ok(of(await calls(), "sendMessage").filter((c) => c.params.reply_markup?.inline_keyboard).length === 0, "наявні чернетки вдруге не надсилаються");
+
 // 11б. /next: наступна порція навіть при повному вікні
 await reset();
 const before = Object.values(await posts()).filter((p) => p.status === "queued").length;

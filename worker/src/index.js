@@ -365,8 +365,13 @@ async function onMessage(env, msg) {
     await meta(env, "paused", cmd === "/pause" ? "1" : "0");
     return say(env, cmd === "/pause" ? "⏸ Публікацію в канал призупинено (/resume - відновити)" : "▶️ Публікацію відновлено");
   }
-  if (cmd === "/queue" || cmd === "/stats") return say(env, await statsText(env));
+  if (cmd === "/queue" || cmd === "/stats") {
+    await verifyShown(env);
+    await fillWindow(env);
+    return say(env, await statsText(env));
+  }
   if (cmd === "/next") {
+    await verifyShown(env);
     // наступна порція одразу, навіть якщо в чаті вже повне вікно
     const sent = await fillWindow(env, cfg(env).window);
     const left = (await one(env, "SELECT COUNT(*) AS n FROM posts WHERE status='queued'")).n;
@@ -394,6 +399,34 @@ async function statsText(env) {
 }
 
 // ------------------------------------------------------------------ вікно перевірки
+async function verifyShown(env) {
+  // Telegram не повідомляє ботові, коли ви самі видаляєте повідомлення (напр. «Очистити історію»).
+  // Перевіряємо, чи чернетки «в чаті» справді там: повторно ставимо ті самі кнопки - на видаленому
+  // повідомленні Telegram відповідає «not found». Зниклі повертаються в чергу й надсилаються знову.
+  const rows = await all(env, "SELECT id, review_msg_id FROM posts WHERE status='in_review' AND review_msg_id IS NOT NULL");
+  let gone = 0;
+  for (const p of rows) {
+    if (env.budget.left < 12) break;
+    try {
+      await tg(env, "editMessageReplyMarkup", { chat_id: reviewChat(env), message_id: p.review_msg_id, reply_markup: buttons(p.id) });
+    } catch (e) {
+      if (e instanceof BudgetError) break;
+      if (/not found|MESSAGE_ID_INVALID|can't be edited/i.test(e.description || "")) {
+        await run(env, "UPDATE posts SET status='queued', review_msg_id=NULL, review_sent_at=NULL WHERE id=? AND status='in_review'", p.id);
+        gone++;
+      }
+    }
+  }
+  await meta(env, "last_verify", nowIso());
+  if (gone) await logEvent(env, "info", { data: `зниклих із чату чернеток повернуто в чергу: ${gone}` });
+  return gone;
+}
+
+async function verifyIfDue(env) {
+  const last = await meta(env, "last_verify");
+  if (!last || new Date(last).getTime() < Date.now() - 30 * 60000) await verifyShown(env);
+}
+
 async function fillWindow(env, extra = 0) {
   // extra: стільки чернеток понад вікно (команда /next)
   const c = cfg(env);
@@ -424,7 +457,7 @@ async function fillWindow(env, extra = 0) {
 
 // ------------------------------------------------------------------ розклад (cron)
 async function tick(env) {
-  const steps = [publishX, publishChannel, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, addPostedButtons, pruneEvents];
+  const steps = [publishX, publishChannel, verifyIfDue, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, addPostedButtons, pruneEvents];
   for (const f of steps) {
     try { await f(env); } catch (e) {
       if (!(e instanceof BudgetError)) await logEvent(env, "error", { data: `${f.name}: ${e.stack || e}` });
