@@ -8,6 +8,10 @@
   3. записує прогноз для кожної нової чернетки в state/shadow.jsonl,
      щоб потім перевірити, як часто модель вгадувала.
 
+  4. веде історію якості (state/model_history.jsonl), зберігає «знімок» моделі щоразу, коли вона досягає
+     нового найкращого результату (state/checkpoints/*.json), і порівнює найкращий знімок із поточною
+     моделлю на рішеннях, яких жодна з них не бачила під час навчання (state/model_report.json).
+     Якщо поточна модель помітно гірша, порядок показу визначає найкращий знімок, а вам приходить попередження.
 Запуск: python prozorro_model.py --db state/prozorro.db
 Без залежностей, крім стандартної бібліотеки.
 """
@@ -29,6 +33,10 @@ from prozorro.select import price_info  # noqa: E402
 POS = {"approved", "published"}
 NEG = {"rejected"}
 MIN_FOR_METRICS = 20
+CHECKPOINT_MIN_N = 30        # знімки - лише коли рішень достатньо, щоб метрика щось означала
+CHECKPOINT_MARGIN = 0.005    # новий найкращий результат: AUC вище за попередній знімок щонайменше на стільки
+COMPARE_MIN_N = 20           # порівнювати знімок із поточною моделлю лише на стількох нових рішеннях і більше
+DEGRADE_MARGIN = 0.05        # поточна модель «зіпсувалася», якщо її AUC нижче за знімок більше ніж на стільки
 
 
 def now():
@@ -178,6 +186,111 @@ def cross_val(X, y, k=5, seed=1):
     return round(acc, 3), auc(scores, y)
 
 
+def logloss(scores, labels):
+    eps = 1e-6
+    return round(-sum(t * math.log(max(p, eps)) + (1 - t) * math.log(max(1 - p, eps))
+                      for p, t in zip(scores, labels)) / len(labels), 3)
+
+
+def quality(scores, labels):
+    if not labels:
+        return None
+    acc = sum((p >= 0.5) == (t == 1) for p, t in zip(scores, labels)) / len(labels)
+    return {"n": len(labels), "accuracy": round(acc, 3), "auc": auc(scores, labels), "logloss": logloss(scores, labels)}
+
+
+# ------------------------------------------------------------------ прогрес, знімки, порівняння
+def track(state_dir, model, decisions, shadow):
+    """Історія якості, знімки на найкращих результатах, порівняння найкращого знімка з поточною моделлю."""
+    hist_path = os.path.join(state_dir, "model_history.jsonl")
+    ck_dir = os.path.join(state_dir, "checkpoints")
+    rep_path = os.path.join(state_dir, "model_report.json")
+    os.makedirs(ck_dir, exist_ok=True)
+    try:
+        prev = json.load(open(rep_path, encoding="utf-8"))
+    except Exception:
+        prev = {}
+
+    # «жива» якість: прогнози, зроблені ДО рішення моделлю, що була чинна тоді (найчесніша оцінка)
+    by_id = {d["tender_id"]: d for d in decisions}
+    live = [(s["p_approve"], by_id[s["tender_id"]]["label"], by_id[s["tender_id"]]["decided_at"])
+            for s in shadow if s["tender_id"] in by_id and s["scored_at"] < (by_id[s["tender_id"]]["decided_at"] or "9")]
+    live_all = quality([p for p, _, _ in live], [t for _, t, _ in live])
+    recent = sorted(live, key=lambda x: x[2])[-30:]
+    live_recent = quality([p for p, _, _ in recent], [t for _, t, _ in recent])
+    append_jsonl(hist_path, [{"trained_at": model["trained_at"], "n": model["n"], "cv": model["metrics"],
+                              "live": live_all, "live_last30": live_recent}])
+
+    # знімок, коли модель досягла нового найкращого результату (за AUC перехресної перевірки)
+    cps = sorted(read_jsonl_dir(ck_dir), key=lambda c: c["metrics"]["cv_auc"] or 0)
+    best = cps[-1] if cps else None
+    m = model["metrics"]
+    if m and m.get("cv_auc") and model["n"] >= CHECKPOINT_MIN_N and model["weights"] and (
+            not best or m["cv_auc"] >= (best["metrics"]["cv_auc"] or 0) + CHECKPOINT_MARGIN):
+        name = f"model-{model['trained_at'][:10]}-n{model['n']}-auc{m['cv_auc']:.3f}.json"
+        best = {"file": name, "trained_at": model["trained_at"], "n": model["n"], "metrics": m, "weights": model["weights"]}
+        with open(os.path.join(ck_dir, name), "w", encoding="utf-8") as fh:
+            json.dump(best, fh, ensure_ascii=False, indent=1)
+        log(f"новий найкращий результат, знімок: {name}")
+
+    # порівняння: найкращий знімок vs поточна (жива) модель на рішеннях, ухвалених ПІСЛЯ знімка
+    report = {"updated_at": now(), "n": model["n"], "cv": m, "live": live_all, "live_last30": live_recent,
+              "best": None, "compare": None, "use": "current", "alerted": prev.get("alerted", False)}
+    if best:
+        report["best"] = {k: best[k] for k in ("file", "trained_at", "n", "metrics")}
+        after = [(s["p_approve"], by_id[s["tender_id"]]) for s in shadow
+                 if s["tender_id"] in by_id and s["scored_at"] < (by_id[s["tender_id"]]["decided_at"] or "9")
+                 and (by_id[s["tender_id"]]["decided_at"] or "") > best["trained_at"]]
+        if after:
+            labels = [d["label"] for _, d in after]
+            frozen = quality([predict(best["weights"], vectorize(d["features"])) for _, d in after], labels)
+            current = quality([p for p, _ in after], labels)
+            report["compare"] = {"n": len(after), "best": frozen, "current": current}
+            if (len(after) >= COMPARE_MIN_N and frozen["auc"] is not None and current["auc"] is not None
+                    and current["auc"] < frozen["auc"] - DEGRADE_MARGIN):
+                report["use"] = best["file"]
+    report["alert_now"] = report["use"] != "current" and not prev.get("alerted")
+    report["alerted"] = report["use"] != "current"
+    report["text"] = report_text(report)
+    with open(rep_path, "w", encoding="utf-8") as fh:
+        json.dump(report, fh, ensure_ascii=False, indent=1)
+    log(report["text"].replace("\n", " | "))
+    return report
+
+
+def read_jsonl_dir(path):
+    out = []
+    for f in sorted(os.listdir(path)) if os.path.isdir(path) else []:
+        if f.endswith(".json"):
+            try:
+                c = json.load(open(os.path.join(path, f), encoding="utf-8"))
+                c["file"] = f
+                out.append(c)
+            except Exception:
+                pass
+    return out
+
+
+def report_text(r):
+    pct = lambda q: f"{q['accuracy']:.0%}, AUC {q['auc']}" if q and q.get("auc") is not None else "—"  # noqa: E731
+    lines = [f"🤖 Модель: рішень {r['n']}"]
+    if r["cv"]:
+        lines.append(f"Перехресна перевірка: {r['cv']['cv_accuracy']:.0%}, AUC {r['cv']['cv_auc']} (базова {r['cv']['baseline_accuracy']:.0%})")
+    if r["live"]:
+        lines.append(f"Прогнози до рішення: {pct(r['live'])} на {r['live']['n']}; останні {r['live_last30']['n']}: {pct(r['live_last30'])}")
+    if r["best"]:
+        b = r["best"]
+        lines.append(f"Найкращий знімок: n={b['n']}, AUC {b['metrics']['cv_auc']} ({b['trained_at'][:10]})")
+    c = r["compare"]
+    if c:
+        lines.append(f"Після знімка ({c['n']} рішень): знімок {pct(c['best'])} · поточна {pct(c['current'])}")
+        if c["n"] < COMPARE_MIN_N:
+            lines.append(f"Для висновку потрібно {COMPARE_MIN_N}+ нових рішень.")
+    lines.append("⚠️ Поточна модель помітно гірша за найкращий знімок - порядок показу визначає знімок."
+                 if r["use"] != "current" else "Порядок показу визначає поточна модель.")
+    return "\n".join(lines)
+
+
 # ------------------------------------------------------------------ прохід
 def run(args):
     con = sqlite3.connect(args.db)
@@ -249,6 +362,10 @@ def run(args):
     if not os.path.exists(shadow_path):
         open(shadow_path, "a").close()
     log(f"тіньових прогнозів: {len(rows)}")
+
+    # 4) прогрес, знімки, порівняння
+    if model["weights"]:
+        track(args.state, model, decisions, read_jsonl(shadow_path))
 
 
 def main():

@@ -170,7 +170,8 @@ function reviewHtml(env, p, status) {
   const mine = new Set(text.split("\n"));
   const extra = (full || "").split("\n").filter((x) => x && !mine.has(x));
   const title = c.postToX ? `Чернетка для X</b> (${weightedLen(text)}/280)` : "Чернетка для Telegram-каналу</b>";
-  const head = `<b>${p.kind === "explore" ? "🧪 " : ""}${title}\n<blockquote>${tgHtml(env, text)}</blockquote>\n`
+  const chance = p.model_p === null || p.model_p === undefined ? "" : `🤖 Шанс схвалення (модель): ${Math.round(p.model_p * 100)}%\n`;
+  const head = `<b>${p.kind === "explore" ? "🧪 " : ""}${title}\n${chance}<blockquote>${tgHtml(env, text)}</blockquote>\n`
     + (extra.length ? `<b>Лише в Telegram-каналі:</b>\n${extra.map((x) => tgHtml(env, x)).join("\n")}\n` : "");
   const tail = (p.id.startsWith("PAT-") ? "" : `\n${PORTAL}${p.id}`) + (status ? `\n\n<b>${esc(status)}</b>` : "");
   const room = 4000 - head.length - tail.length - 30;
@@ -377,10 +378,11 @@ async function onMessage(env, msg) {
     const left = (await one(env, "SELECT COUNT(*) AS n FROM posts WHERE status='queued'")).n;
     return say(env, sent ? `Надіслано ще ${sent}. У черзі лишилось ${left}.` : `Черга порожня: нових чернеток немає.`);
   }
+  if (cmd === "/model") return say(env, (await meta(env, "model_report")) || "Звіту моделі ще немає.");
   if (cmd === "/start" || cmd === "/help") {
     return say(env, "Під кожною чернеткою: ✅ опублікувати, ✏️ редагувати, ❌ відхилити, ⏭ пізніше.\n"
       + `У чаті одночасно до ${cfg(env).window} чернеток; щойно ви вирішите одну, приходить наступна.\n`
-      + "/queue - стан черги, /next - ще порція чернеток, /pause і /resume - публікація в канал.");
+      + "/queue - стан черги, /next - ще порція чернеток, /model - як справи в моделі, /pause і /resume - публікація в канал.");
   }
 }
 const say = (env, text) => tg(env, "sendMessage", { chat_id: reviewChat(env), text, disable_web_page_preview: true });
@@ -652,7 +654,7 @@ async function api(request, env, url) {
       max_connections: 5 });
     await quietly(tg(env, "setMyCommands", { commands: [
       { command: "queue", description: "стан черги" }, { command: "next", description: "ще порція чернеток" },
-      { command: "pause", description: "призупинити канал" }, { command: "resume", description: "відновити канал" },
+      { command: "model", description: "якість моделі" }, { command: "pause", description: "призупинити канал" }, { command: "resume", description: "відновити канал" },
       { command: "help", description: "довідка" }] }));
     await logEvent(env, "info", { data: `вебхук: ${hook}` });
     return json({ ok: true, webhook: await tg(env, "getWebhookInfo", {}) });
@@ -662,7 +664,7 @@ async function api(request, env, url) {
     const offset = int(url.searchParams.get("offset"), 0), limit = Math.min(int(url.searchParams.get("limit"), 200), 500);
     const cols = url.searchParams.get("full") === "1" ? "*"
       : "id, kind, status, text_x, text_tg, features, priority, skips, edited, created_at, review_msg_id, review_sent_at, "
-        + "decided_at, decided_by, x_sent_at, x_id, x_posted_at, channel_msg_id, channel_at, note";
+        + "decided_at, decided_by, x_sent_at, x_id, x_posted_at, channel_msg_id, channel_at, note, model_p, money";
     const posts = await all(env, `SELECT ${cols} FROM posts ORDER BY id LIMIT ${limit | 0} OFFSET ${Math.max(0, offset | 0)}`);
     return json({ ok: true, posts, more: posts.length === limit,
       meta: offset ? undefined : Object.fromEntries((await all(env, "SELECT k, v FROM meta")).map((r) => [r.k, r.v])) });
@@ -673,11 +675,12 @@ async function api(request, env, url) {
   }
   if (path === "drafts") {
     // нові чернетки; вже відомі id ігноруються
-    const stmt = env.DB.prepare(`INSERT OR IGNORE INTO posts (id, kind, status, text_x, text_tg, context, features, priority, created_at)
-      VALUES (?, ?, 'queued', ?, ?, ?, ?, ?, ?)`);
+    const stmt = env.DB.prepare(`INSERT OR IGNORE INTO posts (id, kind, status, text_x, text_tg, context, features, priority, created_at, model_p, money)
+      VALUES (?, ?, 'queued', ?, ?, ?, ?, ?, ?, ?, ?)`);
     const t = nowIso();
     const res = (body.drafts || []).length ? await env.DB.batch(body.drafts.map((d) => stmt.bind(d.id, d.kind || "tender",
-      d.text_x, d.text_tg ?? null, d.context ?? null, d.features ? JSON.stringify(d.features) : null, d.priority ?? 0, t))) : [];
+      d.text_x, d.text_tg ?? null, d.context ?? null, d.features ? JSON.stringify(d.features) : null, d.priority ?? 0, t,
+      d.model_p ?? null, d.money ?? null))) : [];
     const added = res.reduce((n, r) => n + r.meta.changes, 0);
     const sent = await fillWindow(env);
     return json({ ok: true, added, sent });
@@ -711,7 +714,19 @@ async function api(request, env, url) {
     return json({ ok: true, updated: n });
   }
   if (path === "meta") {
-    for (const [k, v] of Object.entries(body || {})) if (["model_summary"].includes(k)) await meta(env, k, v);
+    for (const [k, v] of Object.entries(body || {})) if (["model_summary", "model_report"].includes(k)) await meta(env, k, v);
+    return json({ ok: true });
+  }
+  if (path === "scores") {
+    // свіжі прогнози моделі й порядок для чернеток, що ще чекають
+    const stmt = env.DB.prepare(`UPDATE posts SET priority=?, model_p=?, money=COALESCE(?, money)
+      WHERE id=? AND status IN ('queued','in_review','awaiting_edit')`);
+    const items = body.items || [];
+    const res = items.length ? await env.DB.batch(items.map((it) => stmt.bind(it.priority ?? 0, it.model_p ?? null, it.money ?? null, it.id))) : [];
+    return json({ ok: true, updated: res.reduce((n, r) => n + r.meta.changes, 0) });
+  }
+  if (path === "notify") {
+    await say(env, String(body.text || "").slice(0, 3500));
     return json({ ok: true });
   }
   if (path === "import") {

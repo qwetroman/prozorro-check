@@ -6,10 +6,14 @@
   "pattern_min_money_uah": 2000000,
   "explore_share": 0.25,
   "explore_max_per_run": 3,
-  "pattern_types": ["dominance", "split", "buyer_single"],
+  "pattern_types": [
+    "dominance",
+    "split",
+    "buyer_single"
+  ],
   "military_delay_days": 14,
   "include_military": false,
   "include_security": false,
   "hashtags": "#Prozorro",
-  "rank_by_model": false
+  "rank_by_model": true
 }
