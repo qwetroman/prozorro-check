@@ -11,6 +11,7 @@ Telegram тут більше не використовується: натиск
   migrate   одноразово перенести старий журнал state/ledger.json у Worker
   preview   показати тексти для кількох найновіших кандидатів, нічого не надсилаючи
   health    стан Worker і вебхука
+  events    журнал подій Worker за останні години (--hours)
 Прапорець --dry-run: нічого не надсилати у Worker, лише показати.
 """
 from __future__ import annotations
@@ -263,6 +264,15 @@ def cmd_health(con, args):
     print(json.dumps(api.call("health"), ensure_ascii=False, indent=1))
 
 
+def cmd_events(con, args):
+    """Журнал подій Worker (натискання, повідомлення, помилки) без id користувачів - для публічних логів Actions."""
+    from datetime import timedelta
+    from .common import now
+    since = (now() - timedelta(hours=args.hours)).isoformat()
+    for e in api.call(f"events?since={since}")["events"]:
+        print(f"{e['at'][:19]} {e['kind']:7s} {e.get('post_id') or '':28s} {(e.get('data') or '')[:300]}")
+
+
 def main():
     global DRY
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -274,6 +284,9 @@ def main():
     s.set_defaults(fn=cmd_sync)
     for name, fn in (("draft", cmd_draft), ("meta", cmd_meta), ("health", cmd_health)):
         sub.add_parser(name).set_defaults(fn=fn)
+    ev = sub.add_parser("events")
+    ev.add_argument("--hours", type=int, default=6)
+    ev.set_defaults(fn=cmd_events)
     m = sub.add_parser("migrate")
     m.add_argument("--ledger", default=os.path.join("state", "ledger.json"))
     m.set_defaults(fn=cmd_migrate)
