@@ -1130,7 +1130,8 @@ def schedule_html(con):
     appr = con.execute("SELECT tender_id, text FROM posts WHERE status='approved' ORDER BY approved_at").fetchall()
     a, b = CFG["quiet_hours_kyiv"]
     lines = [f"📅 <b>Розклад публікацій</b> (оновлено {now().astimezone(KYIV).strftime('%d.%m %H:%M')} за Києвом)",
-             f"Тихі години {a:02d}:00–{b:02d}:00. Час орієнтовний: бот публікує під час найближчого проходу."]
+             f"Тихі години {a:02d}:00–{b:02d}:00. Час орієнтовний: бот публікує під час найближчого проходу.",
+             "Хештеги: #ready_to_x (готові до публікації в X) · " + html.escape(CFG["hashtags"] or "#Prozorro") + " (у кожному дописі)"]
     if paused:
         lines.append("⏸ Публікацію призупинено (/resume, щоб відновити).")
     if CFG["post_to_x"]:
