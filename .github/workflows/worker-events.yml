@@ -1,0 +1,31 @@
+name: worker-events
+
+# Діагностика: стан Worker і журнал подій (натискання, команди, помилки) за останні години.
+# id користувачів не виводяться, бо логи публічного репозиторію видно всім.
+on:
+  workflow_dispatch:
+    inputs:
+      hours:
+        description: "За скільки годин"
+        required: false
+        default: "6"
+
+permissions:
+  contents: read
+
+jobs:
+  events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install requests==2.32.3
+      - name: Стан
+        run: python -m prozorro.pipeline health | grep -vE '"(url|ip_address)"'
+      - name: Журнал подій
+        run: python -m prozorro.pipeline events --hours ${{ github.event.inputs.hours || '6' }}

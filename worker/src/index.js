@@ -359,13 +359,15 @@ async function onMessage(env, msg) {
   }
   if (cmd === "/queue" || cmd === "/stats") return say(env, await statsText(env));
   if (cmd === "/next") {
-    await fillWindow(env);
-    return say(env, await statsText(env));
+    // наступна порція одразу, навіть якщо в чаті вже повне вікно
+    const sent = await fillWindow(env, cfg(env).window);
+    const left = (await one(env, "SELECT COUNT(*) AS n FROM posts WHERE status='queued'")).n;
+    return say(env, sent ? `Надіслано ще ${sent}. У черзі лишилось ${left}.` : `Черга порожня: нових чернеток немає.`);
   }
   if (cmd === "/start" || cmd === "/help") {
     return say(env, "Під кожною чернеткою: ✅ опублікувати, ✏️ редагувати, ❌ відхилити, ⏭ пізніше.\n"
       + `У чаті одночасно до ${cfg(env).window} чернеток; щойно ви вирішите одну, приходить наступна.\n`
-      + "/queue - стан черги, /next - дозаповнити чат, /pause і /resume - публікація в канал.");
+      + "/queue - стан черги, /next - ще порція чернеток, /pause і /resume - публікація в канал.");
   }
 }
 const say = (env, text) => tg(env, "sendMessage", { chat_id: reviewChat(env), text, disable_web_page_preview: true });
@@ -384,10 +386,11 @@ async function statsText(env) {
 }
 
 // ------------------------------------------------------------------ вікно перевірки
-async function fillWindow(env) {
+async function fillWindow(env, extra = 0) {
+  // extra: стільки чернеток понад вікно (команда /next)
   const c = cfg(env);
   const shown = (await one(env, `SELECT COUNT(*) AS n FROM posts WHERE status IN ('in_review','awaiting_edit')`)).n;
-  let need = c.window - shown;
+  let need = Math.max(c.window - shown, 0) + extra;
   if (need <= 0) return 0;
   const rows = await all(env, `SELECT * FROM posts WHERE status='queued' ORDER BY skips, priority DESC, created_at DESC, id LIMIT ${need | 0}`);
   let sent = 0;
@@ -592,7 +595,7 @@ async function api(request, env, url) {
     await tg(env, "setWebhook", { url: hook, secret_token: await hookSecret(env), allowed_updates: ["message", "callback_query"],
       max_connections: 5 });
     await quietly(tg(env, "setMyCommands", { commands: [
-      { command: "queue", description: "стан черги" }, { command: "next", description: "дозаповнити чат чернетками" },
+      { command: "queue", description: "стан черги" }, { command: "next", description: "ще порція чернеток" },
       { command: "pause", description: "призупинити канал" }, { command: "resume", description: "відновити канал" },
       { command: "help", description: "довідка" }] }));
     await logEvent(env, "info", { data: `вебхук: ${hook}` });

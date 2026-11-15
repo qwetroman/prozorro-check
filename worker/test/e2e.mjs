@@ -143,6 +143,15 @@ await message("/queue");
 cs = await calls();
 ok(/У чаті на перевірці/.test(of(cs, "sendMessage")[0].params.text), "/queue відповідає станом черги");
 
+// 11б. /next: наступна порція навіть при повному вікні
+await reset();
+const before = Object.values(await posts()).filter((p) => p.status === "queued").length;
+await message("/next");
+cs = await calls();
+const sentNext = of(cs, "sendMessage").filter((c) => c.params.reply_markup?.inline_keyboard).length;
+ok(sentNext === Math.min(8, before) && /Надіслано ще|Черга порожня/.test(of(cs, "sendMessage").at(-1).params.text),
+  `/next: надіслано ${sentNext} понад вікно`);
+
 // 12. приховування й оновлення текстів з Actions
 await reset();
 r = await api("suppress", { items: [{ id: E, reason: "військові закупівлі вимкнено" }] });
