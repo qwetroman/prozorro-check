@@ -89,6 +89,11 @@ jobs:
       - name: Нові чернетки у Worker
         run: python -m prozorro.pipeline draft
 
+      # одноразово для кожної версії правил текстів (prozorro/pipeline.py: TEXT_VERSION)
+      - name: Тексти за чинними правилами
+        continue-on-error: true
+        run: python -m prozorro.pipeline rewrite
+
       - name: Тримати базу малою
         run: python prozorro_monitor.py --db state/prozorro.db prune --days 45 --keep-flagged-days 30
 

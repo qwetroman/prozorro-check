@@ -714,7 +714,7 @@ async function api(request, env, url) {
     return json({ ok: true, updated: n });
   }
   if (path === "meta") {
-    for (const [k, v] of Object.entries(body || {})) if (["model_summary", "model_report"].includes(k)) await meta(env, k, v);
+    for (const [k, v] of Object.entries(body || {})) if (["model_summary", "model_report", "text_version"].includes(k)) await meta(env, k, v);
     return json({ ok: true });
   }
   if (path === "scores") {
@@ -724,6 +724,38 @@ async function api(request, env, url) {
     const items = body.items || [];
     const res = items.length ? await env.DB.batch(items.map((it) => stmt.bind(it.priority ?? 0, it.model_p ?? null, it.money ?? null, it.id))) : [];
     return json({ ok: true, updated: res.reduce((n, r) => n + r.meta.changes, 0) });
+  }
+  if (path === "rewrite") {
+    // тексти за новими правилами: чернетки - обидві версії (і повідомлення в чаті), схвалені й опубліковані -
+    // лише повна версія (і допис у каналі); X-текст схваленого не міняємо, бо саме його ви схвалили
+    const n = { drafts: 0, chat: 0, channel: 0, archive: 0, skipped: 0 };
+    for (const it of body.items || []) {
+      const p = await getPost(env, it.id);
+      if (!p || p.edited) { n.skipped++; continue; }
+      const tgText = it.text_tg && it.text_tg !== it.text_x ? it.text_tg : null;
+      if (["queued", ...ACTIVE].includes(p.status)) {
+        await run(env, "UPDATE posts SET text_x=?, text_tg=? WHERE id=?", it.text_x, tgText, p.id);
+        n.drafts++;
+        if (p.status === "in_review" && p.review_msg_id && env.budget.left > 3) {
+          const q = await getPost(env, p.id);
+          await quietly(tg(env, "editMessageText", { chat_id: reviewChat(env), message_id: q.review_msg_id, text: reviewHtml(env, q),
+            parse_mode: "HTML", disable_web_page_preview: true, reply_markup: buttons(q.id) }));
+          n.chat++;
+        }
+      } else if (["approved", "published", "failed"].includes(p.status)) {
+        const full = it.text_tg || it.text_x;
+        await run(env, "UPDATE posts SET text_tg=? WHERE id=?", full === p.text_x ? null : full, p.id);
+        if (p.channel_msg_id > 0 && env.budget.left > 3) {
+          await quietly(tg(env, "editMessageText", { chat_id: env.TG_CHANNEL_ID, message_id: p.channel_msg_id,
+            text: tgHtml(env, full), parse_mode: "HTML" }));
+          n.channel++;
+        }
+      } else {
+        await run(env, "UPDATE posts SET text_x=?, text_tg=? WHERE id=?", it.text_x, tgText, p.id);
+        n.archive++;
+      }
+    }
+    return json({ ok: true, ...n });
   }
   if (path === "notify") {
     await say(env, String(body.text || "").slice(0, 3500));
