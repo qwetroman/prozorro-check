@@ -7,3 +7,8 @@ __pycache__/
 worker/.dev.vars
 worker/.wrangler/
 worker/node_modules/
+
+# Стан бота - у гілці bot-state, не в main
+state/*.json
+state/*.jsonl
+state/*.db
