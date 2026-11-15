@@ -8,6 +8,7 @@ Telegram тут більше не використовується: натиск
             і зберегти резервну копію state/backup.json
   draft     нові чернетки, прибирання застарілих і військових, свіжі тексти для черги на канал
   meta      надіслати у Worker підсумок тіньової моделі (для тижневої статистики)
+  rewrite   одноразово перебудувати всі тексти за чинними правилами (TEXT_VERSION)
   migrate   одноразово перенести старий журнал state/ledger.json у Worker
   preview   показати тексти для кількох найновіших кандидатів, нічого не надсилаючи
   health    стан Worker і вебхука
@@ -35,6 +36,7 @@ from .select import STRONG, candidates  # noqa: E402
 from .texts import compose, compose_pattern, context, pattern_context  # noqa: E402
 
 DRY = False
+TEXT_VERSION = "2"     # підвищити, коли змінюються правила текстів: усі тексти буде перебудовано один раз
 MIRROR = """CREATE TABLE posts (tender_id TEXT PRIMARY KEY, status TEXT, approved_at TEXT, kind TEXT, features TEXT,
   text_x TEXT, text_tg TEXT, edited INTEGER, channel_msg_id INTEGER, created TEXT, model_p REAL, priority REAL, money REAL)"""
 WAITING = ("queued", "in_review", "awaiting_edit")
@@ -266,6 +268,48 @@ def cmd_meta(con, args):
     send("meta", {"model_summary": s})
 
 
+def cmd_rewrite(con, args):
+    """Одноразово (для кожної TEXT_VERSION): перебудувати тексти всіх записів за чинними правилами."""
+    if not args.force and api.call("export?limit=1")["meta"].get("text_version") == TEXT_VERSION:
+        log(f"тексти вже за правилами версії {TEXT_VERSION}")
+        return
+    pats = {}
+    try:
+        import prozorro_patterns as PP
+        pats = {p["key"]: p for p in PP.find_patterns(con)}
+    except Exception as e:
+        log(f"закономірності недоступні: {e}")
+    items, missing = [], 0
+    for p in con.execute("SELECT * FROM posts WHERE COALESCE(edited, 0) = 0").fetchall():
+        tid, kind = p["tender_id"], p["kind"] or "tender"
+        if kind == "pattern":
+            r = pats.get(tid)
+            new = (compose_pattern(r), compose_pattern(r, full=True)) if r else None
+        else:
+            rs = candidates(con, only=tid) if has_table(con, "tenders") else []
+            r = rs[0] if rs and rs[0]["codes"] else None
+            if r:
+                m = re.search(r"\(\+(\d+) аналогічн", p["text_tg"] or p["text_x"] or "")
+                if m:
+                    r["siblings"] = int(m.group(1))
+            new = (compose(r), compose(r, full=True)) if r else None
+        if not new:
+            missing += 1
+            continue
+        if new != (p["text_x"], p["text_tg"] or p["text_x"]):
+            items.append({"id": tid, "text_x": new[0], "text_tg": new[1]})
+    tot = {}
+    for part in api.chunks(items, 12):          # до 2 запитів у Telegram на запис (чат або канал)
+        for k, v in send("rewrite", {"items": part}).items():
+            if isinstance(v, int) and not isinstance(v, bool):
+                tot[k] = tot.get(k, 0) + v
+        if not DRY:
+            import time
+            time.sleep(2)                        # Telegram: не більше ~20 редагувань на хвилину в одному чаті
+    send("meta", {"text_version": TEXT_VERSION})
+    log(f"тексти перебудовано: {len(items)} ({tot}); без даних тендера/закономірності: {missing}")
+
+
 def legacy_post(p):
     """Запис старого журналу (state/ledger.json) -> запис Worker."""
     st, ch = p.get("status"), p.get("tg_channel_msg_id")
@@ -335,6 +379,9 @@ def main():
     ev = sub.add_parser("events")
     ev.add_argument("--hours", type=int, default=6)
     ev.set_defaults(fn=cmd_events)
+    rw = sub.add_parser("rewrite")
+    rw.add_argument("--force", action="store_true", help="навіть якщо вже виконано для цієї версії")
+    rw.set_defaults(fn=cmd_rewrite)
     m = sub.add_parser("migrate")
     m.add_argument("--ledger", default=os.path.join("state", "ledger.json"))
     m.set_defaults(fn=cmd_migrate)

@@ -186,6 +186,19 @@ ok(r.suppressed === 1 && P[E].status === "suppressed", "suppress: прибран
 r = await api("texts", { items: [{ id: Q, text_tg: "повний текст" }] });
 ok(r.updated === 1, "texts: повний текст оновлено для схваленого");
 
+// 12б. перебудова текстів: чернетка в чаті - обидві версії й повідомлення; опубліковане - лише повна версія й канал
+await reset();
+P = await posts();
+const RW = Object.values(P).find((p) => p.status === "in_review" && !p.edited);
+r = await api("rewrite", { items: [{ id: RW.id, text_x: "новий X", text_tg: "новий повний" },
+  { id: A, text_x: "інший X", text_tg: "новий повний для каналу" }] });
+P = await posts();
+cs = await calls();
+ok(P[RW.id].text_x === "новий X" && P[RW.id].text_tg === "новий повний" && r.chat === 1, "rewrite: чернетку й повідомлення в чаті оновлено");
+ok(P[A].text_x !== "інший X" && P[A].text_tg === "новий повний для каналу", "rewrite: X-текст схваленого не змінено, повну версію оновлено");
+const pubA = P[A].channel_msg_id > 0;
+ok(!pubA || of(cs, "editMessageText").some((c) => c.params.chat_id === "@test_channel"), "rewrite: допис у каналі відредаговано (якщо опубліковано)");
+
 // 13. перенесення зі старого журналу й журнал подій
 r = await api("import", { posts: [{ id: "UA-2026-09-01-000001-a", kind: "tender", status: "rejected", text_x: "старий", created_at: "2026-09-01T00:00:00Z" }],
   meta: { schedule_msg_id: "1029" } });
