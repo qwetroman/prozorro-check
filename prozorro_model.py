@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from prozorro_publisher import price_info  # noqa: E402
+from prozorro.select import price_info  # noqa: E402
 
 POS = {"approved", "published"}
 NEG = {"rejected"}

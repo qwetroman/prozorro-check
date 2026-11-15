@@ -1,0 +1,26 @@
+# Cloudflare Worker «Прозорро Монітор». Розгортання - workflow worker-deploy (див. README).
+name = "prozorro-monitor"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[triggers]
+crons = ["*/10 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "prozorro"
+database_id = "00000000-0000-0000-0000-000000000000"   # підставляється під час розгортання
+migrations_dir = "migrations"
+
+[vars]
+REVIEW_WINDOW = "8"        # скільки чернеток одночасно в чаті перевірки
+EXPIRE_DAYS = "30"         # чернетка без рішення стільки днів - прострочена
+CHANNEL_MINUTES = "60"     # Telegram-канал: не частіше ніж раз на стільки хвилин
+QUIET_FROM = "23"          # тихі години за Києвом
+QUIET_TO = "8"
+POST_TO_X = "true"         # "false" = лише Telegram-канал
+X_MINUTES = "0"            # X через API (якщо задано ключі X_*): інтервал між дописами, хв; 0 = без обмеження
+X_MAX_PER_DAY = "0"        # X через API: максимум дописів за 24 год; 0 = без обмеження
+DIGEST_HOUR = "18"         # тижневий підсумок: неділя, з цієї години за Києвом
+HASHTAGS = "#Prozorro"
+REGISTRY_URL = "https://opendatabot.ua/c/"
