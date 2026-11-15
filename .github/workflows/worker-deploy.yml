@@ -1,0 +1,118 @@
+name: worker-deploy
+
+# Розгортання Cloudflare Worker (worker/): база D1, міграції, секрети, вебхук Telegram.
+# Потрібні секрети репозиторію CLOUDFLARE_API_TOKEN і CLOUDFLARE_ACCOUNT_ID (див. README).
+# Перший запуск також переносить старий журнал state/ledger.json у Worker.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["worker/src/**", "worker/migrations/**", "worker/wrangler.toml"]
+
+permissions:
+  contents: write                 # щоб закомітити worker/url.txt
+
+concurrency:
+  group: prozorro-bot             # не одночасно з аналітичним проходом
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      TG_ADMIN_IDS: ${{ secrets.TG_ADMIN_IDS }}
+      TG_REVIEW_CHAT_ID: ${{ secrets.TG_REVIEW_CHAT_ID }}
+      TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Перевірити секрети
+        run: |
+          for k in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID TG_BOT_TOKEN TG_ADMIN_IDS TG_REVIEW_CHAT_ID; do
+            [ -n "${!k}" ] || { echo "::error::Немає секрету $k (Settings → Secrets and variables → Actions)"; exit 1; }
+          done
+
+      - name: Встановити wrangler
+        run: npm install --no-save wrangler@4
+
+      - name: База D1 (створити, якщо ще немає)
+        run: |
+          id() { npx wrangler d1 list --json | jq -r '.[] | select(.name=="prozorro") | .uuid'; }
+          ID=$(id)
+          if [ -z "$ID" ]; then npx wrangler d1 create prozorro; ID=$(id); fi
+          echo "D1: $ID"
+          sed -i "s/^database_id = .*/database_id = \"$ID\"/" wrangler.toml
+          npx wrangler d1 migrations apply prozorro --remote
+
+      - name: Розгорнути Worker
+        run: |
+          npx wrangler deploy | tee deploy.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          [ -n "$URL" ] || { echo "::error::Не знайдено адресу workers.dev. Відкрийте Workers & Pages у Cloudflare один раз, щоб створити піддомен, і запустіть знову."; exit 1; }
+          echo "$URL" > url.txt
+          echo "URL=$URL" >> "$GITHUB_ENV"
+
+      - name: Секрети Worker
+        run: |
+          jq -n --arg t "$TG_BOT_TOKEN" --arg a "$TG_ADMIN_IDS" --arg r "$TG_REVIEW_CHAT_ID" --arg c "$TG_CHANNEL_ID" \
+            '{TG_BOT_TOKEN:$t, TG_ADMIN_IDS:$a, TG_REVIEW_CHAT_ID:$r} + (if $c != "" then {TG_CHANNEL_ID:$c} else {} end)' > secrets.json
+          npx wrangler secret bulk secrets.json
+          rm secrets.json
+
+      - name: Вебхук Telegram
+        run: |
+          KEY=$(printf '%s' prozorro-api | openssl dgst -sha256 -hmac "$TG_BOT_TOKEN" | awk '{print $NF}')
+          for i in 1 2 3 4 5 6; do
+            OUT=$(curl -sS -X POST "$URL/api/setup" -H "Authorization: Bearer $KEY" -H "content-type: application/json" -d '{}' || true)
+            echo "$OUT" | grep -q '"ok":true' && break
+            echo "чекаю, поки Worker запрацює: $OUT"; sleep 10
+          done
+          echo "$OUT" | jq .
+          echo "$OUT" | grep -q '"ok":true'
+
+      - uses: actions/setup-python@v6
+        if: hashFiles('state/ledger.json') != ''
+        with:
+          python-version: "3.12"
+
+      # одноразово: старий журнал -> Worker (контекст для перевірки береться з бази в кеші, якщо є)
+      - name: Відновити базу даних (для перенесення)
+        if: hashFiles('state/ledger.json') != ''
+        uses: actions/cache/restore@v5
+        with:
+          path: state/prozorro.db
+          key: prozorro-db-${{ github.run_id }}
+          restore-keys: prozorro-db-
+
+      - name: Перенести старий журнал
+        if: hashFiles('state/ledger.json') != ''
+        working-directory: .
+        run: |
+          pip install requests==2.32.3
+          python -m prozorro.pipeline --db state/prozorro.db migrate --ledger state/ledger.json
+          git rm -q state/ledger.json
+
+      - name: Закомітити адресу Worker
+        working-directory: .
+        run: |
+          git config user.name "prozorro-bot"
+          git config user.email "prozorro-bot@users.noreply.github.com"
+          git add worker/url.txt
+          git diff --cached --quiet || (git commit -m "Worker: адреса й перенесення журналу" && (git push || (git pull --rebase -X theirs origin main && git push)))
+
+      - name: Перевірка
+        run: |
+          KEY=$(printf '%s' prozorro-api | openssl dgst -sha256 -hmac "$TG_BOT_TOKEN" | awk '{print $NF}')
+          curl -sS -X POST "$URL/api/tick" -H "Authorization: Bearer $KEY" -H "content-type: application/json" -d '{}'
+          curl -sS "$URL/api/health" -H "Authorization: Bearer $KEY" | jq .

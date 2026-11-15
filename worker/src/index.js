@@ -380,6 +380,7 @@ async function fillWindow(env) {
       const res = await tg(env, "sendMessage", { chat_id: reviewChat(env), text: reviewHtml(env, p), parse_mode: "HTML",
         disable_web_page_preview: true, reply_markup: buttons(p.id), disable_notification: shown + sent > 0 });
       await run(env, "UPDATE posts SET review_msg_id=? WHERE id=?", res.message_id, p.id);
+      if (p.review_msg_id) await dropMessage(env, p.review_msg_id);   // стара копія (напр. перенесена зі старого бота)
       sent++;
     } catch (e) {
       await run(env, "UPDATE posts SET status='queued', review_sent_at=NULL WHERE id=?", p.id);
