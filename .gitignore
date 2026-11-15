@@ -12,3 +12,4 @@ worker/node_modules/
 state/*.json
 state/*.jsonl
 state/*.db
+state/checkpoints/

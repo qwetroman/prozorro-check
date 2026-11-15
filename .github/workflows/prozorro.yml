@@ -108,7 +108,8 @@ jobs:
         run: |
           export GIT_INDEX_FILE="$RUNNER_TEMP/bot-state-index"
           git read-tree --empty
-          git add -f $(ls state/backup.json state/decisions.jsonl state/shadow.jsonl state/model.json 2>/dev/null)
+          git add -f $(ls state/backup.json state/decisions.jsonl state/shadow.jsonl state/model.json \
+            state/model_history.jsonl state/model_report.json state/checkpoints/*.json 2>/dev/null)
           TREE=$(git write-tree)
           if [ "$(git rev-parse -q --verify 'origin/bot-state^{tree}' || true)" = "$TREE" ]; then echo "без змін"; exit 0; fi
           C=$(git commit-tree "$TREE" -m "стан бота: $(date -u '+%Y-%m-%d %H:%M') UTC")
