@@ -2,3 +2,8 @@ state/prozorro.db
 .env
 reports/
 __pycache__/
+
+# Worker
+worker/.dev.vars
+worker/.wrangler/
+worker/node_modules/
