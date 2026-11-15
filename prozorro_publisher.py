@@ -237,7 +237,53 @@ ABBR = [(r"товариство з обмеженою відповідальні
         (r"сільської ради", "сільради"), (r"селищної ради", "селищради"), (r"виконавчого комітету", "виконкому")]
 
 
-def short_name(name, n=70):
+# службові слова, на яких не можна обривати скорочений текст
+DANGLING = {"в", "у", "з", "із", "зі", "на", "для", "та", "і", "й", "або", "чи", "до", "від", "по", "за", "при", "про",
+            "щодо", "а", "без", "під", "над", "через", "між", "к-сть", "м.", "вул.", "№"}
+
+
+ADJ_END = re.compile(r"[а-яіїєґ'’](ого|ього|ої|ьої|их|іх|ому|ьому|ий|ій)$")
+
+
+def fit(s, n):
+    """Скорочує текст до n символів по межі слова, без «…»: не обриває на прийменнику чи сполучнику,
+    прибирає або закриває незакриту дужку/лапки. «…» лише якщо слово одне й дуже довге."""
+    s = (s or "").strip()
+    if n is None or len(s) <= n:
+        return s
+    cut = s[:n + 1]
+    i = cut.rfind(" ")
+    if i < n * 0.5:
+        return s[:n - 1].rstrip(" ,(") + "…"
+    t = cut[:i]
+
+    def tidy(t):
+        while True:
+            t2 = t.rstrip(" ,;:/-–—+&")
+            words = t2.split()
+            last = words[-1].lower() if words else ""
+            # прийменник/сполучник або прикметник без іменника («…і технічного») наприкінці - прибираємо
+            if len(words) > 1 and (last in DANGLING or (ADJ_END.search(last) and len(t2) - len(last) >= n * 0.35)):
+                t2 = t2[: len(t2) - len(words[-1])]
+            if t2 == t:
+                return t
+            t = t2
+    t = tidy(t)
+    # краще обірвати на межі частини речення (кома, закрита лапка/дужка), якщо втрачаємо небагато
+    b = max(t.rfind(", "), max(t.rfind(c) + 1 for c in ")»\"“") - 1)
+    if b >= len(t) * 0.6 and b >= n * 0.45:
+        t = tidy(t[: b + 1])
+    for o, c in (("(", ")"), ("«", "»"), ("„", "“")):
+        if t.count(o) > t.count(c):
+            j = t.rfind(o)
+            t = tidy(t[:j]) if j >= n * 0.5 else t + c
+    if t.count('"') % 2:
+        j = t.rfind('"')
+        t = tidy(t[:j]) if j >= n * 0.5 else t + '"'
+    return t
+
+
+def short_name(name, n=None):
     s = re.sub(r"\s+", " ", (name or "").replace("­", "")).strip()
     for pat, rep in ABBR:
         s = re.sub(pat, rep, s, flags=re.I)
@@ -248,7 +294,18 @@ def short_name(name, n=70):
             return w[:i] + w[i] + w[i + 1:].lower()
         return w
     s = " ".join(fix(w) for w in s.split())
-    return s if len(s) <= n else s[: n - 1].rstrip(" ,") + "…"
+    if n is not None and len(s) > n:
+        # довга назва: організаційну форму перед лапками скорочуємо до ініціалів, щоб лишилася власне назва
+        m = re.match(r"^([^\"«]+?)\s*([\"«].+)$", s)
+        words = m.group(1).split() if m else []
+        if len(words) >= 2 and all(w[0].isalpha() for w in words):
+            s = "".join(w[0].upper() for w in words) + " " + m.group(2)
+    if n is not None and len(s) > n:
+        # усе ще довга: обриваємо одразу після назви в лапках, якщо вона вміщається
+        q = max(s.rfind(c, 0, n) for c in ("»", '"'))
+        if q >= 8 and s[:q].count('"') % 2 == 1 or q >= 8 and "«" in s[:q]:
+            s = s[: q + 1]
+    return fit(s, n)
 
 
 def money(x):
@@ -268,7 +325,7 @@ def num_ua(x, d=0):
 MIL_UNIT = re.compile(r"(в/ч|військов\w+ частин\w+)\s*[№#]?\s*[А-ЯA-Z]?\s*-?\s*\d{3,5}|\b[АA]\s?\d{4}\b", re.I)
 
 
-def subject(r):
+def subject(r, n=None):
     t = re.sub(r"(код\s*)?(за\s*)?(ДК\s*021:?\s*2015[:\s–-]*)?\d{8}-\d\s*[–-]?\s*", "", r["title"] or "", flags=re.I)
     t = re.sub(r"^\s*\d{2}[А-ЯA-Z]-\d+_", "", t)            # внутрішні префікси на кшталт 26Т-953_
     t = re.sub(r"^\s*код\s+", "", t, flags=re.I).strip(" -–:«»\"")
@@ -276,8 +333,8 @@ def subject(r):
     t = re.sub(r"\s+", " ", t).strip(" -–—:«»\"")
     if r.get("military") == 1:
         t = MIL_UNIT.sub("", t)
-    t = short_name(t, 200)
-    return t[:60].rstrip(" ,(") + ("…" if len(t) > 60 else "")
+    t = short_name(t).rstrip(" .")
+    return fit(t, n)
 
 
 def signal_lines(r):
@@ -294,10 +351,10 @@ def signal_lines(r):
         lines.append("Переможець не мав жодної перемоги в Prozorro за попередні 24 місяці.")
     m = re.search(r"CPV (\d+)\*", r["flags"].get("SUPPLIER_NEW_IN_DIVISION", ""))
     if "SUPPLIER_NEW_IN_DIVISION" in c and m:
-        lines.append(f"Переможець раніше взагалі не працював у цій сфері (розділ CPV {m.group(1)}…) за 24 місяці.")
+        lines.append(f"Переможець раніше взагалі не працював у цій сфері (розділ CPV {m.group(1)}) за 24 місяці.")
     m = re.search(r"CPV (\d+)\*", r["flags"].get("SUPPLIER_NEW_IN_CATEGORY", ""))
     if "SUPPLIER_NEW_IN_CATEGORY" in c and m:
-        lines.append(f"Переможець раніше не вигравав закупівель цієї групи (CPV {m.group(1)}…) за 24 місяці.")
+        lines.append(f"Переможець раніше не вигравав закупівель групи CPV {m.group(1)} за 24 місяці.")
     if "BID_AT_ESTIMATE_EXACT" in c and r.get("award_amt") and r.get("est"):
         diff = r["est"] - r["award_amt"]
         who = "Єдиний учасник" if "SINGLE_BIDDER" in c else "Переможець"
@@ -379,6 +436,14 @@ def is_person(name, ident=None):
                 or re.search(r"фізична особа|\bФОП\b", name or "", re.I))
 
 
+def n_lots(n):
+    if n % 10 == 1 and n % 100 != 11:
+        return f"{n} аналогічний лот"
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return f"{n} аналогічні лоти"
+    return f"{n} аналогічних лотів"
+
+
 def n_zakupivel(n):
     if n % 10 == 1 and n % 100 != 11:
         return f"{n} закупівлю"
@@ -400,32 +465,48 @@ def edrpou_line(r):
 
 
 def compose(r, full=False):
-    # full=True: повний текст для Telegram-каналу (без обмеження 280)
+    # full=True: повний текст для Telegram-каналу (без обмеження 280 і без скорочень назв)
     if r.get("military") == 1:
         buyer = "Військовий замовник"
     elif is_person(r.get("buyer"), r.get("buyer_id")):
         buyer = "Замовник (ФОП)"
     else:
-        buyer = short_name(r["buyer"], 50)
-    more = f" (+{r['siblings']} аналогічн. лот.)" if r.get("siblings") else ""
+        buyer = None                                      # звичайна назва: скорочуємо через short_name
+    more = f" (+{n_lots(r['siblings'])})" if r.get("siblings") else ""
     subj = subject(r)
+    amount = money(r.get("award_amt") or r.get("est"))
 
-    def head(bl, sl):                                     # bl, sl: максимальна довжина назви замовника і предмета
-        b = buyer if len(buyer) <= bl else buyer[:bl - 1].rstrip(" ,(") + "…"
-        t = subj if len(subj) <= sl else subj[:sl - 1].rstrip(" ,(") + "…"
-        return f"{b}: {t}, {money(r.get('award_amt') or r.get('est'))}{more}."
+    def head(bl=None, sl=None, b=None, t=None):          # bl, sl: максимальна довжина назви замовника і предмета
+        bn = (fit(buyer, bl) if buyer else short_name(r["buyer"], bl)) if b is None else b
+        return f"{bn}: {fit(subj, sl) if t is None else t}, {amount}{more}."
     tail = f"Сигнал ризику, не доказ порушення.\n{PORTAL}{r['tender_id']} {CFG['hashtags']}".rstrip()
     sigs = signal_lines(r)
     ids = edrpou_line(r)
     if full:
-        return "\n".join([head(50, 61)] + sigs + ([ids] if ids else []) + [tail])
-    # X: більше сигналів важливіше за повну назву; слабші сигнали відкидаємо, доки не вміститься в 280
+        return "\n".join([head()] + sigs + ([ids] if ids else []) + [tail])
+    # X: більше сигналів важливіше за повну назву; ЄДРПОУ - лише якщо назви лишаються майже повними.
+    # Вільне місце ділимо між замовником і предметом, скорочуємо по межі слова.
+    lb, ls = len(buyer or short_name(r["buyer"])), len(subj)
     for k in (range(len(sigs), 0, -1) if sigs else [0]):
-        for bl, sl in ((50, 61), (35, 61), (35, 40), (25, 30)):
-            for extra in ([ids] if ids else []) + [None]:
-                text = "\n".join([head(bl, sl)] + sigs[:k] + ([extra] if extra else []) + [tail])
+        for extra, mb, ms in (((ids, 35, 40),) if ids else ()) + ((None, 20, 25),):
+            rest = sigs[:k] + ([extra] if extra else []) + [tail]
+            budget = 280 - weighted_len("\n".join([head(b="", t="")] + rest))
+            mb, ms = min(lb, mb), min(ls, ms)
+            if budget < mb + ms:
+                continue
+            sl = min(ls, max(ms, int(budget * 0.6)))
+            bl = min(lb, budget - sl)
+            sl = min(ls, budget - bl)
+            while True:
+                text = "\n".join([head(bl, sl)] + rest)
                 if weighted_len(text) <= 280:
                     return text
+                if sl > ms:
+                    sl -= 2
+                elif bl > mb:
+                    bl -= 2
+                else:
+                    break
     text = "\n".join([head(20, 25)] + sigs[:1] + [tail])
     # крайній випадок: у X без сигналу (повний текст однаково піде в Telegram-канал)
     return text if weighted_len(text) <= 280 else "\n".join([head(35, 40)] + [tail])
@@ -433,16 +514,16 @@ def compose(r, full=False):
 
 def compose_pattern(p, full=False):
     """Текст для закономірності (замовник/постачальник), до 280 символів."""
-    def head(n):
+    def head(n=None):
+        n5 = None if n is None else n - 5
         buyer = "Замовник (ФОП)" if is_person(p["buyer"], p.get("buyer_id")) else short_name(p["buyer"], n)
         if p["pattern"] == "dominance":
-            sup = "переможець-ФОП" if is_person(p["supplier"], p.get("supplier_id")) else short_name(p["supplier"], n - 5)
+            sup = "переможець-ФОП" if is_person(p["supplier"], p.get("supplier_id")) else short_name(p["supplier"], n5)
             return (f"{buyer}: {sup} отримав {p['n']} з {p['n_buyer']} конкурентних закупівель за {p['days']} дн., "
                     f"{p['share']:.0%} їхньої вартості ({money(p['total'])}).")
         if p["pattern"] == "split":
-            subj = subject({"title": p.get("title"), "military": 0})
-            subj = subj if len(subj) <= n else subj[:n - 1].rstrip(" ,(") + "…"
-            sup = "переможець-ФОП" if is_person(p.get("supplier"), p.get("supplier_id")) else short_name(p.get("supplier"), n - 5)
+            subj = subject({"title": p.get("title"), "military": 0}, n)
+            sup = "переможець-ФОП" if is_person(p.get("supplier"), p.get("supplier_id")) else short_name(p.get("supplier"), n5)
             return (f"{buyer}: {sup} отримав {n_zakupivel(p['n'])} «{subj}» за {p['days']} дн. на {money(p['total'])}, "
                     f"кожна нижче порогу {money(p['threshold'])}. Можливий поділ закупівлі.")
         return f"{buyer}: за останні 30 днів {p['detail'].rstrip('.')}."
@@ -451,9 +532,12 @@ def compose_pattern(p, full=False):
     ex = f"Приклад: {PORTAL}{p['example']} " if p.get("example") else ""
     tail = f"Сигнал ризику, не доказ порушення.\n{ex}{CFG['hashtags']}".rstrip()
     if full:
-        return "\n".join([head(45)] + lines + ([ids] if ids else []) + [tail])
-    for n in (45, 30, 20):
-        for extra in (lines + ([ids] if ids else []), lines, []):
+        return "\n".join([head()] + lines + ([ids] if ids else []) + [tail])
+    # рядок про одну пропозицію важливіший за повні назви; ЄДРПОУ - лише якщо назви лишаються довгими
+    for extra, nmin in ((lines + ([ids] if ids else []), 40), (lines, 20), ([], 20)):
+        for n in (70, 60, 50, 45, 40, 35, 30, 25, 20):
+            if n < nmin:
+                break
             text = "\n".join([head(n)] + extra + [tail])
             if weighted_len(text) <= 280:
                 return text
@@ -837,12 +921,25 @@ def channel_text(con, p):
     stored = p["text_tg"] or p["text"]
     if p["note"] == "edited" or (p["kind"] or "tender") not in ("tender", "explore"):
         return stored
+    r = fresh_row(con, p)
+    return compose(r, full=True) if r else stored
+
+
+def fresh_row(con, p):
+    """Поточні дані тендера для нового тексту; None для закономірностей, відредагованих або зниклих із бази."""
+    if p["note"] == "edited" or (p["kind"] or "tender") not in ("tender", "explore"):
+        return None
     try:
         rs = candidates(con, only=p["tender_id"])
     except Exception as e:
         log(f"не вдалося оновити текст {p['tender_id']}: {e}")
-        return stored
-    return compose(rs[0], full=True) if rs and rs[0]["codes"] else stored
+        return None
+    if not (rs and rs[0]["codes"]):
+        return None
+    m = re.search(r"\(\+(\d+) аналогічн", p["text_tg"] or p["text"] or "")
+    if m and not rs[0].get("siblings"):
+        rs[0]["siblings"] = int(m.group(1))
+    return rs[0]
 
 
 def refresh_channel_posts(con):
@@ -1201,7 +1298,7 @@ def resend_stale(con):
     if not hours:
         return
     cut = (now() - timedelta(hours=hours)).isoformat()
-    rows = con.execute("SELECT tender_id, text, context, text_tg, review_msg_id FROM posts "
+    rows = con.execute("SELECT tender_id, text, context, text_tg, review_msg_id, note, kind FROM posts "
                        "WHERE status='in_review' AND review_msg_id IS NOT NULL "
                        "AND COALESCE(review_sent_at, created) <= ? ORDER BY COALESCE(review_sent_at, created) "
                        "LIMIT ?", (cut, CFG.get("resend_max_per_run") or 15)).fetchall()
@@ -1210,8 +1307,14 @@ def resend_stale(con):
             tg("deleteMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"), message_id=r["review_msg_id"])
         except Exception:
             pass                    # старіше за 48 год або вже видалено: лишається в чаті, його можна прибрати вручну
+        text, full = r["text"], r["text_tg"]
+        fr = fresh_row(con, r)              # заодно оновлюємо текст за поточними правилами
+        if fr:
+            text, full = compose(fr), compose(fr, full=True)
+            full = full if full != text else None
+            con.execute("UPDATE posts SET text=?, text_tg=? WHERE tender_id=?", (text, full, r["tender_id"]))
         try:
-            send_for_review(con, r["tender_id"], r["text"], r["context"] or "", full=r["text_tg"], silent=True)
+            send_for_review(con, r["tender_id"], text, r["context"] or "", full=full, silent=True)
         except Exception as e:
             log(f"не вдалося надіслати чернетку {r['tender_id']} заново: {e}")
             break
