@@ -204,7 +204,8 @@ async function approvedHtml(env, p, extraStatus) {
     lines.push("<b>✅ Схвалено</b>", `<blockquote>${tgHtml(env, p.text_x)}</blockquote>`,
       p.x_id ? `🐦 Опубліковано в X: https://x.com/i/web/status/${p.x_id}` : "🐦 У X - під час найближчого проходу (до 10 хв, поза тихими годинами)");
   } else if (c.postToX) {
-    lines.push("<b>✅ Схвалено. Допис для X</b> #ready_to_x", "Натисніть «Відкрити в X», перевірте текст і натисніть Post.",
+    lines.push("<b>✅ Схвалено. Допис для X</b> #ready_to_x",
+      "Натисніть «Відкрити в X», перевірте текст і натисніть Post, а потім «✔️ Опубліковано в X» - повідомлення зникне.",
       `<pre>${esc(p.text_x)}</pre>`);
   } else {
     lines.push("<b>✅ Схвалено</b>", `<blockquote>${tgHtml(env, p.text_tg || p.text_x)}</blockquote>`);
@@ -220,7 +221,8 @@ async function showApproved(env, p, extraStatus) {
   const c = cfg(env);
   const text = await approvedHtml(env, p, extraStatus);
   const manualX = c.postToX && !c.xApi;
-  const kb = manualX ? { inline_keyboard: [[{ text: "Відкрити в X", url: xIntent(p.text_x) }]] } : { inline_keyboard: [] };
+  const done = [{ text: "✔️ Опубліковано в X", callback_data: `px:${p.id}` }];   // прибрати повідомлення, коли запощено
+  const kb = manualX ? { inline_keyboard: [[{ text: "Відкрити в X", url: xIntent(p.text_x) }], done] } : { inline_keyboard: [] };
   try {
     await tg(env, "editMessageText", { chat_id: reviewChat(env), message_id: p.review_msg_id, text, parse_mode: "HTML",
       disable_web_page_preview: true, reply_markup: kb });
@@ -228,7 +230,7 @@ async function showApproved(env, p, extraStatus) {
     if (/not modified/.test(e.description)) return;
     if (manualX) {   // напр. задовге посилання для кнопки: даємо його текстом
       await quietly(tg(env, "editMessageText", { chat_id: reviewChat(env), message_id: p.review_msg_id, parse_mode: "HTML",
-        disable_web_page_preview: true, text: text + `\n<a href="${esc(xIntent(p.text_x))}">Відкрити в X</a>`, reply_markup: { inline_keyboard: [] } }));
+        disable_web_page_preview: true, text: text + `\n<a href="${esc(xIntent(p.text_x))}">Відкрити в X</a>`, reply_markup: { inline_keyboard: [done] } }));
     }
   }
 }
@@ -285,6 +287,12 @@ async function onClick(env, q) {
   if (!p) {
     await answer(env, q, "Цієї чернетки немає в базі");
     return dropMessage(env, mid);
+  }
+  if (action === "px") {
+    // «Опубліковано в X»: допис уже в X, повідомлення #ready_to_x більше не потрібне
+    await run(env, "UPDATE posts SET x_posted_at=COALESCE(x_posted_at, ?), review_msg_id=NULL WHERE id=?", nowIso(), id);
+    await answer(env, q, "✔️ Позначено як опубліковане в X");
+    return dropMessage(env, mid, "<b>✔️ Опубліковано в X</b>");
   }
   if (!["queued", ...ACTIVE].includes(p.status)) {
     await answer(env, q, `Вже оброблено: ${LABEL[p.status] || p.status}`);
@@ -416,13 +424,28 @@ async function fillWindow(env, extra = 0) {
 
 // ------------------------------------------------------------------ розклад (cron)
 async function tick(env) {
-  const steps = [publishX, publishChannel, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, pruneEvents];
+  const steps = [publishX, publishChannel, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, addPostedButtons, pruneEvents];
   for (const f of steps) {
     try { await f(env); } catch (e) {
       if (!(e instanceof BudgetError)) await logEvent(env, "error", { data: `${f.name}: ${e.stack || e}` });
     }
   }
   await meta(env, "last_tick", nowIso());
+}
+
+async function addPostedButtons(env) {
+  // одноразово: кнопка «✔️ Опубліковано в X» на повідомленнях #ready_to_x, схвалених до її появи (курсор - за id)
+  const c = cfg(env);
+  if (!c.postToX || c.xApi || (await meta(env, "px_buttons")) === "done") return;
+  const after = (await meta(env, "px_buttons")) || "";
+  const rows = await all(env, `SELECT * FROM posts WHERE status IN ('approved','published') AND review_msg_id IS NOT NULL
+    AND x_posted_at IS NULL AND x_sent_at IS NOT NULL AND id > ? ORDER BY id LIMIT 8`, after);
+  for (const p of rows) {
+    if (env.budget.left < 6) return;
+    await showApproved(env, p);
+    await meta(env, "px_buttons", p.id);
+  }
+  if (rows.length < 8) await meta(env, "px_buttons", "done");
 }
 
 async function expire(env) {
@@ -606,7 +629,7 @@ async function api(request, env, url) {
     const offset = int(url.searchParams.get("offset"), 0), limit = Math.min(int(url.searchParams.get("limit"), 200), 500);
     const cols = url.searchParams.get("full") === "1" ? "*"
       : "id, kind, status, text_x, text_tg, features, priority, skips, edited, created_at, review_msg_id, review_sent_at, "
-        + "decided_at, decided_by, x_sent_at, x_id, channel_msg_id, channel_at, note";
+        + "decided_at, decided_by, x_sent_at, x_id, x_posted_at, channel_msg_id, channel_at, note";
     const posts = await all(env, `SELECT ${cols} FROM posts ORDER BY id LIMIT ${limit | 0} OFFSET ${Math.max(0, offset | 0)}`);
     return json({ ok: true, posts, more: posts.length === limit,
       meta: offset ? undefined : Object.fromEntries((await all(env, "SELECT k, v FROM meta")).map((r) => [r.k, r.v])) });

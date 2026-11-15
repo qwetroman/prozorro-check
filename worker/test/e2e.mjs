@@ -57,6 +57,17 @@ const ed = of(cs, "editMessageText").find((c) => c.params.message_id === P[A].re
 ok(ed && ed.params.reply_markup.inline_keyboard[0][0].url.startsWith("https://x.com/intent/post?text="), "✅: кнопка «Відкрити в X» на тому ж повідомленні");
 ok(of(cs, "sendMessage").length === 1, "✅: надіслано наступну чернетку з черги");
 
+// 3б. «Опубліковано в X» під #ready_to_x: позначає й прибирає повідомлення
+const kbA = ed.params.reply_markup.inline_keyboard;
+ok(kbA[1]?.[0]?.callback_data === `px:${A}`, "під #ready_to_x є кнопка «✔️ Опубліковано в X»");
+await reset();
+const midA = P[A].review_msg_id;
+await click(`px:${A}`, midA);
+cs = await calls();
+P = await posts();
+ok(P[A].x_posted_at && P[A].review_msg_id === null && P[A].status === "approved", "«Опубліковано в X»: позначено, статус не змінено");
+ok(of(cs, "deleteMessage").some((c) => c.params.message_id === midA) && of(cs, "answerCallbackQuery").length === 1, "«Опубліковано в X»: повідомлення видалено");
+
 // 4. повтор того самого оновлення не обробляється вдруге
 await reset();
 const dupId = ++upd;
@@ -127,7 +138,7 @@ if (quiet) {
   ok(!of(cs, "sendMessage").some((c) => c.params.chat_id === "@test_channel"), "тихі години: у канал нічого");
 } else {
   ok(of(cs, "sendMessage").some((c) => c.params.chat_id === "@test_channel"), "канал: опубліковано перший схвалений");
-  ok(P[A].status === "published" && P[A].channel_msg_id > 0, "канал: статус published");
+  ok(P[A].status === "published" && P[A].channel_msg_id > 0, "канал: статус published (повідомлення вже прибрано - не чіпаємо)");
   await reset();
   await api("tick", {});
   ok(!of(await calls(), "sendMessage").some((c) => c.params.chat_id === "@test_channel"), "канал: не частіше ніж раз на годину");
@@ -165,7 +176,7 @@ r = await api("import", { posts: [{ id: "UA-2026-09-01-000001-a", kind: "tender"
   meta: { schedule_msg_id: "1029" } });
 ok(r.added === 1, "import: старий запис перенесено");
 const ev = (await api("events")).events;
-ok(ev.filter((e) => e.kind === "click").length === 7, `журнал подій: натискань ${ev.filter((e) => e.kind === "click").length}`);
+ok(ev.filter((e) => e.kind === "click").length === 8, `журнал подій: натискань ${ev.filter((e) => e.kind === "click").length}`);
 ok(!ev.some((e) => e.kind === "error"), "без помилок у журналі");
 
 // 14. бюджет запитів: велика партія не ламає виклик (безкоштовний тариф - 50 зовнішніх запитів)
