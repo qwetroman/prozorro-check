@@ -7,6 +7,8 @@
 // Ключ API і секрет вебхука виводяться з TG_BOT_TOKEN (HMAC), тож окремих секретів не потрібно.
 // Розклад (cron): прострочення, вікно перевірки, публікація в канал, закріплений «Розклад», тижневий підсумок.
 
+import { hasXKeys, postToX } from "./x.js";
+
 const PORTAL = "https://prozorro.gov.ua/tender/";
 const ACTIVE = ["in_review", "awaiting_edit"];
 const LABEL = {
@@ -45,6 +47,9 @@ const cfg = (env) => ({
   channelMinutes: int(env.CHANNEL_MINUTES, 60),
   quiet: [int(env.QUIET_FROM, 23), int(env.QUIET_TO, 8)],
   postToX: env.POST_TO_X !== "false",
+  xApi: env.POST_TO_X !== "false" && hasXKeys(env),   // є ключі X: публікуємо самі; інакше - посилання вам
+  xMinutes: int(env.X_MINUTES, 0),                // X через API: не частіше ніж раз на стільки хвилин (0 = без обмеження)
+  xMaxPerDay: int(env.X_MAX_PER_DAY, 0),          // X через API: не більше стільки дописів за 24 год (0 = без обмеження)
   digestHour: int(env.DIGEST_HOUR, 18),
   hashtags: env.HASHTAGS || "#Prozorro",
   registry: env.REGISTRY_URL || "https://opendatabot.ua/c/",
@@ -195,7 +200,10 @@ async function approvedHtml(env, p, extraStatus) {
   const c = cfg(env);
   const eta = await channelEta(env, p.id);
   const lines = [];
-  if (c.postToX) {
+  if (c.xApi) {
+    lines.push("<b>✅ Схвалено</b>", `<blockquote>${tgHtml(env, p.text_x)}</blockquote>`,
+      p.x_id ? `🐦 Опубліковано в X: https://x.com/i/web/status/${p.x_id}` : "🐦 У X - під час найближчого проходу (до 10 хв, поза тихими годинами)");
+  } else if (c.postToX) {
     lines.push("<b>✅ Схвалено. Допис для X</b> #ready_to_x", "Натисніть «Відкрити в X», перевірте текст і натисніть Post.",
       `<pre>${esc(p.text_x)}</pre>`);
   } else {
@@ -211,13 +219,14 @@ async function showApproved(env, p, extraStatus) {
   if (!p.review_msg_id) return;
   const c = cfg(env);
   const text = await approvedHtml(env, p, extraStatus);
-  const kb = c.postToX ? { inline_keyboard: [[{ text: "Відкрити в X", url: xIntent(p.text_x) }]] } : { inline_keyboard: [] };
+  const manualX = c.postToX && !c.xApi;
+  const kb = manualX ? { inline_keyboard: [[{ text: "Відкрити в X", url: xIntent(p.text_x) }]] } : { inline_keyboard: [] };
   try {
     await tg(env, "editMessageText", { chat_id: reviewChat(env), message_id: p.review_msg_id, text, parse_mode: "HTML",
       disable_web_page_preview: true, reply_markup: kb });
   } catch (e) {
     if (/not modified/.test(e.description)) return;
-    if (c.postToX) {   // напр. задовге посилання для кнопки: даємо його текстом
+    if (manualX) {   // напр. задовге посилання для кнопки: даємо його текстом
       await quietly(tg(env, "editMessageText", { chat_id: reviewChat(env), message_id: p.review_msg_id, parse_mode: "HTML",
         disable_web_page_preview: true, text: text + `\n<a href="${esc(xIntent(p.text_x))}">Відкрити в X</a>`, reply_markup: { inline_keyboard: [] } }));
     }
@@ -286,9 +295,10 @@ async function onClick(env, q) {
   const other = p.review_msg_id && mid && p.review_msg_id !== mid ? p.review_msg_id : null;
   const t = nowIso();
   if (action === "ok") {
-    // з каналом: чекає своєї черги на канал; без каналу: посилання для X - це і є публікація
+    // з каналом або з X через API: чекає своєї черги; інакше посилання для X - це і є публікація
+    const c = cfg(env), manualX = c.postToX && !c.xApi;
     await run(env, "UPDATE posts SET status=?, decided_at=?, decided_by=?, review_msg_id=?, x_sent_at=? WHERE id=?",
-      env.TG_CHANNEL_ID ? "approved" : "published", t, uid, mid ?? p.review_msg_id, cfg(env).postToX ? t : null, id);
+      env.TG_CHANNEL_ID || c.xApi ? "approved" : "published", t, uid, mid ?? p.review_msg_id, manualX ? t : null, id);
     await answer(env, q, "✅ Схвалено");
     await showApproved(env, await getPost(env, id));
   } else if (action === "no") {
@@ -403,7 +413,7 @@ async function fillWindow(env) {
 
 // ------------------------------------------------------------------ розклад (cron)
 async function tick(env) {
-  const steps = [publishChannel, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, pruneEvents];
+  const steps = [publishX, publishChannel, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, pruneEvents];
   for (const f of steps) {
     try { await f(env); } catch (e) {
       if (!(e instanceof BudgetError)) await logEvent(env, "error", { data: `${f.name}: ${e.stack || e}` });
@@ -430,6 +440,38 @@ async function refreshOld(env) {
       disable_web_page_preview: true, reply_markup: buttons(p.id), disable_notification: true });
     await quietly(tg(env, "deleteMessage", { chat_id: reviewChat(env), message_id: p.review_msg_id }));
     await run(env, "UPDATE posts SET review_msg_id=?, review_sent_at=? WHERE id=?", res.message_id, nowIso(), p.id);
+  }
+}
+
+async function publishX(env) {
+  // X через API: схвалені, ще не опубліковані в X; поза тихими годинами, з інтервалом і добовим лімітом
+  const c = cfg(env);
+  if (!c.xApi || (await meta(env, "paused")) === "1" || isQuiet(env)) return;
+  const last = await meta(env, "last_x_post");
+  if (c.xMinutes && last && new Date(last).getTime() > Date.now() - (c.xMinutes - 2) * 60000) return;
+  let room = c.xMinutes ? 1 : 5;
+  if (c.xMaxPerDay) {
+    const day = (await one(env, "SELECT COUNT(*) AS n FROM posts WHERE x_id IS NOT NULL AND x_sent_at >= ?",
+      new Date(Date.now() - 86400000).toISOString())).n;
+    room = Math.min(room, c.xMaxPerDay - day);
+  }
+  if (room <= 0) return;
+  const rows = await all(env, `SELECT * FROM posts WHERE status IN ('approved','published') AND x_sent_at IS NULL
+    AND decided_at IS NOT NULL ORDER BY decided_at, id LIMIT ${room | 0}`);
+  for (const p of rows) {
+    let xid;
+    try {
+      xid = await postToX(env, p.text_x);
+    } catch (e) {
+      await logEvent(env, "error", { post_id: p.id, data: `X: ${e.message}` });
+      await run(env, "UPDATE posts SET status='failed', note=? WHERE id=?", `X: ${e.message}`.slice(0, 500), p.id);
+      return showApproved(env, { ...p, status: "failed" }, `⚠️ Помилка публікації в X: ${e.message.slice(0, 200)}`);
+    }
+    const t = nowIso();
+    await run(env, "UPDATE posts SET x_id=?, x_sent_at=?, status=CASE WHEN ? THEN status ELSE 'published' END WHERE id=?",
+      xid, t, env.TG_CHANNEL_ID ? 1 : 0, p.id);
+    await meta(env, "last_x_post", t);
+    await showApproved(env, await getPost(env, p.id));
   }
 }
 
@@ -464,6 +506,11 @@ async function scheduleHtml(env) {
   if ((await meta(env, "paused")) === "1") lines.push("⏸ Публікацію в канал призупинено (/resume, щоб відновити).");
   const cnt = await one(env, "SELECT SUM(status='queued') AS q, SUM(status IN ('in_review','awaiting_edit')) AS r FROM posts");
   lines.push("", `<b>Перевірка:</b> у чаті ${cnt.r || 0}, у черзі ${cnt.q || 0}`);
+  if (c.xApi) {
+    const nx = (await one(env, "SELECT COUNT(*) AS n FROM posts WHERE status IN ('approved','published') AND x_sent_at IS NULL AND decided_at IS NOT NULL")).n;
+    lines.push(`<b>X (через API):</b> у черзі ${nx}` + (c.xMinutes ? `, раз на ~${c.xMinutes} хв` : "")
+      + (c.xMaxPerDay ? `, до ${c.xMaxPerDay} за добу` : ""));
+  }
   if (env.TG_CHANNEL_ID) {
     const q = await all(env, "SELECT id, COALESCE(text_tg, text_x) AS text FROM posts WHERE status='approved' AND channel_msg_id IS NULL ORDER BY decided_at, id");
     const times = channelTimesFrom(env, await meta(env, "last_channel_post"), Math.min(q.length, 25));
@@ -556,7 +603,7 @@ async function api(request, env, url) {
     const offset = int(url.searchParams.get("offset"), 0), limit = Math.min(int(url.searchParams.get("limit"), 200), 500);
     const cols = url.searchParams.get("full") === "1" ? "*"
       : "id, kind, status, text_x, text_tg, features, priority, skips, edited, created_at, review_msg_id, review_sent_at, "
-        + "decided_at, decided_by, x_sent_at, channel_msg_id, channel_at, note";
+        + "decided_at, decided_by, x_sent_at, x_id, channel_msg_id, channel_at, note";
     const posts = await all(env, `SELECT ${cols} FROM posts ORDER BY id LIMIT ${limit | 0} OFFSET ${Math.max(0, offset | 0)}`);
     return json({ ok: true, posts, more: posts.length === limit,
       meta: offset ? undefined : Object.fromEntries((await all(env, "SELECT k, v FROM meta")).map((r) => [r.k, r.v])) });
@@ -611,7 +658,7 @@ async function api(request, env, url) {
   if (path === "import") {
     // одноразове перенесення зі старого журналу; повторний виклик нічого не перезаписує
     const cols = ["id", "kind", "status", "text_x", "text_tg", "context", "features", "priority", "skips", "edited", "created_at",
-      "review_msg_id", "review_sent_at", "decided_at", "decided_by", "x_sent_at", "channel_msg_id", "channel_at", "note"];
+      "review_msg_id", "review_sent_at", "decided_at", "decided_by", "x_sent_at", "x_id", "channel_msg_id", "channel_at", "note"];
     const stmt = env.DB.prepare(`INSERT OR IGNORE INTO posts (${cols.join(",")}) VALUES (${cols.map(() => "?").join(",")})`);
     const posts = body.posts || [];
     let added = 0;

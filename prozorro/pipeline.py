@@ -231,6 +231,7 @@ def legacy_post(p):
             "created_at": p.get("created"), "review_msg_id": p.get("review_msg_id") if status == "queued" else None,
             "decided_at": p.get("approved_at"), "decided_by": p.get("approved_by"),
             "x_sent_at": p.get("published_at") if st == "published" else None,
+            "x_id": p.get("x_id") if p.get("x_id") not in (None, "manual") and not str(p.get("x_id")).startswith("dry") else None,
             "channel_msg_id": ch, "channel_at": p.get("published_at") if ch and ch > 0 else None}
 
 

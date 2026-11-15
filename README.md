@@ -36,6 +36,8 @@
 
 Потім worker-deploy запускається сам після кожної зміни в `worker/`.
 
+**X через API (необов'язково).** Якщо додати в секрети репозиторію всі чотири ключі `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` (developer.x.com → застосунок із правами Read and write → Keys and tokens) і знову запустити worker-deploy, бот публікуватиме схвалене в X сам: на найближчому проході, поза тихими годинами, а в повідомленні з'явиться посилання на допис. Інтервал і добовий ліміт - `X_MINUTES` і `X_MAX_PER_DAY` у `worker/wrangler.toml`. Без ключів - як зараз: посилання, яке відкриває X з готовим текстом.
+
 Секрети Telegram ті самі: `TG_BOT_TOKEN`, `TG_ADMIN_IDS`, `TG_REVIEW_CHAT_ID`, `TG_CHANNEL_ID`. Ключ API Worker і секрет вебхука виводяться з токена бота, окремо задавати не треба. Якщо колись змінити токен бота - просто знову запустити worker-deploy.
 
 ## Налаштування
@@ -83,7 +85,7 @@
 ## Тести
 
 - `python -m pytest tests` - тексти й перенесення журналу.
-- `worker/test/run.sh` - наскрізний тест Worker локально (потрібен Node і `npx wrangler`): імітація Telegram, кнопки, вікно, канал, API.
+- `worker/test/run.sh` - наскрізний тест Worker локально (потрібен Node і `npx wrangler`): імітація Telegram, кнопки, вікно, канал, API. `X=1 worker/test/run.sh` - те саме для публікації в X через API.
 
 ## Дрібниці
 

@@ -27,6 +27,10 @@ jobs:
       TG_ADMIN_IDS: ${{ secrets.TG_ADMIN_IDS }}
       TG_REVIEW_CHAT_ID: ${{ secrets.TG_REVIEW_CHAT_ID }}
       TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+      X_API_KEY: ${{ secrets.X_API_KEY }}                # необов'язково: з усіма чотирма ключами X бот публікує в X сам
+      X_API_SECRET: ${{ secrets.X_API_SECRET }}
+      X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
     defaults:
       run:
         working-directory: worker
@@ -66,7 +70,10 @@ jobs:
       - name: Секрети Worker
         run: |
           jq -n --arg t "$TG_BOT_TOKEN" --arg a "$TG_ADMIN_IDS" --arg r "$TG_REVIEW_CHAT_ID" --arg c "$TG_CHANNEL_ID" \
-            '{TG_BOT_TOKEN:$t, TG_ADMIN_IDS:$a, TG_REVIEW_CHAT_ID:$r} + (if $c != "" then {TG_CHANNEL_ID:$c} else {} end)' > secrets.json
+            --arg xk "$X_API_KEY" --arg xs "$X_API_SECRET" --arg xt "$X_ACCESS_TOKEN" --arg xa "$X_ACCESS_SECRET" \
+            '{TG_BOT_TOKEN:$t, TG_ADMIN_IDS:$a, TG_REVIEW_CHAT_ID:$r} + (if $c != "" then {TG_CHANNEL_ID:$c} else {} end)
+             + (if $xk != "" and $xs != "" and $xt != "" and $xa != ""
+                then {X_API_KEY:$xk, X_API_SECRET:$xs, X_ACCESS_TOKEN:$xt, X_ACCESS_SECRET:$xa} else {} end)' > secrets.json
           npx wrangler secret bulk secrets.json
           rm secrets.json
 

@@ -9,6 +9,13 @@ http.createServer((req, res) => {
   req.on("end", () => {
     if (req.url === "/__calls") { res.end(JSON.stringify(calls)); return; }
     if (req.url === "/__reset") { calls.length = 0; res.end("{}"); return; }
+    if (req.url === "/2/tweets") {          // імітація X API
+      calls.push({ method: "x:tweet", params: JSON.parse(body), auth: req.headers.authorization });
+      res.setHeader("content-type", "application/json");
+      res.statusCode = 201;
+      res.end(JSON.stringify({ data: { id: String(1900000000000000000n + BigInt(calls.length)), text: "" } }));
+      return;
+    }
     const method = req.url.split("/").pop();
     const params = body ? JSON.parse(body) : {};
     calls.push({ method, params });
