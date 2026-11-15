@@ -801,6 +801,18 @@ def poll_telegram(con, timeout=0):
     if DRY:
         return 0
     ups = tg("getUpdates", offset=off, timeout=timeout, allowed_updates=["message", "callback_query"])
+    if off and ups and ups[0]["update_id"] > off:
+        # оновлення з номерами між позицією бота і першим отриманим забрав інший процес з тим самим токеном
+        lost = ups[0]["update_id"] - off
+        log(f"УВАГА: пропущено оновлень Telegram: {lost} (позиція {off}, перше отримане {ups[0]['update_id']}) - "
+            "їх забрав інший процес, який використовує той самий токен бота")
+        try:
+            tg("sendMessage", chat_id=ENV("TG_REVIEW_CHAT_ID"),
+               text=f"⚠️ Загублено {lost} натискань/повідомлень: їх перехопив інший процес із тим самим токеном бота "
+                    "(інший запуск бота, сервер чи скрипт). Щоб це припинити, згенеруйте новий токен у @BotFather "
+                    "(/revoke) і оновіть секрет TG_BOT_TOKEN. Чернетки, на які ви натиснули, лишилися на перевірці.")
+        except Exception as e:
+            log(f"не вдалося попередити про загублені натискання: {e}")
     for u in ups:
         try:
             handle_update(con, u)
