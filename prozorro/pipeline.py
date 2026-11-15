@@ -57,9 +57,19 @@ def send(path, body):
 
 
 # ------------------------------------------------------------------ sync
+def export_all(full=False):
+    posts, meta, off = [], {}, 0
+    while True:
+        j = api.call(f"export?offset={off}&limit={100 if full else 300}" + ("&full=1" if full else ""))
+        meta = j.get("meta") or meta
+        posts += j["posts"]
+        off += len(j["posts"])
+        if not j.get("more"):
+            return posts, meta
+
+
 def cmd_sync(con, args):
-    j = api.call("export")
-    posts = j["posts"]
+    posts, meta = export_all(full=True)
     # локальна копія для вибору кандидатів (що вже пропонувалося) і для моделі (рішення);
     # у статусах моделі: усе, що чекає рішення, - in_review
     con.execute("DROP TABLE IF EXISTS posts")
@@ -70,7 +80,7 @@ def cmd_sync(con, args):
     con.commit()
     os.makedirs(os.path.dirname(args.backup) or ".", exist_ok=True)
     with open(args.backup, "w", encoding="utf-8") as fh:
-        json.dump({"meta": j["meta"], "posts": posts}, fh, ensure_ascii=False, indent=0)
+        json.dump({"meta": meta, "posts": posts}, fh, ensure_ascii=False, indent=0)
     log(f"з Worker: записів {len(posts)}; резервна копія -> {args.backup}")
 
 
@@ -180,14 +190,14 @@ def cmd_draft(con, args):
     if not has_table(con, "posts"):
         raise SystemExit("немає локальної копії чернеток: спершу sync")
     sup = stale_and_military(con)
-    for part in api.chunks(sup):
+    for part in api.chunks(sup, 15):                  # прибирання повідомлень у Telegram - до 2 запитів на запис
         send("suppress", {"items": part})
     texts = fresh_channel_texts(con)
     for part in api.chunks(texts):
         send("texts", {"items": part})
     drafts = build_drafts(con)
     added = 0
-    for part in api.chunks(drafts):
+    for part in api.chunks(drafts, 25):
         added += send("drafts", {"drafts": part}).get("added", 0)
     kinds = {k: sum(d["kind"] == k for d in drafts) for k in ("tender", "pattern", "explore")}
     log(f"прибрано: {len(sup)}; оновлено текстів для каналу: {len(texts)}; нових чернеток: {added} "
@@ -235,7 +245,7 @@ def cmd_migrate(con, args):
     st = j.get("state", {})
     meta = {k: st.get(k) for k in ("schedule_msg_id", "last_channel_post", "last_digest", "paused")}
     added = 0
-    for part in api.chunks(posts, 200):
+    for part in api.chunks(posts, 50):
         added += send("import", {"posts": part, "meta": meta}).get("added", 0)
     from collections import Counter
     log(f"перенесено у Worker: {added} з {len(posts)}; статуси: {dict(Counter(p['status'] for p in posts))}")

@@ -9,8 +9,10 @@ from .texts import subject
 
 STRONG = {"PRICE_ABOVE_PEERS", "CHEAPER_BIDS_WITHDREW", "CHEAPER_BIDS_REJECTED", "REPEAT_WITHDRAWAL_PAIR",
           "SHARED_BIDDER_CONTACTS", "AMCU_COMPLAINT_UPHELD", "BID_AT_ESTIMATE_EXACT",
-          "SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_DIVISION"}   # останні два ставить prozorro_history.py
-# SUPPLIER_NEW_IN_CATEGORY (нова лише група CPV) - допоміжний: сам по собі чернетку не створює
+          "SUPPLIER_NEW_IN_DIVISION"}   # останній ставить prozorro_history.py
+# Допоміжні (самі по собі чернетку не створюють, але видні в тексті й контексті):
+#   SUPPLIER_NEW_IN_CATEGORY - нова лише група CPV;
+#   SUPPLIER_NO_HISTORY - за рішеннями до 15.11.2026 відхилено 8 з 8 таких чернеток
 
 
 def price_info(detail):
@@ -54,7 +56,7 @@ def candidates(con, limit=None, explore=False, only=None):
                                                         "REPEAT_WITHDRAWAL_PAIR"} else 0,
                     0.02 * (r["est"] or 0) if "BID_AT_ESTIMATE_EXACT" in strong else 0,
                     # переможець без історії (взагалі або в цій категорії): під ризиком увесь договір
-                    (r.get("award_amt") or 0) if strong & {"SUPPLIER_NO_HISTORY", "SUPPLIER_NEW_IN_DIVISION"} else 0)
+                    (r.get("award_amt") or 0) if strong & {"SUPPLIER_NEW_IN_DIVISION"} else 0)
         if re.search(r"газове паливо|природн\w* газ|електричн\w* енергі|теплов\w* енергі", r["title"] or "", re.I) and not pi:
             money *= 0.2   # регульовані комунальні послуги: ціна на рівні очікуваної — норма
         if only:

@@ -21,7 +21,7 @@ const click = (data, mid, from = ADMIN, update_id = ++upd) => hook({ update_id,
 const message = (text, reply_to) => hook({ update_id: ++upd,
   message: { message_id: 90000 + upd, from: { id: ADMIN }, chat: { id: ADMIN }, text,
     ...(reply_to ? { reply_to_message: { message_id: reply_to } } : {}) } });
-const posts = async () => Object.fromEntries((await api("export")).posts.map((p) => [p.id, p]));
+const posts = async () => Object.fromEntries((await api("export?limit=500&full=1")).posts.map((p) => [p.id, p]));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const of = (cs, m) => cs.filter((c) => c.method === m);
 
@@ -158,5 +158,17 @@ ok(r.added === 1, "import: старий запис перенесено");
 const ev = (await api("events")).events;
 ok(ev.filter((e) => e.kind === "click").length === 7, `журнал подій: натискань ${ev.filter((e) => e.kind === "click").length}`);
 ok(!ev.some((e) => e.kind === "error"), "без помилок у журналі");
+
+// 14. бюджет запитів: велика партія не ламає виклик (безкоштовний тариф - 50 зовнішніх запитів)
+const many = Array.from({ length: 40 }, (_, i) => ({ id: `UA-2026-10-01-${String(500 + i).padStart(6, "0")}-a`,
+  text_x: `масова ${i}`, context: "", priority: 100 + i }));
+await api("drafts", { drafts: many });
+r = await api("suppress", { items: many.map((d) => ({ id: d.id, reason: "тест" })) });
+P = await posts();
+ok(r.suppressed === 40 && many.every((d) => P[d.id].status === "suppressed"), "suppress 40 записів за один виклик: усі прибрано");
+const page = await api("export?limit=5&offset=0");
+ok(page.posts.length === 5 && page.more === true && !("context" in page.posts[0]), "export сторінками, без контексту");
+const ev2 = (await api("events")).events;
+ok(!ev2.some((e) => e.kind === "error"), "бюджет вичерпано без помилок у журналі");
 
 console.log(`\nУсі перевірки пройдено: ${passed}`);

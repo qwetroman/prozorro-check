@@ -14,8 +14,14 @@ const LABEL = {
   published: "опубліковано", rejected: "відхилено", suppressed: "приховано", expired: "прострочено", failed: "помилка",
 };
 
+// Безкоштовний тариф Cloudflare: не більше 50 зовнішніх запитів (fetch) на один виклик Worker.
+// Кожен виклик отримує свій лічильник; коли він вичерпаний, необов'язкова робота переноситься на наступний раз.
+const BUDGET = 45;
+const withBudget = (env) => ({ ...env, budget: { left: BUDGET } });
+
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, rawEnv, ctx) {
+    const env = withBudget(rawEnv);
     const url = new URL(request.url);
     try {
       if (url.pathname === "/tg/hook" && request.method === "POST") return await webhook(request, env, ctx);
@@ -28,7 +34,7 @@ export default {
     }
   },
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(tick(env));
+    ctx.waitUntil(tick(withBudget(env)));
   },
 };
 
@@ -107,8 +113,11 @@ async function logEvent(env, kind, { update_id = null, post_id = null, user_id =
 }
 
 // ------------------------------------------------------------------ Telegram
+class BudgetError extends Error {}
+
 async function tg(env, method, params) {
   for (let attempt = 0; attempt < 2; attempt++) {
+    if (env.budget && env.budget.left-- <= 0) throw new BudgetError("бюджет запитів вичерпано");
     const r = await fetch(`${cfg(env).tgApi}/bot${env.TG_BOT_TOKEN}/${method}`, {
       method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(params),
     });
@@ -370,9 +379,10 @@ async function fillWindow(env) {
   const shown = (await one(env, `SELECT COUNT(*) AS n FROM posts WHERE status IN ('in_review','awaiting_edit')`)).n;
   let need = c.window - shown;
   if (need <= 0) return 0;
-  const rows = await all(env, "SELECT * FROM posts WHERE status='queued' ORDER BY skips, priority DESC, created_at DESC, id LIMIT ?", need);
+  const rows = await all(env, `SELECT * FROM posts WHERE status='queued' ORDER BY skips, priority DESC, created_at DESC, id LIMIT ${need | 0}`);
   let sent = 0;
   for (const p of rows) {
+    if (env.budget && env.budget.left < 4) break;
     // «бронюємо» чернетку, щоб два одночасні виклики не надіслали її двічі
     const claim = await run(env, "UPDATE posts SET status='in_review', review_sent_at=? WHERE id=? AND status='queued'", nowIso(), p.id);
     if (!claim.meta.changes) continue;
@@ -384,7 +394,7 @@ async function fillWindow(env) {
       sent++;
     } catch (e) {
       await run(env, "UPDATE posts SET status='queued', review_sent_at=NULL WHERE id=?", p.id);
-      await logEvent(env, "error", { post_id: p.id, data: `надсилання чернетки: ${e.message}` });
+      if (!(e instanceof BudgetError)) await logEvent(env, "error", { post_id: p.id, data: `надсилання чернетки: ${e.message}` });
       break;
     }
   }
@@ -393,26 +403,28 @@ async function fillWindow(env) {
 
 // ------------------------------------------------------------------ розклад (cron)
 async function tick(env) {
-  const steps = [expire, refreshOld, fillWindow, publishChannel, updateSchedule, weeklyDigest, pruneEvents];
+  const steps = [publishChannel, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, pruneEvents];
   for (const f of steps) {
-    try { await f(env); } catch (e) { await logEvent(env, "error", { data: `${f.name}: ${e.stack || e}` }); }
+    try { await f(env); } catch (e) {
+      if (!(e instanceof BudgetError)) await logEvent(env, "error", { data: `${f.name}: ${e.stack || e}` });
+    }
   }
   await meta(env, "last_tick", nowIso());
 }
 
 async function expire(env) {
   const cut = new Date(Date.now() - cfg(env).expireDays * 86400000).toISOString();
-  const old = await all(env, "SELECT id, review_msg_id FROM posts WHERE status IN ('queued','in_review') AND created_at < ?", cut);
+  const old = await all(env, "SELECT id, review_msg_id FROM posts WHERE status IN ('queued','in_review') AND created_at < ? LIMIT 200", cut);
   for (const p of old) {
     await run(env, "UPDATE posts SET status='expired', review_msg_id=NULL WHERE id=?", p.id);
-    await dropMessage(env, p.review_msg_id, "<b>⌛ Прострочено</b>");
+    if (env.budget.left > 4) await dropMessage(env, p.review_msg_id, "<b>⌛ Прострочено</b>");
   }
 }
 
 async function refreshOld(env) {
   // Telegram дозволяє видаляти повідомлення лише 48 год: чернетку, що висить ~44 год, надсилаємо заново
   const cut = new Date(Date.now() - 44 * 3600000).toISOString();
-  const rows = await all(env, "SELECT * FROM posts WHERE status='in_review' AND review_sent_at < ? LIMIT 10", cut);
+  const rows = await all(env, "SELECT * FROM posts WHERE status='in_review' AND review_sent_at < ? LIMIT 6", cut);
   for (const p of rows) {
     const res = await tg(env, "sendMessage", { chat_id: reviewChat(env), text: reviewHtml(env, p), parse_mode: "HTML",
       disable_web_page_preview: true, reply_markup: buttons(p.id), disable_notification: true });
@@ -540,8 +552,14 @@ async function api(request, env, url) {
     return json({ ok: true, webhook: await tg(env, "getWebhookInfo", {}) });
   }
   if (path === "export") {
-    return json({ ok: true, posts: await all(env, "SELECT * FROM posts ORDER BY id"),
-      meta: Object.fromEntries((await all(env, "SELECT k, v FROM meta")).map((r) => [r.k, r.v])) });
+    // сторінками (ліміт CPU безкоштовного тарифу); контекст - лише з full=1
+    const offset = int(url.searchParams.get("offset"), 0), limit = Math.min(int(url.searchParams.get("limit"), 200), 500);
+    const cols = url.searchParams.get("full") === "1" ? "*"
+      : "id, kind, status, text_x, text_tg, features, priority, skips, edited, created_at, review_msg_id, review_sent_at, "
+        + "decided_at, decided_by, x_sent_at, channel_msg_id, channel_at, note";
+    const posts = await all(env, `SELECT ${cols} FROM posts ORDER BY id LIMIT ${limit | 0} OFFSET ${Math.max(0, offset | 0)}`);
+    return json({ ok: true, posts, more: posts.length === limit,
+      meta: offset ? undefined : Object.fromEntries((await all(env, "SELECT k, v FROM meta")).map((r) => [r.k, r.v])) });
   }
   if (path === "events") {
     const since = url.searchParams.get("since") || new Date(Date.now() - 86400000).toISOString();
@@ -566,7 +584,7 @@ async function api(request, env, url) {
       if (!p) continue;
       if (["queued", ...ACTIVE].includes(p.status)) {
         await run(env, "UPDATE posts SET status='suppressed', note=?, review_msg_id=NULL WHERE id=?", it.reason ?? null, p.id);
-        await dropMessage(env, p.review_msg_id, `<b>🚫 Прибрано: ${esc(it.reason || "")}</b>`);
+        if (env.budget.left > 10) await dropMessage(env, p.review_msg_id, `<b>🚫 Прибрано: ${esc(it.reason || "")}</b>`);
         n++;
       } else if (p.status === "approved" && !p.channel_msg_id && it.channel) {
         await run(env, "UPDATE posts SET status='published', channel_msg_id=-1, note=? WHERE id=?", it.reason ?? null, p.id);
