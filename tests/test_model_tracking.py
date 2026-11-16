@@ -41,3 +41,12 @@ def test_switch_to_checkpoint_when_live_model_degrades(tmp_path):
     r = PM.track(str(tmp_path), model(70, 0.70, "2026-11-12T14:00:00+00:00"), D + new, shadow)
     assert r["alert_now"] is False and r["alerted"] is True                 # попередження - лише раз
     assert json.load(open(tmp_path / "model_report.json"))["use"] == r["use"]
+
+
+def test_random_picks_scored_separately(tmp_path):
+    D = [dec(i, i % 2, 5) for i in range(40)]
+    shadow = [{"tender_id": d["tender_id"], "p_approve": 0.9 if d["label"] else 0.1, "scored_at": "2026-11-04T00:00:00+00:00"}
+              for d in D]
+    r = PM.track(str(tmp_path), model(40, 0.8), D, shadow, random_ids={f"T{i}" for i in range(10)})
+    assert r["live_random"]["n"] == 10 and r["live_random"]["auc"] == 1.0
+    assert "Випадкові з нижчих (🎲)" in r["text"]

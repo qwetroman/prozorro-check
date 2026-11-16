@@ -200,7 +200,7 @@ def quality(scores, labels):
 
 
 # ------------------------------------------------------------------ прогрес, знімки, порівняння
-def track(state_dir, model, decisions, shadow):
+def track(state_dir, model, decisions, shadow, random_ids=frozenset()):
     """Історія якості, знімки на найкращих результатах, порівняння найкращого знімка з поточною моделлю."""
     hist_path = os.path.join(state_dir, "model_history.jsonl")
     ck_dir = os.path.join(state_dir, "checkpoints")
@@ -218,8 +218,13 @@ def track(state_dir, model, decisions, shadow):
     live_all = quality([p for p, _, _ in live], [t for _, t, _ in live])
     recent = sorted(live, key=lambda x: x[2])[-30:]
     live_recent = quality([p for p, _, _ in recent], [t for _, t, _ in recent])
+    # випадкові з нижчих у черзі (🎲): єдина вибірка, не звужена самою моделлю
+    rnd = [(s["p_approve"], by_id[s["tender_id"]]["label"]) for s in shadow
+           if s["tender_id"] in random_ids and s["tender_id"] in by_id
+           and s["scored_at"] < (by_id[s["tender_id"]]["decided_at"] or "9")]
+    live_random = quality([p for p, _ in rnd], [t for _, t in rnd])
     append_jsonl(hist_path, [{"trained_at": model["trained_at"], "n": model["n"], "cv": model["metrics"],
-                              "live": live_all, "live_last30": live_recent}])
+                              "live": live_all, "live_last30": live_recent, "live_random": live_random}])
 
     # знімок, коли модель досягла нового найкращого результату (за AUC перехресної перевірки)
     cps = sorted(read_jsonl_dir(ck_dir), key=lambda c: c["metrics"]["cv_auc"] or 0)
@@ -235,6 +240,7 @@ def track(state_dir, model, decisions, shadow):
 
     # порівняння: найкращий знімок vs поточна (жива) модель на рішеннях, ухвалених ПІСЛЯ знімка
     report = {"updated_at": now(), "n": model["n"], "cv": m, "live": live_all, "live_last30": live_recent,
+              "live_random": live_random,
               "best": None, "compare": None, "use": "current", "alerted": prev.get("alerted", False)}
     if best:
         report["best"] = {k: best[k] for k in ("file", "trained_at", "n", "metrics")}
@@ -278,6 +284,11 @@ def report_text(r):
         lines.append(f"Перехресна перевірка: {r['cv']['cv_accuracy']:.0%}, AUC {r['cv']['cv_auc']} (базова {r['cv']['baseline_accuracy']:.0%})")
     if r["live"]:
         lines.append(f"Прогнози до рішення: {pct(r['live'])} на {r['live']['n']}; останні {r['live_last30']['n']}: {pct(r['live_last30'])}")
+    if r.get("live_random"):
+        lr = r["live_random"]
+        lines.append(f"Випадкові з нижчих (🎲): {pct(lr)} на {lr['n']}" + (" - ще замало для висновку" if lr["n"] < 20 else ""))
+    else:
+        lines.append("Випадкові з нижчих (🎲): рішень ще немає")
     if r["best"]:
         b = r["best"]
         lines.append(f"Найкращий знімок: n={b['n']}, AUC {b['metrics']['cv_auc']} ({b['trained_at'][:10]})")
@@ -365,7 +376,10 @@ def run(args):
 
     # 4) прогрес, знімки, порівняння
     if model["weights"]:
-        track(args.state, model, decisions, read_jsonl(shadow_path))
+        rnd = set()
+        if "pick" in cols:
+            rnd = {r[0] for r in con.execute("SELECT tender_id FROM posts WHERE pick='random'")}
+        track(args.state, model, decisions, read_jsonl(shadow_path), rnd)
 
 
 def main():

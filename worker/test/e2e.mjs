@@ -207,6 +207,20 @@ const ev = (await api("events")).events;
 ok(ev.filter((e) => e.kind === "click").length === 8, `журнал подій: натискань ${ev.filter((e) => e.kind === "click").length}`);
 ok(!ev.some((e) => e.kind === "error"), "без помилок у журналі");
 
+// 13б. кожна 5-та чернетка - випадкова з нижчих у черзі (поза першими 20), позначена 🎲
+const pool = Array.from({ length: 40 }, (_, i) => ({ id: `UA-2026-09-30-${String(700 + i).padStart(6, "0")}-a`,
+  text_x: `пул ${i}`, context: "", priority: 1000 + i }));
+await api("drafts", { drafts: pool });
+await reset();
+await message("/next");
+await message("/next");
+cs = await calls();
+P = await posts();
+const rnds = Object.values(P).filter((p) => p.pick === "random");
+ok(rnds.length >= 2 && rnds.every((p) => p.priority < 1020), `🎲: випадкові з нижчих (${rnds.length}), не з верхніх 20`);
+ok(of(cs, "sendMessage").filter((c) => c.params.text.includes("🎲")).length === rnds.length, "🎲: позначка в повідомленні");
+ok(pool.filter((d) => P[d.id].pick === "top").every((d) => d.priority >= 1020), "решта - за пріоритетом");
+
 // 14. бюджет запитів: велика партія не ламає виклик (безкоштовний тариф - 50 зовнішніх запитів)
 const many = Array.from({ length: 40 }, (_, i) => ({ id: `UA-2026-10-01-${String(500 + i).padStart(6, "0")}-a`,
   text_x: `масова ${i}`, context: "", priority: 100 + i }));

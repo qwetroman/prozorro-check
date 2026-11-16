@@ -38,7 +38,7 @@ from .texts import compose, compose_pattern, context, pattern_context  # noqa: E
 DRY = False
 TEXT_VERSION = "2"     # підвищити, коли змінюються правила текстів: усі тексти буде перебудовано один раз
 MIRROR = """CREATE TABLE posts (tender_id TEXT PRIMARY KEY, status TEXT, approved_at TEXT, kind TEXT, features TEXT,
-  text_x TEXT, text_tg TEXT, edited INTEGER, channel_msg_id INTEGER, created TEXT, model_p REAL, priority REAL, money REAL)"""
+  text_x TEXT, text_tg TEXT, edited INTEGER, channel_msg_id INTEGER, created TEXT, model_p REAL, priority REAL, money REAL, pick TEXT)"""
 WAITING = ("queued", "in_review", "awaiting_edit")
 
 
@@ -77,9 +77,9 @@ def cmd_sync(con, args):
     # у статусах моделі: усе, що чекає рішення, - in_review
     con.execute("DROP TABLE IF EXISTS posts")
     con.execute(MIRROR)
-    con.executemany("INSERT INTO posts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [
+    con.executemany("INSERT INTO posts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [
         (p["id"], "in_review" if p["status"] in WAITING else p["status"], p["decided_at"], p["kind"], p["features"],
-         p["text_x"], p["text_tg"], p["edited"], p["channel_msg_id"], p["created_at"], p.get("model_p"), p.get("priority"), p.get("money"))
+         p["text_x"], p["text_tg"], p["edited"], p["channel_msg_id"], p["created_at"], p.get("model_p"), p.get("priority"), p.get("money"), p.get("pick"))
         for p in posts])
     con.commit()
     os.makedirs(os.path.dirname(args.backup) or ".", exist_ok=True)

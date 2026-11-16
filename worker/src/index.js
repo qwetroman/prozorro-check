@@ -43,6 +43,7 @@ export default {
 // ------------------------------------------------------------------ налаштування
 const cfg = (env) => ({
   window: int(env.REVIEW_WINDOW, 8),             // скільки чернеток одночасно в чаті
+  randomEvery: int(env.RANDOM_EVERY, 5),         // кожна N-та чернетка - випадкова з нижчих у черзі (0 = вимкнено)
   expireDays: int(env.EXPIRE_DAYS, 30),          // чернетка без рішення стільки днів - прострочена
   channelMinutes: int(env.CHANNEL_MINUTES, 60),
   quiet: [int(env.QUIET_FROM, 23), int(env.QUIET_TO, 8)],
@@ -55,7 +56,7 @@ const cfg = (env) => ({
   registry: env.REGISTRY_URL || "https://opendatabot.ua/c/",
   tgApi: env.TG_API || "https://api.telegram.org",
 });
-const int = (v, d) => (v === undefined || v === "" ? d : parseInt(v, 10));
+const int = (v, d) => { const n = parseInt(v, 10); return Number.isNaN(n) ? d : n; };
 const nowIso = () => new Date().toISOString();
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -171,7 +172,8 @@ function reviewHtml(env, p, status) {
   const extra = (full || "").split("\n").filter((x) => x && !mine.has(x));
   const title = c.postToX ? `Чернетка для X</b> (${weightedLen(text)}/280)` : "Чернетка для Telegram-каналу</b>";
   const chance = p.model_p === null || p.model_p === undefined ? "" : `🤖 Шанс схвалення (модель): ${Math.round(p.model_p * 100)}%\n`;
-  const head = `<b>${p.kind === "explore" ? "🧪 " : ""}${title}\n${chance}<blockquote>${tgHtml(env, text)}</blockquote>\n`
+  const rnd = p.pick === "random" ? "🎲 Випадкова з нижчих у черзі - для чесної перевірки моделі\n" : "";
+  const head = `<b>${p.kind === "explore" ? "🧪 " : ""}${title}\n${rnd}${chance}<blockquote>${tgHtml(env, text)}</blockquote>\n`
     + (extra.length ? `<b>Лише в Telegram-каналі:</b>\n${extra.map((x) => tgHtml(env, x)).join("\n")}\n` : "");
   const tail = (p.id.startsWith("PAT-") ? "" : `\n${PORTAL}${p.id}`) + (status ? `\n\n<b>${esc(status)}</b>` : "");
   const room = 4000 - head.length - tail.length - 30;
@@ -315,7 +317,7 @@ async function onClick(env, q) {
     await answer(env, q, "❌ Відхилено");
     await dropMessage(env, mid, "<b>❌ Відхилено</b>");
   } else if (action === "sk") {
-    await run(env, "UPDATE posts SET status='queued', skips=skips+1, review_msg_id=NULL, review_sent_at=NULL WHERE id=?", id);
+    await run(env, "UPDATE posts SET status='queued', skips=skips+1, review_msg_id=NULL, review_sent_at=NULL, pick=NULL WHERE id=?", id);
     await answer(env, q, "⏭ Відкладено, покажу пізніше");
     await dropMessage(env, mid, "<b>⏭ Відкладено</b>");
   } else if (action === "ed") {
@@ -429,27 +431,43 @@ async function verifyIfDue(env) {
   if (!last || new Date(last).getTime() < Date.now() - 30 * 60000) await verifyShown(env);
 }
 
+const TOP_SQL = "SELECT * FROM posts WHERE status='queued' ORDER BY skips, priority DESC, created_at DESC, id";
+
+async function nextDraft(env, random) {
+  // random: випадкова чернетка не з верхівки черги (поза першими 20) - щоб модель бачила й те, що їй «не подобається»
+  if (random) {
+    const p = await one(env, `SELECT * FROM posts WHERE status='queued' AND id NOT IN (SELECT id FROM (${TOP_SQL} LIMIT 20))
+      ORDER BY RANDOM() LIMIT 1`);
+    if (p) return { ...p, pick: "random" };
+  }
+  const p = await one(env, `${TOP_SQL} LIMIT 1`);
+  return p && { ...p, pick: "top" };
+}
+
 async function fillWindow(env, extra = 0) {
-  // extra: стільки чернеток понад вікно (команда /next)
+  // extra: стільки чернеток понад вікно (команда /next); кожна RANDOM_EVERY-та - випадкова з нижчих
   const c = cfg(env);
   const shown = (await one(env, `SELECT COUNT(*) AS n FROM posts WHERE status IN ('in_review','awaiting_edit')`)).n;
-  let need = Math.max(c.window - shown, 0) + extra;
-  if (need <= 0) return 0;
-  const rows = await all(env, `SELECT * FROM posts WHERE status='queued' ORDER BY skips, priority DESC, created_at DESC, id LIMIT ${need | 0}`);
+  const need = Math.max(c.window - shown, 0) + extra;
   let sent = 0;
-  for (const p of rows) {
+  for (let i = 0; i < need; i++) {
     if (env.budget && env.budget.left < 4) break;
+    const n = int(await meta(env, "fill_n"), 0);
+    const p = await nextDraft(env, c.randomEvery > 0 && n % c.randomEvery === c.randomEvery - 1);
+    if (!p) break;
     // «бронюємо» чернетку, щоб два одночасні виклики не надіслали її двічі
-    const claim = await run(env, "UPDATE posts SET status='in_review', review_sent_at=? WHERE id=? AND status='queued'", nowIso(), p.id);
+    const claim = await run(env, "UPDATE posts SET status='in_review', review_sent_at=?, pick=? WHERE id=? AND status='queued'",
+      nowIso(), p.pick, p.id);
     if (!claim.meta.changes) continue;
     try {
       const res = await tg(env, "sendMessage", { chat_id: reviewChat(env), text: reviewHtml(env, p), parse_mode: "HTML",
         disable_web_page_preview: true, reply_markup: buttons(p.id), disable_notification: shown + sent > 0 });
       await run(env, "UPDATE posts SET review_msg_id=? WHERE id=?", res.message_id, p.id);
+      await meta(env, "fill_n", n + 1);
       if (p.review_msg_id) await dropMessage(env, p.review_msg_id);   // стара копія (напр. перенесена зі старого бота)
       sent++;
     } catch (e) {
-      await run(env, "UPDATE posts SET status='queued', review_sent_at=NULL WHERE id=?", p.id);
+      await run(env, "UPDATE posts SET status='queued', review_sent_at=NULL, pick=NULL WHERE id=?", p.id);
       if (!(e instanceof BudgetError)) await logEvent(env, "error", { post_id: p.id, data: `надсилання чернетки: ${e.message}` });
       break;
     }
@@ -664,7 +682,7 @@ async function api(request, env, url) {
     const offset = int(url.searchParams.get("offset"), 0), limit = Math.min(int(url.searchParams.get("limit"), 200), 500);
     const cols = url.searchParams.get("full") === "1" ? "*"
       : "id, kind, status, text_x, text_tg, features, priority, skips, edited, created_at, review_msg_id, review_sent_at, "
-        + "decided_at, decided_by, x_sent_at, x_id, x_posted_at, channel_msg_id, channel_at, note, model_p, money";
+        + "decided_at, decided_by, x_sent_at, x_id, x_posted_at, channel_msg_id, channel_at, note, model_p, money, pick";
     const posts = await all(env, `SELECT ${cols} FROM posts ORDER BY id LIMIT ${limit | 0} OFFSET ${Math.max(0, offset | 0)}`);
     return json({ ok: true, posts, more: posts.length === limit,
       meta: offset ? undefined : Object.fromEntries((await all(env, "SELECT k, v FROM meta")).map((r) => [r.k, r.v])) });
