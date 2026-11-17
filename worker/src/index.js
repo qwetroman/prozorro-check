@@ -271,7 +271,6 @@ async function webhook(request, env, ctx) {
   } catch (e) {
     await logEvent(env, "error", { data: `update ${u.update_id}: ${e.stack || e}` });
   }
-  ctx.waitUntil(fillWindow(env).catch((e) => logEvent(env, "error", { data: `fillWindow: ${e.stack || e}` })));
   return json({ ok: true });
 }
 
@@ -332,6 +331,12 @@ async function onClick(env, q) {
     return answer(env, q, "Невідома дія");
   }
   if (other) await dropMessage(env, other);
+  await fillOne(env);
+}
+
+async function fillOne(env) {
+  // після вашого рішення - одна наступна чернетка на місце вирішеної (якщо в чаті їх менше, ніж вікно)
+  try { await fillWindow(env, 0, 1); } catch (e) { await logEvent(env, "error", { data: `fillOne: ${e.stack || e}` }); }
 }
 
 async function onMessage(env, msg) {
@@ -370,21 +375,26 @@ async function onMessage(env, msg) {
   }
   if (cmd === "/queue" || cmd === "/stats") {
     await verifyShown(env);
-    await fillWindow(env);
     return say(env, await statsText(env));
+  }
+  if (cmd === "/clear") {
+    const rows = await all(env, "SELECT id, review_msg_id FROM posts WHERE status='in_review'");
+    for (const p of rows) await sendBack(env, p);
+    return say(env, `↩️ Повернуто в чергу: ${rows.length}. Наступні - з /next.`);
   }
   if (cmd === "/next") {
     await verifyShown(env);
-    // наступна порція одразу, навіть якщо в чаті вже повне вікно
-    const sent = await fillWindow(env, cfg(env).window);
+    // наступна порція одразу, скільки б чернеток уже не було в чаті
+    const sent = await fillWindow(env, cfg(env).window, cfg(env).window);
     const left = (await one(env, "SELECT COUNT(*) AS n FROM posts WHERE status='queued'")).n;
     return say(env, sent ? `Надіслано ще ${sent}. У черзі лишилось ${left}.` : `Черга порожня: нових чернеток немає.`);
   }
   if (cmd === "/model") return say(env, (await meta(env, "model_report")) || "Звіту моделі ще немає.");
   if (cmd === "/start" || cmd === "/help") {
     return say(env, "Під кожною чернеткою: ✅ опублікувати, ✏️ редагувати, ❌ відхилити, ⏭ пізніше.\n"
-      + `У чаті одночасно до ${cfg(env).window} чернеток; щойно ви вирішите одну, приходить наступна.\n`
-      + "/queue - стан черги, /next - ще порція чернеток, /model - як справи в моделі, /pause і /resume - публікація в канал.");
+      + `Чернетки приходять лише за запитом: /next - ${cfg(env).window} наступних; щойно ви вирішите одну, приходить наступна.\n`
+      + "/queue - стан черги, /next - ще порція, /clear - прибрати чернетки з чату назад у чергу, /model - як справи в моделі, "
+      + "/pause і /resume - публікація в канал.");
   }
 }
 const say = (env, text) => tg(env, "sendMessage", { chat_id: reviewChat(env), text, disable_web_page_preview: true });
@@ -444,11 +454,11 @@ async function nextDraft(env, random) {
   return p && { ...p, pick: "top" };
 }
 
-async function fillWindow(env, extra = 0) {
-  // extra: стільки чернеток понад вікно (команда /next); кожна RANDOM_EVERY-та - випадкова з нижчих
+async function fillWindow(env, extra = 0, cap = Infinity) {
+  // до вікна + extra (для /next - ціла порція), але не більше cap; кожна RANDOM_EVERY-та - випадкова з нижчих
   const c = cfg(env);
   const shown = (await one(env, `SELECT COUNT(*) AS n FROM posts WHERE status IN ('in_review','awaiting_edit')`)).n;
-  const need = Math.max(c.window - shown, 0) + extra;
+  const need = Math.min(Math.max(c.window - shown, 0) + extra, cap);
   let sent = 0;
   for (let i = 0; i < need; i++) {
     if (env.budget && env.budget.left < 4) break;
@@ -477,7 +487,8 @@ async function fillWindow(env, extra = 0) {
 
 // ------------------------------------------------------------------ розклад (cron)
 async function tick(env) {
-  const steps = [publishX, publishChannel, verifyIfDue, fillWindow, updateSchedule, weeklyDigest, refreshOld, expire, addPostedButtons, pruneEvents];
+  // чернетки в чат сам таймер не надсилає: лише ваші дії (рішення, /next)
+  const steps = [publishX, publishChannel, clearOnce, verifyIfDue, requeueOld, updateSchedule, weeklyDigest, expire, addPostedButtons, pruneEvents];
   for (const f of steps) {
     try { await f(env); } catch (e) {
       if (!(e instanceof BudgetError)) await logEvent(env, "error", { data: `${f.name}: ${e.stack || e}` });
@@ -510,16 +521,28 @@ async function expire(env) {
   }
 }
 
-async function refreshOld(env) {
-  // Telegram дозволяє видаляти повідомлення лише 48 год: чернетку, що висить ~44 год, надсилаємо заново
+async function requeueOld(env) {
+  // Telegram дозволяє видаляти повідомлення лише 48 год: чернетку, що висить ~44 год без рішення,
+  // прибираємо з чату й повертаємо на початок черги - прийде знову з /next
   const cut = new Date(Date.now() - 44 * 3600000).toISOString();
-  const rows = await all(env, "SELECT * FROM posts WHERE status='in_review' AND review_sent_at < ? LIMIT 6", cut);
+  const rows = await all(env, "SELECT id, review_msg_id FROM posts WHERE status='in_review' AND review_sent_at < ? LIMIT 15", cut);
+  for (const p of rows) await sendBack(env, p);
+}
+
+async function sendBack(env, p) {
+  await run(env, "UPDATE posts SET status='queued', review_msg_id=NULL, review_sent_at=NULL, pick=NULL WHERE id=? AND status='in_review'", p.id);
+  if (p.review_msg_id && env.budget.left > 2) await dropMessage(env, p.review_msg_id, "<b>↩️ Повернуто в чергу</b>");
+}
+
+async function clearOnce(env) {
+  // одноразово після переходу на «лише за запитом»: прибрати з чату все, що там зараз
+  if ((await meta(env, "cleared_v1")) === "1") return;
+  const rows = await all(env, "SELECT id, review_msg_id FROM posts WHERE status='in_review'");
   for (const p of rows) {
-    const res = await tg(env, "sendMessage", { chat_id: reviewChat(env), text: reviewHtml(env, p), parse_mode: "HTML",
-      disable_web_page_preview: true, reply_markup: buttons(p.id), disable_notification: true });
-    await quietly(tg(env, "deleteMessage", { chat_id: reviewChat(env), message_id: p.review_msg_id }));
-    await run(env, "UPDATE posts SET review_msg_id=?, review_sent_at=? WHERE id=?", res.message_id, nowIso(), p.id);
+    if (env.budget.left < 4) return;
+    await sendBack(env, p);
   }
+  await meta(env, "cleared_v1", "1");
 }
 
 async function publishX(env) {
@@ -672,6 +695,7 @@ async function api(request, env, url) {
       max_connections: 5 });
     await quietly(tg(env, "setMyCommands", { commands: [
       { command: "queue", description: "стан черги" }, { command: "next", description: "ще порція чернеток" },
+      { command: "clear", description: "прибрати чернетки з чату назад у чергу" },
       { command: "model", description: "якість моделі" }, { command: "pause", description: "призупинити канал" }, { command: "resume", description: "відновити канал" },
       { command: "help", description: "довідка" }] }));
     await logEvent(env, "info", { data: `вебхук: ${hook}` });
@@ -700,8 +724,7 @@ async function api(request, env, url) {
       d.text_x, d.text_tg ?? null, d.context ?? null, d.features ? JSON.stringify(d.features) : null, d.priority ?? 0, t,
       d.model_p ?? null, d.money ?? null))) : [];
     const added = res.reduce((n, r) => n + r.meta.changes, 0);
-    const sent = await fillWindow(env);
-    return json({ ok: true, added, sent });
+    return json({ ok: true, added, sent: 0 });
   }
   if (path === "suppress") {
     // прибрати з перевірки/черги (військові, зниклі сигнали); вже опубліковане в канал не чіпаємо
@@ -718,7 +741,6 @@ async function api(request, env, url) {
         n++;
       }
     }
-    await fillWindow(env);
     return json({ ok: true, suppressed: n });
   }
   if (path === "texts") {

@@ -14,6 +14,8 @@ const quiet = (() => { const h = +new Intl.DateTimeFormat("en-GB", { timeZone: "
 
 const id = "UA-2026-11-14-000777-a";
 await api("drafts", { drafts: [{ id, text_x: "Допис для X через API.\nСигнал ризику, не доказ порушення.", context: "к", priority: 9 }] });
+await fetch(`${W}/tg/hook`, { method: "POST", headers: { "content-type": "application/json", "X-Telegram-Bot-Api-Secret-Token": HOOK },
+  body: JSON.stringify({ update_id: 0, message: { message_id: 1, from: { id: ADMIN }, chat: { id: ADMIN }, text: "/next" } }) });
 let P = await posts();
 await fetch(`${W}/tg/hook`, { method: "POST", headers: { "content-type": "application/json", "X-Telegram-Bot-Api-Secret-Token": HOOK },
   body: JSON.stringify({ update_id: 1, callback_query: { id: "c1", from: { id: ADMIN }, data: `ok:${id}`, message: { message_id: P[id].review_msg_id } } }) });
