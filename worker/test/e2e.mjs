@@ -28,13 +28,14 @@ const of = (cs, m) => cs.filter((c) => c.method === m);
 let passed = 0;
 const ok = (cond, msg) => { assert.ok(cond, msg); passed++; console.log("  ✓", msg); };
 
-// 1. 12 чернеток -> у чаті 8, решта в черзі (найважливіші першими)
+// 1. 12 чернеток -> самі не надсилаються; /next - 8 найважливіших, решта в черзі
 await reset();
 const drafts = Array.from({ length: 12 }, (_, i) => ({ id: `UA-2026-11-${10 + i}-${String(i).padStart(6, "0")}-a`, kind: "tender",
   text_x: `Замовник ${i}: предмет, 1,0 млн грн.\nСигнал ризику, не доказ порушення.`, text_tg: null,
   context: `контекст ${i}`, priority: i, features: { i } }));
 let r = await api("drafts", { drafts });
-ok(r.added === 12 && r.sent === 8, `чернетки: додано ${r.added}, надіслано ${r.sent}`);
+ok(r.added === 12 && r.sent === 0 && of(await calls(), "sendMessage").length === 0, "чернетки: додано 12, у чат нічого без запиту");
+await message("/next");
 let P = await posts();
 ok(Object.values(P).filter((p) => p.status === "in_review").length === 8, "8 на перевірці");
 ok(P["UA-2026-11-21-000011-a"].status === "in_review" && P["UA-2026-11-10-000000-a"].status === "queued", "спершу вищий пріоритет");
@@ -144,6 +145,9 @@ if (quiet) {
   ok(!of(await calls(), "sendMessage").some((c) => c.params.chat_id === "@test_channel"), "канал: не частіше ніж раз на годину");
 }
 ok(of(cs, "pinChatMessage").length === 1, "«Розклад» надіслано й закріплено");
+ok(Object.values(P).filter((p) => p.status === "in_review").length === 0, "одноразово: чернетки з чату повернуто в чергу");
+ok(!of(cs, "sendMessage").some((c) => c.params.reply_markup?.inline_keyboard?.[0]?.[0]?.callback_data?.startsWith("ok:")),
+  "таймер сам чернеток не надсилає");
 await reset();
 await api("tick", {});
 ok(of(await calls(), "pinChatMessage").length === 0, "«Розклад» не змінився - нічого не надсилається");
@@ -154,7 +158,8 @@ await message("/queue");
 cs = await calls();
 ok(/У чаті на перевірці/.test(of(cs, "sendMessage")[0].params.text), "/queue відповідає станом черги");
 
-// 11а. користувач сам видалив чернетки з чату: /queue помічає це й надсилає їх знову
+// 11а. користувач сам видалив чернетки з чату: /queue помічає це й повертає їх у чергу (без надсилання)
+await message("/next");
 P = await posts();
 const shownNow = Object.values(P).filter((p) => p.status === "in_review" && p.review_msg_id);
 await fetch(`${TG}/__user_delete`, { method: "POST", body: JSON.stringify(shownNow.map((p) => p.review_msg_id)) });
@@ -162,12 +167,22 @@ await reset();
 await message("/queue");
 cs = await calls();
 P = await posts();
-const resent = of(cs, "sendMessage").filter((c) => c.params.reply_markup?.inline_keyboard).length;
-ok(resent === shownNow.length && shownNow.every((p) => P[p.id].review_msg_id && P[p.id].review_msg_id !== p.review_msg_id),
-  `видалені вручну чернетки (${shownNow.length}) надіслано знову`);
+ok(shownNow.length > 0 && shownNow.every((p) => P[p.id].status === "queued" && !P[p.id].review_msg_id)
+  && of(cs, "sendMessage").filter((c) => c.params.reply_markup?.inline_keyboard).length === 0,
+  `видалені вручну чернетки (${shownNow.length}) повернуто в чергу, без надсилання`);
 await reset();
-await message("/queue");
-ok(of(await calls(), "sendMessage").filter((c) => c.params.reply_markup?.inline_keyboard).length === 0, "наявні чернетки вдруге не надсилаються");
+await message("/next");
+P = await posts();
+ok(shownNow.every((p) => P[p.id].status === "in_review" && P[p.id].review_msg_id), "з /next вони приходять знову першими");
+
+// 11в. /clear - усе з чату назад у чергу
+await reset();
+const before11 = Object.values(P).filter((p) => p.status === "in_review").length;
+await message("/clear");
+P = await posts();
+cs = await calls();
+ok(Object.values(P).filter((p) => p.status === "in_review").length === 0 && of(cs, "deleteMessage").length === before11,
+  `/clear: повернуто ${before11}, повідомлення видалено`);
 
 // 11б. /next: наступна порція навіть при повному вікні
 await reset();
