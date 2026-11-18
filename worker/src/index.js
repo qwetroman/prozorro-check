@@ -331,12 +331,6 @@ async function onClick(env, q) {
     return answer(env, q, "Невідома дія");
   }
   if (other) await dropMessage(env, other);
-  await fillOne(env);
-}
-
-async function fillOne(env) {
-  // після вашого рішення - одна наступна чернетка на місце вирішеної (якщо в чаті їх менше, ніж вікно)
-  try { await fillWindow(env, 0, 1); } catch (e) { await logEvent(env, "error", { data: `fillOne: ${e.stack || e}` }); }
 }
 
 async function onMessage(env, msg) {
@@ -392,7 +386,7 @@ async function onMessage(env, msg) {
   if (cmd === "/model") return say(env, (await meta(env, "model_report")) || "Звіту моделі ще немає.");
   if (cmd === "/start" || cmd === "/help") {
     return say(env, "Під кожною чернеткою: ✅ опублікувати, ✏️ редагувати, ❌ відхилити, ⏭ пізніше.\n"
-      + `Чернетки приходять лише за запитом: /next - ${cfg(env).window} наступних; щойно ви вирішите одну, приходить наступна.\n`
+      + `Чернетки приходять лише з /next - ${cfg(env).window} наступних за раз.\n`
       + "/queue - стан черги, /next - ще порція, /clear - прибрати чернетки з чату назад у чергу, /model - як справи в моделі, "
       + "/pause і /resume - публікація в канал.");
   }
@@ -487,7 +481,7 @@ async function fillWindow(env, extra = 0, cap = Infinity) {
 
 // ------------------------------------------------------------------ розклад (cron)
 async function tick(env) {
-  // чернетки в чат сам таймер не надсилає: лише ваші дії (рішення, /next)
+  // чернетки в чат надсилає лише /next
   const steps = [publishX, publishChannel, clearOnce, verifyIfDue, requeueOld, updateSchedule, weeklyDigest, expire, addPostedButtons, pruneEvents];
   for (const f of steps) {
     try { await f(env); } catch (e) {
