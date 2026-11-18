@@ -56,7 +56,7 @@ ok(P[A].status === "approved" && P[A].decided_by === String(ADMIN), "✅: ста
 ok(of(cs, "answerCallbackQuery").some((c) => /Схвалено/.test(c.params.text)), "✅: Telegram отримав відповідь на натискання");
 const ed = of(cs, "editMessageText").find((c) => c.params.message_id === P[A].review_msg_id);
 ok(ed && ed.params.reply_markup.inline_keyboard[0][0].url.startsWith("https://x.com/intent/post?text="), "✅: кнопка «Відкрити в X» на тому ж повідомленні");
-ok(of(cs, "sendMessage").length === 1, "✅: надіслано наступну чернетку з черги");
+ok(of(cs, "sendMessage").length === 0, "✅: нової чернетки без /next не приходить");
 
 // 3б. «Опубліковано в X» під #ready_to_x: позначає й прибирає повідомлення
 const kbA = ed.params.reply_markup.inline_keyboard;
@@ -89,7 +89,7 @@ await wait(300);
 P = await posts();
 ok(P[S].status === "queued" && P[S].skips === 1, "⏭: назад у черзі");
 cs = await calls();
-ok(of(cs, "sendMessage").every((c) => !c.params.text.includes("контекст 9")), "⏭: замість неї прийшла інша");
+ok(of(cs, "sendMessage").length === 0, "⏭: нової чернетки без /next не приходить");
 
 // 6. ✏️ -> прохання відповісти; відповідь замінює текст
 await reset();
