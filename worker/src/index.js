@@ -52,7 +52,7 @@ const cfg = (env) => ({
   xMinutes: int(env.X_MINUTES, 0),                // X через API: не частіше ніж раз на стільки хвилин (0 = без обмеження)
   xMaxPerDay: int(env.X_MAX_PER_DAY, 0),          // X через API: не більше стільки дописів за 24 год (0 = без обмеження)
   digestHour: int(env.DIGEST_HOUR, 18),
-  hashtags: env.HASHTAGS || "#Prozorro",
+  hashtags: env.HASHTAGS || "#Прозорро + регіон",
   registry: env.REGISTRY_URL || "https://opendatabot.ua/c/",
   tgApi: env.TG_API || "https://api.telegram.org",
 });
@@ -598,7 +598,7 @@ async function scheduleHtml(env) {
   const k = kyiv();
   const lines = [`📅 <b>Розклад публікацій</b> (оновлено ${k.date} ${k.hm} за Києвом)`,
     `Тихі години ${String(a).padStart(2, "0")}:00–${String(b).padStart(2, "0")}:00.`,
-    `Хештеги: #ready_to_x (готові до публікації в X) · ${esc(c.hashtags)} (у кожному дописі)`];
+    `Хештеги: #ready_to_x (готові до публікації в X) · у дописах ${esc(c.hashtags)} (напр. #Прозорро #Полтавщина)`];
   if ((await meta(env, "paused")) === "1") lines.push("⏸ Публікацію в канал призупинено (/resume, щоб відновити).");
   const cnt = await one(env, "SELECT SUM(status='queued') AS q, SUM(status IN ('in_review','awaiting_edit')) AS r FROM posts");
   lines.push("", `<b>Перевірка:</b> у чаті ${cnt.r || 0}, у черзі ${cnt.q || 0}`);
