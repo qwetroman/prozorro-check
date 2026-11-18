@@ -14,6 +14,7 @@
   "military_delay_days": 14,
   "include_military": false,
   "include_security": false,
-  "hashtags": "#Prozorro",
-  "rank_by_model": true
+  "hashtags": "#Прозорро",
+  "rank_by_model": true,
+  "hashtag_fallback": "#держзакупівлі"
 }

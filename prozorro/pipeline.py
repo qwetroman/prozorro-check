@@ -36,7 +36,7 @@ from .select import STRONG, candidates  # noqa: E402
 from .texts import compose, compose_pattern, context, pattern_context  # noqa: E402
 
 DRY = False
-TEXT_VERSION = "2"     # підвищити, коли змінюються правила текстів: усі тексти буде перебудовано один раз
+TEXT_VERSION = "3"     # підвищити, коли змінюються правила текстів: усі тексти буде перебудовано один раз
 MIRROR = """CREATE TABLE posts (tender_id TEXT PRIMARY KEY, status TEXT, approved_at TEXT, kind TEXT, features TEXT,
   text_x TEXT, text_tg TEXT, edited INTEGER, channel_msg_id INTEGER, created TEXT, model_p REAL, priority REAL, money REAL, pick TEXT)"""
 WAITING = ("queued", "in_review", "awaiting_edit")
@@ -189,6 +189,16 @@ def fresh_channel_texts(con):
     return out
 
 
+def with_region(con, p):
+    """Закономірність: регіон замовника беремо з будь-якого його тендера в базі (для хештега)."""
+    if not p.get("region") and has_table(con, "tenders"):
+        row = con.execute("SELECT region FROM tenders WHERE buyer_id=? AND region IS NOT NULL AND region<>'' LIMIT 1",
+                          (p.get("buyer_id"),)).fetchone()
+        if row:
+            p["region"] = row[0]
+    return p
+
+
 def build_drafts(con):
     model = load_model()
     have = {r[0] for r in con.execute("SELECT tender_id FROM posts")}
@@ -208,6 +218,7 @@ def build_drafts(con):
     drafts = []
     for kind, r in items:
         if kind == "pattern":
+            with_region(con, r)
             d = {"id": r["key"], "text_x": compose_pattern(r), "text_tg": compose_pattern(r, full=True),
                  "context": pattern_context(r), "features": r["features"],
                  "model_p": model_p(con, model, r["key"], r["features"]), "money": r["money"]}
@@ -283,7 +294,7 @@ def cmd_rewrite(con, args):
     for p in con.execute("SELECT * FROM posts WHERE COALESCE(edited, 0) = 0").fetchall():
         tid, kind = p["tender_id"], p["kind"] or "tender"
         if kind == "pattern":
-            r = pats.get(tid)
+            r = pats.get(tid) and with_region(con, pats[tid])
             new = (compose_pattern(r), compose_pattern(r, full=True)) if r else None
         else:
             rs = candidates(con, only=tid) if has_table(con, "tenders") else []

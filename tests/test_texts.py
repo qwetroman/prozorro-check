@@ -59,3 +59,11 @@ def test_pattern_keeps_one_bid_line():
     t = compose_pattern(p)
     assert weighted_len(t) <= 280 and "У 9 з 14 була лише одна пропозиція." in t
     assert "виконавчого органу Київської міськради" in compose_pattern(p, full=True)
+
+
+def test_hashtags_ukrainian_with_region():
+    t = compose({**BASE, "region": "Полтавська область"})
+    assert t.endswith("#Прозорро #Полтавщина") and weighted_len(t) <= 280
+    assert compose({**BASE, "region": "м. Київ"}, full=True).endswith("#Прозорро #Київ")
+    assert compose({**BASE, "region": None}).endswith("#Прозорро #держзакупівлі")
+    assert compose({**BASE, "region": "Полтавська область", "military": 1}, full=True).endswith("#Прозорро #держзакупівлі")

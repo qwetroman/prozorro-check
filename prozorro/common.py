@@ -24,7 +24,8 @@ CFG = {
     "military_delay_days": 14,          # військові випадки чекають стільки днів після оголошення на Prozorro
     "include_military": False,          # військові замовники / військові CPV: поки повністю вимкнено
     "include_security": False,          # безпекові й правоохоронні замовники (поліція, СБУ, kind=defense): теж вимкнено
-    "hashtags": "#Prozorro",
+    "hashtags": "#Прозорро",            # у кожному дописі; другий хештег - регіон замовника (texts.REGION_TAG)
+    "hashtag_fallback": "#держзакупівлі",  # другий хештег, якщо регіон невідомий
     "rank_by_model": False,             # True = порядок показу чернеток за прогнозом моделі, а не за сумою під ризиком
 }
 if os.path.exists(os.path.join(HERE, "publisher.json")):
